@@ -3,91 +3,87 @@
 ![License](https://img.shields.io/badge/license-MIT-green)
 ![Status](https://img.shields.io/badge/status-early--development-orange)
 ![Version](https://img.shields.io/github/v/tag/Winter-panda/Randogen)
+![Build](https://github.com/Winter-panda/Randogen/actions/workflows/build.yml/badge.svg)
+![Tests](https://github.com/Winter-panda/Randogen/actions/workflows/tests.yml/badge.svg)
 ![Issues](https://img.shields.io/github/issues/Winter-panda/Randogen)
 ![Last commit](https://img.shields.io/github/last-commit/Winter-panda/Randogen)
+![Repo size](https://img.shields.io/github/repo-size/Winter-panda/Randogen)
 
 Générateur intelligent de randonnées et promenades à partir d’une distance cible autour de la position de l’utilisateur.
-
-Randogen permet à un utilisateur de définir **une distance ou une durée**, puis de générer automatiquement **plusieurs parcours possibles autour de sa position**.
-
-Contrairement aux applications de tracking classiques, Randogen ne se contente pas d'enregistrer une activité : il **propose des randonnées adaptées à l’intention de l’utilisateur**.
-
----
-
 # Objectif du projet
 
-Permettre à un utilisateur de répondre rapidement à une question simple :
+Permettre Ã  un utilisateur de rÃ©pondre rapidement Ã  une question simple :
 
-> Quelle randonnée ou promenade puis-je faire maintenant autour de moi ?
+> Quelle randonnÃ©e ou promenade puis-je faire maintenant autour de moi ?
 
-L'application doit être capable de :
+L'application doit Ãªtre capable de :
 
-- récupérer la position GPS
-- générer plusieurs parcours autour de l'utilisateur
+- rÃ©cupÃ©rer la position GPS
+- gÃ©nÃ©rer plusieurs parcours autour de l'utilisateur
 - approcher une distance cible
-- afficher les itinéraires sur une carte
-- proposer des parcours cohérents et agréables
+- afficher les itinÃ©raires sur une carte
+- proposer des parcours cohÃ©rents et agrÃ©ables
 
 ---
 
 # Cas d'utilisation
 
-Exemples de requêtes possibles :
+Exemples de requÃªtes possibles :
 
 - Je veux marcher **5 km**
 - Je veux une **balade de 45 minutes**
 - Je veux une **boucle nature**
-- Je veux éviter les **grosses montées**
+- Je veux Ã©viter les **grosses montÃ©es**
 
-L’application propose ensuite plusieurs itinéraires adaptés.
+Lâ€™application propose ensuite plusieurs itinÃ©raires adaptÃ©s.
 
 ---
 
-# Fonctionnalités prévues
+# FonctionnalitÃ©s prÃ©vues
 
 ## MVP
 
-- géolocalisation utilisateur
+- gÃ©olocalisation utilisateur
 - choix d'une distance cible
-- génération automatique de parcours
-- affichage des itinéraires sur carte
-- distance et durée estimée
-- sélection d’un parcours
+- gÃ©nÃ©ration automatique de parcours
+- affichage des itinÃ©raires sur carte
+- distance et durÃ©e estimÃ©e
+- sÃ©lection dâ€™un parcours
 
-## Évolutions possibles
+## Ã‰volutions possibles
 
-- prise en compte du dénivelé
-- difficulté du parcours
+- prise en compte du dÃ©nivelÃ©
+- difficultÃ© du parcours
 - type de terrain
 - parcours avec chien
-- accessibilité poussette
+- accessibilitÃ© poussette
 - sauvegarde de parcours
 - historique
-- partage d'itinéraires
-- intégration météo
-- points d’intérêt
+- partage d'itinÃ©raires
+- intÃ©gration mÃ©tÃ©o
+- points dâ€™intÃ©rÃªt
 
 ---
 
 # Architecture du projet
 
-Le projet est organisé en plusieurs modules.
+Le projet est organisÃ© en plusieurs modules.
 
 Randogen
-│
-├── frontend
-│
-├── backend
-│
-├── routing-engine
-│
-├── data
-│
-├── docs
-│
-├── scripts
-│
-└── infra
+â”‚
+â”œâ”€â”€ frontend
+â”‚
+â”œâ”€â”€ backend
+â”‚
+â”œâ”€â”€ routing-engine
+â”‚
+â”œâ”€â”€ data
+â”‚
+â”œâ”€â”€ docs
+â”‚
+â”œâ”€â”€ scripts
+â”‚
+â””â”€â”€ infra
 
 
 ---
@@ -96,10 +92,10 @@ Randogen
 
 Application utilisateur.
 
-Responsabilités :
+ResponsabilitÃ©s :
 
 - interface
-- géolocalisation
+- gÃ©olocalisation
 - affichage carte
 - affichage des parcours
 - interaction avec l'API
@@ -110,38 +106,38 @@ Responsabilités :
 
 API applicative.
 
-Responsabilités :
+ResponsabilitÃ©s :
 
-- recevoir les demandes de génération
+- recevoir les demandes de gÃ©nÃ©ration
 - orchestrer le moteur de routage
-- appliquer les règles métier
-- retourner les parcours générés
+- appliquer les rÃ¨gles mÃ©tier
+- retourner les parcours gÃ©nÃ©rÃ©s
 
 ---
 
 ## Routing Engine
 
-Cœur algorithmique du projet.
+CÅ“ur algorithmique du projet.
 
-Responsabilités :
+ResponsabilitÃ©s :
 
-- génération des parcours
+- gÃ©nÃ©ration des parcours
 - calcul des boucles
-- scoring des itinéraires
-- filtrage des parcours incohérents
+- scoring des itinÃ©raires
+- filtrage des parcours incohÃ©rents
 
 ---
 
 ## Data
 
-Données cartographiques utilisées pour générer les itinéraires.
+DonnÃ©es cartographiques utilisÃ©es pour gÃ©nÃ©rer les itinÃ©raires.
 
 Peut contenir :
 
 - routes
 - sentiers
 - chemins
-- données d'altitude
+- donnÃ©es d'altitude
 
 ---
 
@@ -151,7 +147,7 @@ Peut contenir :
 
 Cadrage du projet
 
-- définition des fonctionnalités
+- dÃ©finition des fonctionnalitÃ©s
 - choix technologiques
 - architecture
 
@@ -159,11 +155,11 @@ Cadrage du projet
 
 ## Phase 1
 
-Prototype du moteur de génération
+Prototype du moteur de gÃ©nÃ©ration
 
 Objectif :
 
-générer un premier parcours simple à partir :
+gÃ©nÃ©rer un premier parcours simple Ã  partir :
 
 - d'une position
 - d'une distance cible
@@ -172,11 +168,11 @@ générer un premier parcours simple à partir :
 
 ## Phase 2
 
-Création de l'API backend
+CrÃ©ation de l'API backend
 
-- endpoint de génération
-- structure des réponses
-- validation des paramètres
+- endpoint de gÃ©nÃ©ration
+- structure des rÃ©ponses
+- validation des paramÃ¨tres
 
 ---
 
@@ -185,28 +181,28 @@ Création de l'API backend
 MVP interface utilisateur
 
 - saisie distance
-- géolocalisation
+- gÃ©olocalisation
 - affichage carte
-- affichage des résultats
+- affichage des rÃ©sultats
 
 ---
 
 ## Phase 4
 
-Amélioration de la qualité des parcours
+AmÃ©lioration de la qualitÃ© des parcours
 
 - scoring
-- diversité
+- diversitÃ©
 - filtrage des mauvais parcours
 
 ---
 
 ## Phase 5
 
-Fonctionnalités avancées
+FonctionnalitÃ©s avancÃ©es
 
-- préférences utilisateur
-- dénivelé
+- prÃ©fÃ©rences utilisateur
+- dÃ©nivelÃ©
 - historique
 - partage
 - optimisation des performances
@@ -216,34 +212,34 @@ Fonctionnalités avancées
 # Structure du repository
 
 Randogen
-│
-├── docs
-│ ├── vision-produit.md
-│ ├── roadmap.md
-│ ├── architecture.md
-│
-├── frontend
-│
-├── backend
-│
-├── routing-engine
-│
-├── data
-│
-├── scripts
-│
-├── infra
-│
-├── README.md
-├── LICENSE
-└── .gitignore
+â”‚
+â”œâ”€â”€ docs
+â”‚ â”œâ”€â”€ vision-produit.md
+â”‚ â”œâ”€â”€ roadmap.md
+â”‚ â”œâ”€â”€ architecture.md
+â”‚
+â”œâ”€â”€ frontend
+â”‚
+â”œâ”€â”€ backend
+â”‚
+â”œâ”€â”€ routing-engine
+â”‚
+â”œâ”€â”€ data
+â”‚
+â”œâ”€â”€ scripts
+â”‚
+â”œâ”€â”€ infra
+â”‚
+â”œâ”€â”€ README.md
+â”œâ”€â”€ LICENSE
+â””â”€â”€ .gitignore
 
 
 ---
 
-# Installation (à venir)
+# Installation (Ã  venir)
 
-Instructions d'installation en cours de rédaction.
+Instructions d'installation en cours de rÃ©daction.
 
 ---
 
@@ -254,7 +250,7 @@ Les contributions sont les bienvenues.
 Pour contribuer :
 
 1. Fork du repository
-2. Création d'une branche
+2. CrÃ©ation d'une branche
 3. Commit des modifications
 4. Pull request
 
@@ -262,13 +258,15 @@ Pour contribuer :
 
 # Licence
 
-Projet distribué sous licence MIT.
+Projet distribuÃ© sous licence MIT.
 
 ---
 
 # Vision
 
-Randogen vise à devenir un outil simple permettant de **découvrir des parcours autour de soi sans préparation préalable**.
+Randogen vise Ã  devenir un outil simple permettant de **dÃ©couvrir des parcours autour de soi sans prÃ©paration prÃ©alable**.
 
-L'objectif est de rendre la randonnée et la promenade **plus accessibles, spontanées et adaptées aux contraintes de chacun**.
+L'objectif est de rendre la randonnÃ©e et la promenade **plus accessibles, spontanÃ©es et adaptÃ©es aux contraintes de chacun**.
+
+
 
