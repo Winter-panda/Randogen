@@ -1,4 +1,4 @@
-﻿from src.application.dto.generate_route_request import GenerateRouteRequest
+from src.application.dto.generate_route_request import GenerateRouteRequest
 from src.application.dto.generate_route_response import (
     GenerateRouteResponse,
     RouteCandidateResponse,
@@ -20,7 +20,7 @@ class GenerateRoutesUseCase:
             route_count=request.route_count,
         )
 
-        candidates = self._route_generation_service.generate_mock_routes(search)
+        candidates = self._route_generation_service.generate_routes(search)
 
         routes = [
             RouteCandidateResponse(
