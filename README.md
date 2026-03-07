@@ -2,12 +2,9 @@
 
 ![License](https://img.shields.io/badge/license-MIT-green)
 ![Status](https://img.shields.io/badge/status-early--development-orange)
-![Version](https://img.shields.io/github/v/tag/USER/Randogen)
-![Contributions welcome](https://img.shields.io/badge/contributions-welcome-brightgreen)
-![Platform](https://img.shields.io/badge/platform-web%20%7C%20mobile-lightgrey)
-
-Générateur intelligent de randonnées et promenades à partir d’une distance cible autour de la position de l’utilisateur.
-# Randogen
+![Version](https://img.shields.io/github/v/tag/Winter-panda/Randogen)
+![Issues](https://img.shields.io/github/issues/Winter-panda/Randogen)
+![Last commit](https://img.shields.io/github/last-commit/Winter-panda/Randogen)
 
 Générateur intelligent de randonnées et promenades à partir d’une distance cible autour de la position de l’utilisateur.
 
