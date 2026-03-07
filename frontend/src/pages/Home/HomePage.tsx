@@ -1,4 +1,5 @@
-import { useState } from "react";
+import { useMemo, useState } from "react";
+import MapView from "../../components/map/MapView";
 import RouteList from "../../components/route/RouteList";
 import SearchForm from "../../components/search/SearchForm";
 import { generateRoutes } from "../../services/api/routeApi";
@@ -10,9 +11,15 @@ export default function HomePage() {
   const [routeCount, setRouteCount] = useState<number>(3);
   const [position, setPosition] = useState<UserPosition | null>(null);
   const [routes, setRoutes] = useState<RouteCandidate[]>([]);
+  const [selectedRouteId, setSelectedRouteId] = useState<string | null>(null);
   const [loading, setLoading] = useState<boolean>(false);
   const [message, setMessage] = useState<string>("Bienvenue dans Randogen.");
   const [error, setError] = useState<string>("");
+
+  const selectedRoute = useMemo(
+    () => routes.find((route) => route.id === selectedRouteId) ?? null,
+    [routes, selectedRouteId]
+  );
 
   const handleLocate = async () => {
     setLoading(true);
@@ -51,6 +58,7 @@ export default function HomePage() {
       });
 
       setRoutes(response.routes);
+      setSelectedRouteId(response.routes.length > 0 ? response.routes[0].id : null);
       setMessage(`${response.routes.length} parcours générés.`);
     } catch (err) {
       const errorMessage =
@@ -80,6 +88,20 @@ export default function HomePage() {
         {error && <p className="error">{error}</p>}
       </section>
 
+      {selectedRoute && (
+        <section className="card">
+          <h2>Parcours sélectionné</h2>
+          <div className="route-meta">
+            <span><strong>{selectedRoute.name}</strong></span>
+            <span>Distance : {selectedRoute.distance_km} km</span>
+            <span>Durée : {selectedRoute.estimated_duration_min} min</span>
+            <span>Dénivelé : {selectedRoute.estimated_elevation_gain_m} m</span>
+            <span>Score : {selectedRoute.score}</span>
+            <span>Type : {selectedRoute.route_type}</span>
+          </div>
+        </section>
+      )}
+
       <SearchForm
         distanceKm={distanceKm}
         routeCount={routeCount}
@@ -91,7 +113,18 @@ export default function HomePage() {
         onGenerate={handleGenerate}
       />
 
-      <RouteList routes={routes} />
+      <MapView
+        position={position}
+        routes={routes}
+        selectedRouteId={selectedRouteId}
+        onSelectRoute={setSelectedRouteId}
+      />
+
+      <RouteList
+        routes={routes}
+        selectedRouteId={selectedRouteId}
+        onSelectRoute={setSelectedRouteId}
+      />
     </main>
   );
 }
