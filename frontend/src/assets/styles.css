@@ -204,3 +204,36 @@ button {
   height: 10px;
   border-radius: 999px;
 }
+.field select {
+  padding: 10px 12px;
+  border: 1px solid #cbd5e1;
+  border-radius: 8px;
+  background: #ffffff;
+}
+.indicators-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+  gap: 12px;
+  margin: 14px 0;
+}
+
+.indicator-card {
+  border: 1px solid #dbe2ea;
+  border-radius: 10px;
+  background: #f8fafc;
+  padding: 10px 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.indicator-card strong {
+  font-size: 0.9rem;
+  color: #334155;
+}
+
+.indicator-card span {
+  font-size: 1.05rem;
+  font-weight: 700;
+  color: #0f172a;
+}

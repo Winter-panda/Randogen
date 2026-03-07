@@ -1,12 +1,15 @@
 import { useState } from "react";
+import type { HikeStyle } from "../../types/route";
 
 interface SearchFormProps {
   distanceKm: number;
   routeCount: number;
+  hikeStyle: HikeStyle;
   loading: boolean;
   hasPosition: boolean;
   onDistanceChange: (value: number) => void;
   onRouteCountChange: (value: number) => void;
+  onHikeStyleChange: (value: HikeStyle) => void;
   onLocate: () => Promise<void> | void;
   onGenerate: () => Promise<void> | void;
 }
@@ -15,10 +18,12 @@ export default function SearchForm(props: SearchFormProps) {
   const {
     distanceKm,
     routeCount,
+    hikeStyle,
     loading,
     hasPosition,
     onDistanceChange,
     onRouteCountChange,
+    onHikeStyleChange,
     onLocate,
     onGenerate
   } = props;
@@ -28,7 +33,7 @@ export default function SearchForm(props: SearchFormProps) {
 
   const handleDistanceBlur = () => {
     const parsed = Number(distanceInput);
-    if (!Number.isNaN(parsed) && parsed > 0) {
+    if (!Number.isNaN(parsed) && parsed > 0 && parsed <= 100) {
       onDistanceChange(parsed);
       setDistanceInput(String(parsed));
       return;
@@ -59,6 +64,7 @@ export default function SearchForm(props: SearchFormProps) {
             id="distanceKm"
             type="number"
             min="1"
+            max="100"
             step="0.5"
             value={distanceInput}
             onChange={(event) => setDistanceInput(event.target.value)}
@@ -78,6 +84,20 @@ export default function SearchForm(props: SearchFormProps) {
             onChange={(event) => setRouteCountInput(event.target.value)}
             onBlur={handleRouteCountBlur}
           />
+        </div>
+
+        <div className="field">
+          <label htmlFor="hikeStyle">Type de randonnée</label>
+          <select
+            id="hikeStyle"
+            value={hikeStyle}
+            onChange={(event) => onHikeStyleChange(event.target.value as HikeStyle)}
+          >
+            <option value="equilibree">Équilibrée</option>
+            <option value="sentiers">Sentiers</option>
+            <option value="nature">Nature</option>
+            <option value="calme">Calme</option>
+          </select>
         </div>
       </div>
 

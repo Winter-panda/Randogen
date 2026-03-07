@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 import json
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 from typing import Any
 from urllib import error, request
 
@@ -13,6 +13,7 @@ class OrsRouteResult:
     points: list[RoutePoint]
     distance_m: float
     duration_s: float
+    extras: dict[str, Any] = field(default_factory=dict)
 
 
 class OrsClientError(Exception):
@@ -35,24 +36,44 @@ class OrsClient:
     def is_configured(self) -> bool:
         return bool(self._api_key)
 
-    def get_directions_geojson(
+    def get_round_trip_geojson(
         self,
-        coordinates_lon_lat: list[list[float]],
+        start_lon: float,
+        start_lat: float,
+        length_m: float,
+        points: int,
+        seed: int,
     ) -> OrsRouteResult:
         if not self.is_configured():
             raise OrsClientError("ORS API key not configured.")
 
-        if len(coordinates_lon_lat) < 2:
-            raise OrsClientError("At least 2 coordinates are required.")
-
         url = f"{self._base_url}/v2/directions/{self._profile}/geojson"
 
         payload = {
-            "coordinates": coordinates_lon_lat,
+            "coordinates": [[start_lon, start_lat]],
             "instructions": False,
             "elevation": False,
+            "extra_info": [
+                "surface",
+                "waytype",
+                "waycategory",
+                "traildifficulty",
+                "green",
+                "noise",
+                "suitability",
+            ],
+            "options": {
+                "round_trip": {
+                    "length": float(length_m),
+                    "points": int(points),
+                    "seed": int(seed),
+                }
+            },
         }
 
+        return self._post_geojson(url, payload)
+
+    def _post_geojson(self, url: str, payload: dict[str, Any]) -> OrsRouteResult:
         req = request.Request(
             url=url,
             data=json.dumps(payload).encode("utf-8"),
@@ -69,9 +90,7 @@ class OrsClient:
                 raw = response.read().decode("utf-8")
         except error.HTTPError as exc:
             details = exc.read().decode("utf-8", errors="replace")
-            raise OrsClientError(
-                f"ORS HTTP error {exc.code}: {details}"
-            ) from exc
+            raise OrsClientError(f"ORS HTTP error {exc.code}: {details}") from exc
         except error.URLError as exc:
             raise OrsClientError(f"ORS network error: {exc}") from exc
         except TimeoutError as exc:
@@ -97,6 +116,7 @@ class OrsClient:
         summary = properties.get("summary", {})
         distance_m = float(summary.get("distance", 0.0))
         duration_s = float(summary.get("duration", 0.0))
+        extras = properties.get("extras", {}) or {}
 
         points = [
             RoutePoint(latitude=float(coord[1]), longitude=float(coord[0]))
@@ -111,4 +131,5 @@ class OrsClient:
             points=points,
             distance_m=distance_m,
             duration_s=duration_s,
+            extras=extras,
         )

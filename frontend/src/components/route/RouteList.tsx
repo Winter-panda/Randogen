@@ -10,6 +10,10 @@ function roundCoordinate(value: number): number {
   return Math.round(value * 1000000) / 1000000;
 }
 
+function toPercent(value: number): string {
+  return `${Math.round(value * 100)}%`;
+}
+
 export default function RouteList({
   routes,
   selectedRouteId,
@@ -51,6 +55,29 @@ export default function RouteList({
                 <span>Score : {route.score}</span>
                 <span>Type : {route.route_type}</span>
                 <span>Source : {route.source}</span>
+              </div>
+
+              <div className="indicators-grid">
+                <div className="indicator-card">
+                  <strong>Sentiers</strong>
+                  <span>{toPercent(route.trail_ratio)}</span>
+                </div>
+                <div className="indicator-card">
+                  <strong>Routes</strong>
+                  <span>{toPercent(route.road_ratio)}</span>
+                </div>
+                <div className="indicator-card">
+                  <strong>Nature</strong>
+                  <span>{toPercent(route.nature_score)}</span>
+                </div>
+                <div className="indicator-card">
+                  <strong>Calme</strong>
+                  <span>{toPercent(route.quiet_score)}</span>
+                </div>
+                <div className="indicator-card">
+                  <strong>Rando</strong>
+                  <span>{toPercent(route.hiking_suitability_score)}</span>
+                </div>
               </div>
 
               <details open={isSelected}>

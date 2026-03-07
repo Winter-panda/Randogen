@@ -12,6 +12,11 @@ export interface RouteCandidate {
   score: number;
   route_type: string;
   source: string;
+  trail_ratio: number;
+  road_ratio: number;
+  nature_score: number;
+  quiet_score: number;
+  hiking_suitability_score: number;
   points: RoutePoint[];
 }
 
@@ -19,11 +24,14 @@ export interface GenerateRoutesResponse {
   routes: RouteCandidate[];
 }
 
+export type HikeStyle = "equilibree" | "sentiers" | "nature" | "calme";
+
 export interface GenerateRoutesRequest {
   latitude: number;
   longitude: number;
   target_distance_km: number;
   route_count: number;
+  hike_style: HikeStyle;
 }
 
 export interface UserPosition {

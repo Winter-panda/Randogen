@@ -1,4 +1,4 @@
-﻿from dataclasses import dataclass
+from dataclasses import dataclass
 
 
 @dataclass(frozen=True)
@@ -7,3 +7,4 @@ class UserSearch:
     longitude: float
     target_distance_km: float
     route_count: int
+    hike_style: str = "equilibree"

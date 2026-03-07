@@ -1,4 +1,6 @@
-﻿from pydantic import BaseModel, Field
+from typing import Literal
+
+from pydantic import BaseModel, Field
 
 
 class GenerateRouteRequest(BaseModel):
@@ -15,4 +17,8 @@ class GenerateRouteRequest(BaseModel):
         ge=1,
         le=10,
         description="Nombre de parcours à générer",
+    )
+    hike_style: Literal["equilibree", "sentiers", "nature", "calme"] = Field(
+        default="equilibree",
+        description="Type de randonnée : equilibree, sentiers, nature, calme",
     )

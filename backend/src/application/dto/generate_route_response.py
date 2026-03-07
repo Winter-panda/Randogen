@@ -1,4 +1,4 @@
-﻿from pydantic import BaseModel, Field
+from pydantic import BaseModel, Field
 
 
 class RoutePointResponse(BaseModel):
@@ -15,6 +15,11 @@ class RouteCandidateResponse(BaseModel):
     score: float = Field(..., description="Score qualité du parcours")
     route_type: str = Field(..., description="Type de parcours")
     source: str = Field(..., description="Origine du calcul")
+    trail_ratio: float = Field(..., description="Part estimée de sentiers")
+    road_ratio: float = Field(..., description="Part estimée de routes")
+    nature_score: float = Field(..., description="Score nature")
+    quiet_score: float = Field(..., description="Score calme")
+    hiking_suitability_score: float = Field(..., description="Score adaptation randonnée")
     points: list[RoutePointResponse] = Field(
         default_factory=list,
         description="Points simplifiés du parcours",
