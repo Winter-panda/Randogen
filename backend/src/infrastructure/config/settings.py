@@ -19,6 +19,7 @@ class Settings(BaseSettings):
     route_distance_tolerance_ratio: float = 0.45
     route_min_score: float = 0.2
     route_round_trip_points: int = 3
+    route_duplicate_similarity_threshold: float = 0.75
 
     prefer_trails: bool = True
     prefer_green_routes: bool = True

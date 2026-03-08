@@ -18,4 +18,6 @@ class RouteCandidate:
     nature_score: float = 0.0
     quiet_score: float = 0.0
     hiking_suitability_score: float = 0.0
+    difficulty: str = "modérée"
+    tags: list[str] = field(default_factory=list)
     points: list[RoutePoint] = field(default_factory=list)

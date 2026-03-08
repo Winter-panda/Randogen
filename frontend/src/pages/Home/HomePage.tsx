@@ -2,18 +2,80 @@ import { useMemo, useState } from "react";
 import MapView from "../../components/map/MapView";
 import RouteList from "../../components/route/RouteList";
 import SearchForm from "../../components/search/SearchForm";
+import AltitudeProfile from "../../components/route/AltitudeProfile";
 import { generateRoutes } from "../../services/api/routeApi";
 import { getCurrentPosition } from "../../services/geolocation/geolocation";
-import type { HikeStyle, RouteCandidate, UserPosition } from "../../types/route";
+import type { AmbianceFilter, EffortFilter, RouteCandidate, TerrainFilter, UserPosition } from "../../types/route";
+import { difficultyClass, formatDuration, formatFiltersLabel, formatRouteType, formatScore, tagClass } from "../../utils/labels";
 
 function toPercent(value: number): string {
   return `${Math.round(value * 100)}%`;
 }
 
+
+function escapeXml(value: string): string {
+  return value
+    .replaceAll("&", "&amp;")
+    .replaceAll("<", "&lt;")
+    .replaceAll(">", "&gt;")
+    .replaceAll('"', "&quot;")
+    .replaceAll("'", "&apos;");
+}
+
+function buildGpx(route: RouteCandidate): string {
+  const trackPoints = route.points
+    .map(
+      (point) =>
+        `    <trkpt lat="${point.latitude}" lon="${point.longitude}">${(point.elevation_m ?? 0) !== 0 ? `
+      <ele>${(point.elevation_m ?? 0).toFixed(1)}</ele>
+    ` : ""}</trkpt>`
+    )
+    .join("\n");
+
+  return `<?xml version="1.0" encoding="UTF-8"?>
+<gpx version="1.1" creator="Randogen" xmlns="http://www.topografix.com/GPX/1/1">
+  <metadata>
+    <name>${escapeXml(route.name)}</name>
+    <desc>${escapeXml(`Parcours ${route.route_type} - ${route.distance_km} km`)}</desc>
+  </metadata>
+  <trk>
+    <name>${escapeXml(route.name)}</name>
+    <trkseg>
+${trackPoints}
+    </trkseg>
+  </trk>
+</gpx>
+`;
+}
+
+function downloadRouteAsGpx(route: RouteCandidate): void {
+  const gpxContent = buildGpx(route);
+  const blob = new Blob([gpxContent], { type: "application/gpx+xml;charset=utf-8" });
+  const url = URL.createObjectURL(blob);
+
+  const safeName = route.name
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f]/g, "")
+    .replace(/[^a-zA-Z0-9-_]+/g, "-")
+    .replace(/-+/g, "-")
+    .replace(/^-|-$/g, "")
+    .toLowerCase();
+
+  const link = document.createElement("a");
+  link.href = url;
+  link.download = `${safeName || "parcours"}.gpx`;
+  document.body.appendChild(link);
+  link.click();
+  document.body.removeChild(link);
+  URL.revokeObjectURL(url);
+}
+
 export default function HomePage() {
   const [distanceKm, setDistanceKm] = useState<number>(5);
   const [routeCount, setRouteCount] = useState<number>(3);
-  const [hikeStyle, setHikeStyle] = useState<HikeStyle>("equilibree");
+  const [ambiance, setAmbiance] = useState<AmbianceFilter | null>(null);
+  const [terrain, setTerrain] = useState<TerrainFilter | null>(null);
+  const [effort, setEffort] = useState<EffortFilter | null>(null);
   const [position, setPosition] = useState<UserPosition | null>(null);
   const [routes, setRoutes] = useState<RouteCandidate[]>([]);
   const [selectedRouteId, setSelectedRouteId] = useState<string | null>(null);
@@ -60,12 +122,14 @@ export default function HomePage() {
         longitude: position.longitude,
         target_distance_km: distanceKm,
         route_count: routeCount,
-        hike_style: hikeStyle
+        ambiance,
+        terrain,
+        effort,
       });
 
       setRoutes(response.routes);
       setSelectedRouteId(response.routes.length > 0 ? response.routes[0].id : null);
-      setMessage(`${response.routes.length} parcours générés (${hikeStyle}).`);
+      setMessage(`${response.routes.length} parcours générés (${formatFiltersLabel(ambiance, terrain, effort)}).`);
     } catch (err) {
       const errorMessage =
         err instanceof Error ? err.message : "Erreur lors de l'appel à l'API.";
@@ -73,6 +137,10 @@ export default function HomePage() {
     } finally {
       setLoading(false);
     }
+  };
+
+  const handleDownloadGpx = () => {
+    if (selectedRoute) downloadRouteAsGpx(selectedRoute);
   };
 
   return (
@@ -96,15 +164,36 @@ export default function HomePage() {
 
       {selectedRoute && (
         <section className="card">
-          <h2>Parcours sélectionné</h2>
-          <div className="route-meta">
-            <span><strong>{selectedRoute.name}</strong></span>
-            <span>Distance : {selectedRoute.distance_km} km</span>
-            <span>Durée : {selectedRoute.estimated_duration_min} min</span>
-            <span>Dénivelé : {selectedRoute.estimated_elevation_gain_m} m</span>
-            <span>Score : {selectedRoute.score}</span>
-            <span>Type : {selectedRoute.route_type}</span>
+          <div className="selected-route-header">
+            <div>
+              <h2>Parcours sélectionné</h2>
+              <div className="route-meta">
+                <span><strong>{selectedRoute.name}</strong></span>
+                <span>Distance : {selectedRoute.distance_km} km</span>
+                <span>Durée : {formatDuration(selectedRoute.estimated_duration_min)}</span>
+                <span>Dénivelé : {selectedRoute.estimated_elevation_gain_m} m</span>
+                <span>Score : {formatScore(selectedRoute.score)}</span>
+                <span>Type : {formatRouteType(selectedRoute.route_type)}</span>
+                <span className={difficultyClass(selectedRoute.difficulty)}>{selectedRoute.difficulty}</span>
+              </div>
+            </div>
+
+            <button
+              type="button"
+              className="download-button"
+              onClick={handleDownloadGpx}
+            >
+              Télécharger GPX
+            </button>
           </div>
+
+          {selectedRoute.tags.length > 0 && (
+            <div className="route-tags">
+              {selectedRoute.tags.map((tag) => (
+                <span key={tag} className={tagClass(tag)}>{tag}</span>
+              ))}
+            </div>
+          )}
 
           <div className="indicators-grid">
             <div className="indicator-card">
@@ -128,18 +217,24 @@ export default function HomePage() {
               <span>{toPercent(selectedRoute.hiking_suitability_score)}</span>
             </div>
           </div>
+
+          <AltitudeProfile points={selectedRoute.points} />
         </section>
       )}
 
       <SearchForm
         distanceKm={distanceKm}
         routeCount={routeCount}
-        hikeStyle={hikeStyle}
+        ambiance={ambiance}
+        terrain={terrain}
+        effort={effort}
         loading={loading}
         hasPosition={position !== null}
         onDistanceChange={setDistanceKm}
         onRouteCountChange={setRouteCount}
-        onHikeStyleChange={setHikeStyle}
+        onAmbianceChange={setAmbiance}
+        onTerrainChange={setTerrain}
+        onEffortChange={setEffort}
         onLocate={handleLocate}
         onGenerate={handleGenerate}
       />

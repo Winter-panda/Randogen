@@ -1,6 +1,7 @@
 export interface RoutePoint {
   latitude: number;
   longitude: number;
+  elevation_m?: number;
 }
 
 export interface RouteCandidate {
@@ -17,6 +18,8 @@ export interface RouteCandidate {
   nature_score: number;
   quiet_score: number;
   hiking_suitability_score: number;
+  difficulty: string;
+  tags: string[];
   points: RoutePoint[];
 }
 
@@ -24,14 +27,18 @@ export interface GenerateRoutesResponse {
   routes: RouteCandidate[];
 }
 
-export type HikeStyle = "equilibree" | "sentiers" | "nature" | "calme";
+export type AmbianceFilter = "equilibree" | "sentiers" | "nature" | "calme";
+export type TerrainFilter = "plat" | "vallonne";
+export type EffortFilter = "promenade" | "sportif";
 
 export interface GenerateRoutesRequest {
   latitude: number;
   longitude: number;
   target_distance_km: number;
   route_count: number;
-  hike_style: HikeStyle;
+  ambiance: AmbianceFilter | null;
+  terrain: TerrainFilter | null;
+  effort: EffortFilter | null;
 }
 
 export interface UserPosition {

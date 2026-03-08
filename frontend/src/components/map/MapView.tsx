@@ -1,4 +1,4 @@
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import {
   CircleMarker,
   MapContainer,
@@ -15,6 +15,37 @@ import markerIconUrl from "leaflet/dist/images/marker-icon.png";
 import markerShadowUrl from "leaflet/dist/images/marker-shadow.png";
 
 import type { RouteCandidate, UserPosition } from "../../types/route";
+
+type MapLayer = "standard" | "topo" | "ign";
+
+interface LayerConfig {
+  label: string;
+  url: string;
+  attribution: string;
+  maxZoom: number;
+}
+
+const MAP_LAYERS: Record<MapLayer, LayerConfig> = {
+  standard: {
+    label: "Standard",
+    url: "https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png",
+    attribution: "&copy; OpenStreetMap contributors",
+    maxZoom: 19,
+  },
+  topo: {
+    label: "Topographique",
+    url: "https://{s}.tile.opentopomap.org/{z}/{x}/{y}.png",
+    attribution:
+      "Map data: &copy; OpenStreetMap contributors, SRTM | Map style: &copy; OpenTopoMap (CC-BY-SA)",
+    maxZoom: 17,
+  },
+  ign: {
+    label: "IGN France",
+    url: "https://wxs.ign.fr/pratique/geoportail/wmts?REQUEST=GetTile&SERVICE=WMTS&VERSION=1.0.0&STYLE=normal&TILEMATRIXSET=PM&FORMAT=image/png&LAYER=GEOGRAPHICALGRIDSYSTEMS.PLANV2&TILEMATRIX={z}&TILEROW={y}&TILECOL={x}",
+    attribution: "&copy; IGN France",
+    maxZoom: 18,
+  },
+};
 
 interface MapViewProps {
   position: UserPosition | null;
@@ -102,19 +133,38 @@ export default function MapView({
   selectedRouteId,
   onSelectRoute
 }: MapViewProps) {
+  const [activeLayer, setActiveLayer] = useState<MapLayer>("topo");
   const center: LatLngExpression = position
     ? [position.latitude, position.longitude]
     : defaultCenter;
 
+  const layer = MAP_LAYERS[activeLayer];
+
   return (
     <section className="card">
-      <h2>Carte</h2>
+      <div className="map-header">
+        <h2>Carte</h2>
+        <div className="map-layer-switcher">
+          {(Object.keys(MAP_LAYERS) as MapLayer[]).map((key) => (
+            <button
+              key={key}
+              type="button"
+              className={`map-layer-btn ${activeLayer === key ? "map-layer-btn-active" : ""}`}
+              onClick={() => setActiveLayer(key)}
+            >
+              {MAP_LAYERS[key].label}
+            </button>
+          ))}
+        </div>
+      </div>
 
       <div className="map-wrapper">
         <MapContainer center={center} zoom={13} scrollWheelZoom={true} className="map-container">
           <TileLayer
-            attribution='&copy; OpenStreetMap contributors'
-            url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
+            key={activeLayer}
+            attribution={layer.attribution}
+            url={layer.url}
+            maxZoom={layer.maxZoom}
           />
 
           <MapViewportController

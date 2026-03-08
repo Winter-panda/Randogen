@@ -18,7 +18,15 @@ class GenerateRouteRequest(BaseModel):
         le=10,
         description="Nombre de parcours à générer",
     )
-    hike_style: Literal["equilibree", "sentiers", "nature", "calme"] = Field(
-        default="equilibree",
-        description="Type de randonnée : equilibree, sentiers, nature, calme",
+    ambiance: Literal["equilibree", "sentiers", "nature", "calme"] | None = Field(
+        default=None,
+        description="Ambiance souhaitée : equilibree, sentiers, nature, calme",
+    )
+    terrain: Literal["plat", "vallonne"] | None = Field(
+        default=None,
+        description="Type de terrain : plat, vallonne",
+    )
+    effort: Literal["promenade", "sportif"] | None = Field(
+        default=None,
+        description="Niveau d'effort : promenade, sportif",
     )

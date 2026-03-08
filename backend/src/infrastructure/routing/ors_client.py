@@ -20,6 +20,11 @@ class OrsClientError(Exception):
     pass
 
 
+class OrsRateLimitError(OrsClientError):
+    """Raised when ORS returns HTTP 429 — rate limit exceeded."""
+    pass
+
+
 class OrsClient:
     def __init__(
         self,
@@ -43,16 +48,30 @@ class OrsClient:
         length_m: float,
         points: int,
         seed: int,
+        profile_params: dict[str, Any] | None = None,
+        avoid_features: list[str] | None = None,
     ) -> OrsRouteResult:
         if not self.is_configured():
             raise OrsClientError("ORS API key not configured.")
 
         url = f"{self._base_url}/v2/directions/{self._profile}/geojson"
 
-        payload = {
+        options: dict[str, Any] = {
+            "round_trip": {
+                "length": float(length_m),
+                "points": int(points),
+                "seed": int(seed),
+            }
+        }
+        if avoid_features:
+            options["avoid_features"] = avoid_features
+        if profile_params:
+            options["profile_params"] = profile_params
+
+        payload: dict[str, Any] = {
             "coordinates": [[start_lon, start_lat]],
             "instructions": False,
-            "elevation": False,
+            "elevation": True,
             "extra_info": [
                 "surface",
                 "waytype",
@@ -62,13 +81,7 @@ class OrsClient:
                 "noise",
                 "suitability",
             ],
-            "options": {
-                "round_trip": {
-                    "length": float(length_m),
-                    "points": int(points),
-                    "seed": int(seed),
-                }
-            },
+            "options": options,
         }
 
         return self._post_geojson(url, payload)
@@ -90,6 +103,8 @@ class OrsClient:
                 raw = response.read().decode("utf-8")
         except error.HTTPError as exc:
             details = exc.read().decode("utf-8", errors="replace")
+            if exc.code == 429:
+                raise OrsRateLimitError(f"ORS rate limit exceeded (429): {details}") from exc
             raise OrsClientError(f"ORS HTTP error {exc.code}: {details}") from exc
         except error.URLError as exc:
             raise OrsClientError(f"ORS network error: {exc}") from exc
@@ -118,17 +133,21 @@ class OrsClient:
         duration_s = float(summary.get("duration", 0.0))
         extras = properties.get("extras", {}) or {}
 
-        points = [
-            RoutePoint(latitude=float(coord[1]), longitude=float(coord[0]))
+        points_list = [
+            RoutePoint(
+                latitude=float(coord[1]),
+                longitude=float(coord[0]),
+                elevation_m=float(coord[2]) if len(coord) >= 3 else 0.0,
+            )
             for coord in coordinates
             if isinstance(coord, list) and len(coord) >= 2
         ]
 
-        if len(points) == 0:
+        if len(points_list) == 0:
             raise OrsClientError("ORS returned an empty geometry.")
 
         return OrsRouteResult(
-            points=points,
+            points=points_list,
             distance_m=distance_m,
             duration_s=duration_s,
             extras=extras,

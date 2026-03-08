@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 from dataclasses import dataclass
 
 
@@ -7,4 +9,6 @@ class UserSearch:
     longitude: float
     target_distance_km: float
     route_count: int
-    hike_style: str = "equilibree"
+    ambiance: str | None = None
+    terrain: str | None = None
+    effort: str | None = None

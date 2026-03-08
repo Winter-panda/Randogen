@@ -137,6 +137,26 @@ button {
   margin-bottom: 12px;
 }
 
+.route-item-title {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.route-highlight {
+  display: inline-block;
+  font-size: 0.72rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  padding: 3px 9px;
+  border-radius: 999px;
+  background: #fef9c3;
+  color: #713f12;
+  border: 1px solid #fde68a;
+}
+
 .route-item-header button {
   border: none;
   border-radius: 8px;
@@ -151,6 +171,35 @@ button {
   gap: 10px 16px;
   margin-bottom: 12px;
   color: #374151;
+  align-items: center;
+}
+
+.difficulty {
+  display: inline-block;
+  font-size: 0.75rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  padding: 2px 9px;
+  border-radius: 999px;
+}
+
+.difficulty-easy {
+  background: #dcfce7;
+  color: #166534;
+  border: 1px solid #bbf7d0;
+}
+
+.difficulty-moderate {
+  background: #fef9c3;
+  color: #713f12;
+  border: 1px solid #fde68a;
+}
+
+.difficulty-hard {
+  background: #fee2e2;
+  color: #991b1b;
+  border: 1px solid #fca5a5;
 }
 
 .points-block {
@@ -172,6 +221,51 @@ button {
 .map-container {
   width: 100%;
   height: 100%;
+}
+
+.map-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-bottom: 10px;
+}
+
+.map-header h2 {
+  margin: 0;
+}
+
+.map-layer-switcher {
+  display: flex;
+  gap: 6px;
+  flex-wrap: wrap;
+}
+
+.map-layer-btn {
+  border: 1.5px solid #e2e8f0;
+  border-radius: 999px;
+  background: #f8fafc;
+  color: #374151;
+  padding: 4px 12px;
+  font-size: 0.82rem;
+  font-weight: 500;
+  cursor: pointer;
+}
+
+.map-layer-btn:hover {
+  border-color: #94a3b8;
+}
+
+.map-layer-btn-active {
+  border-color: #2563eb;
+  background: #2563eb;
+  color: #ffffff;
+}
+
+.map-layer-btn-active:hover {
+  border-color: #1d4ed8;
+  background: #1d4ed8;
 }
 
 .map-legend {
@@ -210,6 +304,71 @@ button {
   border-radius: 8px;
   background: #ffffff;
 }
+
+.filter-group {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  margin-top: 16px;
+}
+
+.filter-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.filter-label {
+  font-size: 0.82rem;
+  font-weight: 600;
+  color: #6b7280;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  min-width: 72px;
+  flex-shrink: 0;
+}
+
+.pill-group {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+.pill {
+  border: 1.5px solid #e2e8f0;
+  border-radius: 999px;
+  background: #f8fafc;
+  color: #374151;
+  padding: 5px 14px;
+  font-size: 0.85rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: border-color 0.15s, background 0.15s, color 0.15s;
+}
+
+.pill:hover {
+  border-color: #94a3b8;
+  background: #f1f5f9;
+}
+
+.pill-active {
+  border-color: #2563eb;
+  background: #2563eb;
+  color: #ffffff;
+}
+
+.pill-active:hover {
+  border-color: #1d4ed8;
+  background: #1d4ed8;
+}
+
+.filter-hint-bar {
+  margin: 4px 0 0 82px;
+  font-size: 0.82rem;
+  color: #4b5563;
+  font-style: italic;
+}
 .indicators-grid {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
@@ -236,4 +395,101 @@ button {
   font-size: 1.05rem;
   font-weight: 700;
   color: #0f172a;
+}
+.selected-route-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 16px;
+  flex-wrap: wrap;
+}
+
+.download-button {
+  border: none;
+  border-radius: 8px;
+  background: #059669;
+  color: #ffffff;
+  padding: 10px 16px;
+  font-weight: 700;
+}
+
+.download-button:hover {
+  background: #047857;
+}
+.route-tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin-bottom: 14px;
+}
+
+.route-tag {
+  display: inline-block;
+  padding: 3px 10px;
+  border-radius: 999px;
+  font-size: 0.78rem;
+  font-weight: 600;
+  background: #f0fdf4;
+  color: #166534;
+  border: 1px solid #bbf7d0;
+}
+
+.route-tag-road {
+  background: #fef3c7;
+  color: #92400e;
+  border-color: #fcd34d;
+}
+
+.route-tag-calm {
+  background: #eff6ff;
+  color: #1e40af;
+  border-color: #bfdbfe;
+}
+
+.route-tag-elevation {
+  background: #fff7ed;
+  color: #9a3412;
+  border-color: #fed7aa;
+}
+
+.route-tag-ideal {
+  background: #f5f3ff;
+  color: #5b21b6;
+  border-color: #c4b5fd;
+  font-style: italic;
+}
+
+.altitude-profile {
+  margin-top: 16px;
+}
+
+.altitude-profile-title {
+  margin: 0 0 8px 0;
+  font-size: 0.9rem;
+  font-weight: 600;
+  color: #374151;
+}
+
+.altitude-profile-svg {
+  width: 100%;
+  height: auto;
+  display: block;
+}
+
+.altitude-fill {
+  fill: #bfdbfe;
+  opacity: 0.7;
+}
+
+.altitude-line {
+  fill: none;
+  stroke: #2563eb;
+  stroke-width: 2;
+  stroke-linejoin: round;
+}
+
+.altitude-label {
+  font-size: 11px;
+  fill: #6b7280;
+  font-family: Arial, sans-serif;
 }

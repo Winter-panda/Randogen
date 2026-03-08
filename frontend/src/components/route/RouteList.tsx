@@ -1,4 +1,6 @@
+import { useMemo } from "react";
 import type { RouteCandidate } from "../../types/route";
+import { computeHighlights, difficultyClass, formatDuration, formatScore, tagClass } from "../../utils/labels";
 
 interface RouteListProps {
   routes: RouteCandidate[];
@@ -6,9 +8,6 @@ interface RouteListProps {
   onSelectRoute: (routeId: string) => void;
 }
 
-function roundCoordinate(value: number): number {
-  return Math.round(value * 1000000) / 1000000;
-}
 
 function toPercent(value: number): string {
   return `${Math.round(value * 100)}%`;
@@ -19,6 +18,8 @@ export default function RouteList({
   selectedRouteId,
   onSelectRoute
 }: RouteListProps) {
+  const highlights = useMemo(() => computeHighlights(routes), [routes]);
+
   if (routes.length === 0) {
     return (
       <section className="card">
@@ -35,6 +36,7 @@ export default function RouteList({
       <div className="route-list">
         {routes.map((route) => {
           const isSelected = selectedRouteId === route.id;
+          const highlight = highlights.get(route.id);
 
           return (
             <article
@@ -42,7 +44,12 @@ export default function RouteList({
               className={`route-item ${isSelected ? "route-item-selected" : ""}`}
             >
               <div className="route-item-header">
-                <h3>{route.name}</h3>
+                <div className="route-item-title">
+                  <h3>{route.name}</h3>
+                  {highlight && (
+                    <span className="route-highlight">{highlight}</span>
+                  )}
+                </div>
                 <button type="button" onClick={() => onSelectRoute(route.id)}>
                   {isSelected ? "Sélectionné" : "Sélectionner"}
                 </button>
@@ -50,12 +57,19 @@ export default function RouteList({
 
               <div className="route-meta">
                 <span>Distance : {route.distance_km} km</span>
-                <span>Durée : {route.estimated_duration_min} min</span>
+                <span>Durée : {formatDuration(route.estimated_duration_min)}</span>
                 <span>Dénivelé : {route.estimated_elevation_gain_m} m</span>
-                <span>Score : {route.score}</span>
-                <span>Type : {route.route_type}</span>
-                <span>Source : {route.source}</span>
+                <span>Score : {formatScore(route.score)}</span>
+                <span className={difficultyClass(route.difficulty)}>{route.difficulty}</span>
               </div>
+
+              {route.tags.length > 0 && (
+                <div className="route-tags">
+                  {route.tags.map((tag) => (
+                    <span key={tag} className={tagClass(tag)}>{tag}</span>
+                  ))}
+                </div>
+              )}
 
               <div className="indicators-grid">
                 <div className="indicator-card">
@@ -80,19 +94,6 @@ export default function RouteList({
                 </div>
               </div>
 
-              <details open={isSelected}>
-                <summary>Voir les points du parcours</summary>
-                <pre className="points-block">
-{JSON.stringify(
-  route.points.map((point) => ({
-    latitude: roundCoordinate(point.latitude),
-    longitude: roundCoordinate(point.longitude)
-  })),
-  null,
-  2
-)}
-                </pre>
-              </details>
             </article>
           );
         })}

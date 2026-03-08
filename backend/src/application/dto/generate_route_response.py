@@ -4,6 +4,7 @@ from pydantic import BaseModel, Field
 class RoutePointResponse(BaseModel):
     latitude: float = Field(..., description="Latitude du point")
     longitude: float = Field(..., description="Longitude du point")
+    elevation_m: float = Field(default=0.0, description="Altitude en mètres")
 
 
 class RouteCandidateResponse(BaseModel):
@@ -20,6 +21,8 @@ class RouteCandidateResponse(BaseModel):
     nature_score: float = Field(..., description="Score nature")
     quiet_score: float = Field(..., description="Score calme")
     hiking_suitability_score: float = Field(..., description="Score adaptation randonnée")
+    difficulty: str = Field(default="modérée", description="Niveau de difficulté : facile, modérée, soutenue")
+    tags: list[str] = Field(default_factory=list, description="Tags explicatifs du parcours")
     points: list[RoutePointResponse] = Field(
         default_factory=list,
         description="Points simplifiés du parcours",

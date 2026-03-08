@@ -1,29 +1,66 @@
 import { useState } from "react";
-import type { HikeStyle } from "../../types/route";
+import type { AmbianceFilter, EffortFilter, TerrainFilter } from "../../types/route";
+import { AMBIANCE_HINTS, EFFORT_HINTS, TERRAIN_HINTS } from "../../utils/labels";
 
 interface SearchFormProps {
   distanceKm: number;
   routeCount: number;
-  hikeStyle: HikeStyle;
+  ambiance: AmbianceFilter | null;
+  terrain: TerrainFilter | null;
+  effort: EffortFilter | null;
   loading: boolean;
   hasPosition: boolean;
   onDistanceChange: (value: number) => void;
   onRouteCountChange: (value: number) => void;
-  onHikeStyleChange: (value: HikeStyle) => void;
+  onAmbianceChange: (value: AmbianceFilter | null) => void;
+  onTerrainChange: (value: TerrainFilter | null) => void;
+  onEffortChange: (value: EffortFilter | null) => void;
   onLocate: () => Promise<void> | void;
   onGenerate: () => Promise<void> | void;
+}
+
+const AMBIANCE_OPTIONS: { value: AmbianceFilter; label: string }[] = [
+  { value: "equilibree", label: "Équilibrée" },
+  { value: "sentiers", label: "Sentiers" },
+  { value: "nature", label: "Nature" },
+  { value: "calme", label: "Calme" },
+];
+
+const TERRAIN_OPTIONS: { value: TerrainFilter; label: string }[] = [
+  { value: "plat", label: "Plat" },
+  { value: "vallonne", label: "Vallonné" },
+];
+
+const EFFORT_OPTIONS: { value: EffortFilter; label: string }[] = [
+  { value: "promenade", label: "Promenade" },
+  { value: "sportif", label: "Sportif" },
+];
+
+function activeHint(
+  ambiance: AmbianceFilter | null,
+  terrain: TerrainFilter | null,
+  effort: EffortFilter | null
+): string | null {
+  if (ambiance) return AMBIANCE_HINTS[ambiance];
+  if (terrain) return TERRAIN_HINTS[terrain];
+  if (effort) return EFFORT_HINTS[effort];
+  return null;
 }
 
 export default function SearchForm(props: SearchFormProps) {
   const {
     distanceKm,
     routeCount,
-    hikeStyle,
+    ambiance,
+    terrain,
+    effort,
     loading,
     hasPosition,
     onDistanceChange,
     onRouteCountChange,
-    onHikeStyleChange,
+    onAmbianceChange,
+    onTerrainChange,
+    onEffortChange,
     onLocate,
     onGenerate
   } = props;
@@ -38,7 +75,6 @@ export default function SearchForm(props: SearchFormProps) {
       setDistanceInput(String(parsed));
       return;
     }
-
     setDistanceInput(String(distanceKm));
   };
 
@@ -49,9 +85,10 @@ export default function SearchForm(props: SearchFormProps) {
       setRouteCountInput(String(parsed));
       return;
     }
-
     setRouteCountInput(String(routeCount));
   };
+
+  const hint = activeHint(ambiance, terrain, effort);
 
   return (
     <section className="card">
@@ -85,20 +122,81 @@ export default function SearchForm(props: SearchFormProps) {
             onBlur={handleRouteCountBlur}
           />
         </div>
+      </div>
 
-        <div className="field">
-          <label htmlFor="hikeStyle">Type de randonnée</label>
-          <select
-            id="hikeStyle"
-            value={hikeStyle}
-            onChange={(event) => onHikeStyleChange(event.target.value as HikeStyle)}
-          >
-            <option value="equilibree">Équilibrée</option>
-            <option value="sentiers">Sentiers</option>
-            <option value="nature">Nature</option>
-            <option value="calme">Calme</option>
-          </select>
+      <div className="filter-group">
+        <div className="filter-row">
+          <span className="filter-label">Ambiance</span>
+          <div className="pill-group">
+            <button
+              type="button"
+              className={`pill ${ambiance === null ? "pill-active" : ""}`}
+              onClick={() => onAmbianceChange(null)}
+            >
+              Toutes
+            </button>
+            {AMBIANCE_OPTIONS.map((opt) => (
+              <button
+                key={opt.value}
+                type="button"
+                className={`pill ${ambiance === opt.value ? "pill-active" : ""}`}
+                onClick={() => onAmbianceChange(ambiance === opt.value ? null : opt.value)}
+              >
+                {opt.label}
+              </button>
+            ))}
+          </div>
         </div>
+
+        <div className="filter-row">
+          <span className="filter-label">Terrain</span>
+          <div className="pill-group">
+            <button
+              type="button"
+              className={`pill ${terrain === null ? "pill-active" : ""}`}
+              onClick={() => onTerrainChange(null)}
+            >
+              Tous
+            </button>
+            {TERRAIN_OPTIONS.map((opt) => (
+              <button
+                key={opt.value}
+                type="button"
+                className={`pill ${terrain === opt.value ? "pill-active" : ""}`}
+                onClick={() => onTerrainChange(terrain === opt.value ? null : opt.value)}
+              >
+                {opt.label}
+              </button>
+            ))}
+          </div>
+        </div>
+
+        <div className="filter-row">
+          <span className="filter-label">Effort</span>
+          <div className="pill-group">
+            <button
+              type="button"
+              className={`pill ${effort === null ? "pill-active" : ""}`}
+              onClick={() => onEffortChange(null)}
+            >
+              Tous
+            </button>
+            {EFFORT_OPTIONS.map((opt) => (
+              <button
+                key={opt.value}
+                type="button"
+                className={`pill ${effort === opt.value ? "pill-active" : ""}`}
+                onClick={() => onEffortChange(effort === opt.value ? null : opt.value)}
+              >
+                {opt.label}
+              </button>
+            ))}
+          </div>
+        </div>
+
+        {hint && (
+          <p className="filter-hint-bar">{hint}</p>
+        )}
       </div>
 
       <div className="actions">

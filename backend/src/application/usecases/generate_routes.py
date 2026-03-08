@@ -18,7 +18,9 @@ class GenerateRoutesUseCase:
             longitude=request.longitude,
             target_distance_km=request.target_distance_km,
             route_count=request.route_count,
-            hike_style=request.hike_style,
+            ambiance=request.ambiance,
+            terrain=request.terrain,
+            effort=request.effort,
         )
 
         candidates = self._route_generation_service.generate_routes(search)
@@ -38,10 +40,13 @@ class GenerateRoutesUseCase:
                 nature_score=candidate.nature_score,
                 quiet_score=candidate.quiet_score,
                 hiking_suitability_score=candidate.hiking_suitability_score,
+                difficulty=candidate.difficulty,
+                tags=candidate.tags,
                 points=[
                     RoutePointResponse(
                         latitude=point.latitude,
                         longitude=point.longitude,
+                        elevation_m=point.elevation_m,
                     )
                     for point in candidate.points
                 ],
