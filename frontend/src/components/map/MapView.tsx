@@ -14,9 +14,10 @@ import "leaflet/dist/leaflet.css";
 import markerIconUrl from "leaflet/dist/images/marker-icon.png";
 import markerShadowUrl from "leaflet/dist/images/marker-shadow.png";
 
-import type { RouteCandidate, UserPosition } from "../../types/route";
+import type { PointOfInterest, RouteCandidate, UserPosition } from "../../types/route";
 
 type MapLayer = "standard" | "topo" | "ign";
+type PoiFilter = "all" | "viewpoint" | "water" | "summit" | "nature" | "heritage" | "facility" | "start_access";
 
 interface LayerConfig {
   label: string;
@@ -47,11 +48,24 @@ const MAP_LAYERS: Record<MapLayer, LayerConfig> = {
   },
 };
 
+const POI_CATEGORY_META: Record<PoiFilter, { label: string; icon: string; color: string }> = {
+  all: { label: "Tous", icon: "•", color: "#475569" },
+  viewpoint: { label: "Panorama", icon: "👁️", color: "#7c3aed" },
+  water: { label: "Eau", icon: "💧", color: "#0284c7" },
+  summit: { label: "Sommet", icon: "⛰️", color: "#334155" },
+  nature: { label: "Nature", icon: "🌲", color: "#15803d" },
+  heritage: { label: "Patrimoine", icon: "🏛️", color: "#b45309" },
+  facility: { label: "Services", icon: "🧭", color: "#0f766e" },
+  start_access: { label: "Accès", icon: "🅿️", color: "#1d4ed8" }
+};
+
 interface MapViewProps {
   position: UserPosition | null;
   routes: RouteCandidate[];
   selectedRouteId: string | null;
+  hoveredRouteId: string | null;
   onSelectRoute: (routeId: string) => void;
+  onHoverRoute: (routeId: string | null) => void;
 }
 
 const defaultCenter: LatLngExpression = [48.8566, 2.3522];
@@ -76,11 +90,13 @@ const userIcon = L.icon({
 function MapViewportController({
   position,
   routes,
-  selectedRouteId
+  selectedRouteId,
+  selectedRoutePois
 }: {
   position: UserPosition | null;
   routes: RouteCandidate[];
   selectedRouteId: string | null;
+  selectedRoutePois: PointOfInterest[];
 }) {
   const map = useMap();
 
@@ -96,9 +112,12 @@ function MapViewportController({
       if (position) {
         boundsPoints.push([position.latitude, position.longitude]);
       }
+      for (const poi of selectedRoutePois) {
+        boundsPoints.push([poi.latitude, poi.longitude]);
+      }
 
       const bounds: LatLngBoundsExpression = boundsPoints;
-      map.fitBounds(bounds, { padding: [30, 30] });
+      map.flyToBounds(bounds, { padding: [30, 30], duration: 0.45 });
       return;
     }
 
@@ -122,7 +141,7 @@ function MapViewportController({
     if (position) {
       map.setView([position.latitude, position.longitude], 14);
     }
-  }, [map, position, routes, selectedRouteId]);
+  }, [map, position, routes, selectedRouteId, selectedRoutePois]);
 
   return null;
 }
@@ -131,17 +150,24 @@ export default function MapView({
   position,
   routes,
   selectedRouteId,
-  onSelectRoute
+  hoveredRouteId,
+  onSelectRoute,
+  onHoverRoute
 }: MapViewProps) {
   const [activeLayer, setActiveLayer] = useState<MapLayer>("topo");
+  const [showPois, setShowPois] = useState<boolean>(true);
+  const [poiFilter, setPoiFilter] = useState<PoiFilter>("all");
   const center: LatLngExpression = position
     ? [position.latitude, position.longitude]
     : defaultCenter;
 
   const layer = MAP_LAYERS[activeLayer];
+  const selectedRoute = routes.find((route) => route.id === selectedRouteId) ?? null;
+  const selectedRoutePois = selectedRoute?.pois ?? [];
+  const visiblePois = selectedRoutePois.filter((poi) => poiFilter === "all" || poi.category === poiFilter);
 
   return (
-    <section className="card">
+    <section className="card map-card">
       <div className="map-header">
         <h2>Carte</h2>
         <div className="map-layer-switcher">
@@ -153,6 +179,29 @@ export default function MapView({
               onClick={() => setActiveLayer(key)}
             >
               {MAP_LAYERS[key].label}
+            </button>
+          ))}
+        </div>
+      </div>
+
+      <div className="map-poi-controls">
+        <button
+          type="button"
+          className={`map-layer-btn ${showPois ? "map-layer-btn-active" : ""}`}
+          onClick={() => setShowPois((value) => !value)}
+        >
+          {showPois ? "Masquer POI" : "Afficher POI"}
+        </button>
+
+        <div className="map-layer-switcher">
+          {(Object.keys(POI_CATEGORY_META) as PoiFilter[]).map((key) => (
+            <button
+              key={key}
+              type="button"
+              className={`map-layer-btn ${poiFilter === key ? "map-layer-btn-active" : ""}`}
+              onClick={() => setPoiFilter(key)}
+            >
+              {POI_CATEGORY_META[key].label}
             </button>
           ))}
         </div>
@@ -171,6 +220,7 @@ export default function MapView({
             position={position}
             routes={routes}
             selectedRouteId={selectedRouteId}
+            selectedRoutePois={visiblePois}
           />
 
           {position && (
@@ -194,6 +244,7 @@ export default function MapView({
           {routes.map((route, index) => {
             const color = routeColors[index % routeColors.length];
             const isSelected = selectedRouteId === route.id;
+            const isHovered = hoveredRouteId === route.id;
             const hasSelection = selectedRouteId !== null;
 
             const polylinePositions: LatLngExpression[] = route.points.map((point) => [
@@ -206,12 +257,14 @@ export default function MapView({
                 key={route.id}
                 positions={polylinePositions}
                 pathOptions={{
-                  color: hasSelection && !isSelected ? "#9ca3af" : color,
-                  weight: isSelected ? 8 : 5,
-                  opacity: hasSelection && !isSelected ? 0.5 : 0.9
+                  color: hasSelection && !isSelected && !isHovered ? "#9ca3af" : color,
+                  weight: isSelected ? 8 : isHovered ? 7 : 5,
+                  opacity: hasSelection && !isSelected && !isHovered ? 0.35 : isHovered ? 1 : 0.9
                 }}
                 eventHandlers={{
-                  click: () => onSelectRoute(route.id)
+                  click: () => onSelectRoute(route.id),
+                  mouseover: () => onHoverRoute(route.id),
+                  mouseout: () => onHoverRoute(null)
                 }}
               >
                 <Popup>
@@ -228,6 +281,30 @@ export default function MapView({
               </Polyline>
             );
           })}
+
+          {showPois && selectedRouteId !== null && visiblePois.map((poi) => (
+            <CircleMarker
+              key={poi.id}
+              center={[poi.latitude, poi.longitude]}
+              radius={8}
+              pathOptions={{
+                color: "#ffffff",
+                weight: 2,
+                fillColor: POI_CATEGORY_META[poi.category].color,
+                fillOpacity: 0.95
+              }}
+            >
+              <Popup>
+                <strong>{POI_CATEGORY_META[poi.category].icon} {poi.name}</strong>
+                <br />
+                Type : {POI_CATEGORY_META[poi.category].label}
+                <br />
+                Distance au tracé : {Math.round(poi.distance_to_route_m)} m
+                <br />
+                Score POI : {Math.round(poi.score * 100)}%
+              </Popup>
+            </CircleMarker>
+          ))}
         </MapContainer>
       </div>
 
@@ -235,13 +312,16 @@ export default function MapView({
         {routes.map((route, index) => {
           const color = routeColors[index % routeColors.length];
           const isSelected = selectedRouteId === route.id;
+          const isHovered = hoveredRouteId === route.id;
 
           return (
             <button
               key={route.id}
               type="button"
-              className={`legend-item-button ${isSelected ? "selected" : ""}`}
+              className={`legend-item-button ${isSelected ? "selected" : ""} ${isHovered ? "hovered" : ""}`}
               onClick={() => onSelectRoute(route.id)}
+              onMouseEnter={() => onHoverRoute(route.id)}
+              onMouseLeave={() => onHoverRoute(null)}
             >
               <span className="legend-color" style={{ backgroundColor: color }} />
               <span>{route.name}</span>

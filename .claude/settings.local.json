@@ -1,7 +1,8 @@
 {
   "permissions": {
     "allow": [
-      "Bash(ls d:/Github/Randogen/frontend/.env*)"
+      "Bash(ls d:/Github/Randogen/frontend/.env*)",
+      "Bash(ls -la \"d:\\\\Github\\\\Randogen\\\\backend\\\\tests\"\" 2>/dev/null || echo \"Directory may not exist or is empty \")"
     ]
   }
 }

@@ -24,6 +24,8 @@ class Settings(BaseSettings):
     prefer_trails: bool = True
     prefer_green_routes: bool = True
     avoid_noisy_roads: bool = True
+    enable_weather_context: bool = True
+    weather_request_timeout_s: int = 8
 
     model_config = SettingsConfigDict(
         env_file=".env",

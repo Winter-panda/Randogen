@@ -1,0 +1,1763 @@
+{
+  "users": {
+    "unit-user": {
+      "history": [
+        {
+          "timestamp": "2026-03-08T22:23:37.807285+00:00",
+          "query": {
+            "latitude": 48.85,
+            "longitude": 2.35,
+            "target_distance_km": 5.0,
+            "route_count": 3,
+            "ambiance": null,
+            "terrain": null,
+            "effort": null
+          },
+          "result_route_ids": [
+            "rte-test-1"
+          ]
+        },
+        {
+          "timestamp": "2026-03-08T22:23:37.802049+00:00",
+          "query": {
+            "latitude": 48.85,
+            "longitude": 2.35,
+            "target_distance_km": 5.0,
+            "route_count": 3,
+            "ambiance": null,
+            "terrain": null,
+            "effort": null
+          },
+          "result_route_ids": [
+            "rte-test-1"
+          ]
+        },
+        {
+          "timestamp": "2026-03-08T22:23:37.801398+00:00",
+          "query": {
+            "latitude": 48.85,
+            "longitude": 2.35,
+            "target_distance_km": 5.0,
+            "route_count": 3,
+            "ambiance": null,
+            "terrain": null,
+            "effort": null
+          },
+          "result_route_ids": [
+            "rte-test-1"
+          ]
+        },
+        {
+          "timestamp": "2026-03-08T22:22:36.410081+00:00",
+          "query": {
+            "latitude": 48.85,
+            "longitude": 2.35,
+            "target_distance_km": 5.0,
+            "route_count": 3,
+            "ambiance": null,
+            "terrain": null,
+            "effort": null
+          },
+          "result_route_ids": [
+            "rte-test-1"
+          ]
+        },
+        {
+          "timestamp": "2026-03-08T22:22:36.405362+00:00",
+          "query": {
+            "latitude": 48.85,
+            "longitude": 2.35,
+            "target_distance_km": 5.0,
+            "route_count": 3,
+            "ambiance": null,
+            "terrain": null,
+            "effort": null
+          },
+          "result_route_ids": [
+            "rte-test-1"
+          ]
+        },
+        {
+          "timestamp": "2026-03-08T22:22:36.404785+00:00",
+          "query": {
+            "latitude": 48.85,
+            "longitude": 2.35,
+            "target_distance_km": 5.0,
+            "route_count": 3,
+            "ambiance": null,
+            "terrain": null,
+            "effort": null
+          },
+          "result_route_ids": [
+            "rte-test-1"
+          ]
+        },
+        {
+          "timestamp": "2026-03-08T22:21:52.726567+00:00",
+          "query": {
+            "latitude": 48.85,
+            "longitude": 2.35,
+            "target_distance_km": 5.0,
+            "route_count": 3,
+            "ambiance": null,
+            "terrain": null,
+            "effort": null
+          },
+          "result_route_ids": [
+            "rte-test-1"
+          ]
+        },
+        {
+          "timestamp": "2026-03-08T22:21:52.721539+00:00",
+          "query": {
+            "latitude": 48.85,
+            "longitude": 2.35,
+            "target_distance_km": 5.0,
+            "route_count": 3,
+            "ambiance": null,
+            "terrain": null,
+            "effort": null
+          },
+          "result_route_ids": [
+            "rte-test-1"
+          ]
+        },
+        {
+          "timestamp": "2026-03-08T22:21:52.720892+00:00",
+          "query": {
+            "latitude": 48.85,
+            "longitude": 2.35,
+            "target_distance_km": 5.0,
+            "route_count": 3,
+            "ambiance": null,
+            "terrain": null,
+            "effort": null
+          },
+          "result_route_ids": [
+            "rte-test-1"
+          ]
+        },
+        {
+          "timestamp": "2026-03-08T22:21:23.518240+00:00",
+          "query": {
+            "latitude": 48.85,
+            "longitude": 2.35,
+            "target_distance_km": 5.0,
+            "route_count": 3,
+            "ambiance": null,
+            "terrain": null,
+            "effort": null
+          },
+          "result_route_ids": [
+            "rte-test-1"
+          ]
+        },
+        {
+          "timestamp": "2026-03-08T22:21:23.512955+00:00",
+          "query": {
+            "latitude": 48.85,
+            "longitude": 2.35,
+            "target_distance_km": 5.0,
+            "route_count": 3,
+            "ambiance": null,
+            "terrain": null,
+            "effort": null
+          },
+          "result_route_ids": [
+            "rte-test-1"
+          ]
+        },
+        {
+          "timestamp": "2026-03-08T22:21:23.512391+00:00",
+          "query": {
+            "latitude": 48.85,
+            "longitude": 2.35,
+            "target_distance_km": 5.0,
+            "route_count": 3,
+            "ambiance": null,
+            "terrain": null,
+            "effort": null
+          },
+          "result_route_ids": [
+            "rte-test-1"
+          ]
+        },
+        {
+          "timestamp": "2026-03-08T22:16:44.306342+00:00",
+          "query": {
+            "latitude": 48.85,
+            "longitude": 2.35,
+            "target_distance_km": 5.0,
+            "route_count": 3,
+            "ambiance": null,
+            "terrain": null,
+            "effort": null
+          },
+          "result_route_ids": [
+            "rte-test-1"
+          ]
+        },
+        {
+          "timestamp": "2026-03-08T22:16:44.301706+00:00",
+          "query": {
+            "latitude": 48.85,
+            "longitude": 2.35,
+            "target_distance_km": 5.0,
+            "route_count": 3,
+            "ambiance": null,
+            "terrain": null,
+            "effort": null
+          },
+          "result_route_ids": [
+            "rte-test-1"
+          ]
+        },
+        {
+          "timestamp": "2026-03-08T22:16:44.301128+00:00",
+          "query": {
+            "latitude": 48.85,
+            "longitude": 2.35,
+            "target_distance_km": 5.0,
+            "route_count": 3,
+            "ambiance": null,
+            "terrain": null,
+            "effort": null
+          },
+          "result_route_ids": [
+            "rte-test-1"
+          ]
+        },
+        {
+          "timestamp": "2026-03-08T20:35:20.495744+00:00",
+          "query": {
+            "latitude": 48.85,
+            "longitude": 2.35,
+            "target_distance_km": 5.0,
+            "route_count": 3,
+            "ambiance": null,
+            "terrain": null,
+            "effort": null
+          },
+          "result_route_ids": [
+            "rte-test-1"
+          ]
+        },
+        {
+          "timestamp": "2026-03-08T20:35:20.491657+00:00",
+          "query": {
+            "latitude": 48.85,
+            "longitude": 2.35,
+            "target_distance_km": 5.0,
+            "route_count": 3,
+            "ambiance": null,
+            "terrain": null,
+            "effort": null
+          },
+          "result_route_ids": [
+            "rte-test-1"
+          ]
+        },
+        {
+          "timestamp": "2026-03-08T20:35:20.491122+00:00",
+          "query": {
+            "latitude": 48.85,
+            "longitude": 2.35,
+            "target_distance_km": 5.0,
+            "route_count": 3,
+            "ambiance": null,
+            "terrain": null,
+            "effort": null
+          },
+          "result_route_ids": [
+            "rte-test-1"
+          ]
+        },
+        {
+          "timestamp": "2026-03-08T20:31:11.328505+00:00",
+          "query": {
+            "latitude": 48.85,
+            "longitude": 2.35,
+            "target_distance_km": 5.0,
+            "route_count": 3,
+            "ambiance": null,
+            "terrain": null,
+            "effort": null
+          },
+          "result_route_ids": [
+            "rte-test-1"
+          ]
+        },
+        {
+          "timestamp": "2026-03-08T20:31:11.324590+00:00",
+          "query": {
+            "latitude": 48.85,
+            "longitude": 2.35,
+            "target_distance_km": 5.0,
+            "route_count": 3,
+            "ambiance": null,
+            "terrain": null,
+            "effort": null
+          },
+          "result_route_ids": [
+            "rte-test-1"
+          ]
+        },
+        {
+          "timestamp": "2026-03-08T20:31:11.324035+00:00",
+          "query": {
+            "latitude": 48.85,
+            "longitude": 2.35,
+            "target_distance_km": 5.0,
+            "route_count": 3,
+            "ambiance": null,
+            "terrain": null,
+            "effort": null
+          },
+          "result_route_ids": [
+            "rte-test-1"
+          ]
+        },
+        {
+          "timestamp": "2026-03-08T20:30:52.623528+00:00",
+          "query": {
+            "latitude": 48.85,
+            "longitude": 2.35,
+            "target_distance_km": 5.0,
+            "route_count": 3,
+            "ambiance": null,
+            "terrain": null,
+            "effort": null
+          },
+          "result_route_ids": [
+            "rte-test-1"
+          ]
+        },
+        {
+          "timestamp": "2026-03-08T20:30:52.620147+00:00",
+          "query": {
+            "latitude": 48.85,
+            "longitude": 2.35,
+            "target_distance_km": 5.0,
+            "route_count": 3,
+            "ambiance": null,
+            "terrain": null,
+            "effort": null
+          },
+          "result_route_ids": [
+            "rte-test-1"
+          ]
+        },
+        {
+          "timestamp": "2026-03-08T20:30:52.619621+00:00",
+          "query": {
+            "latitude": 48.85,
+            "longitude": 2.35,
+            "target_distance_km": 5.0,
+            "route_count": 3,
+            "ambiance": null,
+            "terrain": null,
+            "effort": null
+          },
+          "result_route_ids": [
+            "rte-test-1"
+          ]
+        },
+        {
+          "timestamp": "2026-03-08T20:24:24.408218+00:00",
+          "query": {
+            "latitude": 48.85,
+            "longitude": 2.35,
+            "target_distance_km": 5.0,
+            "route_count": 3,
+            "ambiance": null,
+            "terrain": null,
+            "effort": null
+          },
+          "result_route_ids": [
+            "rte-test-1"
+          ]
+        },
+        {
+          "timestamp": "2026-03-08T20:24:24.405087+00:00",
+          "query": {
+            "latitude": 48.85,
+            "longitude": 2.35,
+            "target_distance_km": 5.0,
+            "route_count": 3,
+            "ambiance": null,
+            "terrain": null,
+            "effort": null
+          },
+          "result_route_ids": [
+            "rte-test-1"
+          ]
+        },
+        {
+          "timestamp": "2026-03-08T20:24:24.404535+00:00",
+          "query": {
+            "latitude": 48.85,
+            "longitude": 2.35,
+            "target_distance_km": 5.0,
+            "route_count": 3,
+            "ambiance": null,
+            "terrain": null,
+            "effort": null
+          },
+          "result_route_ids": [
+            "rte-test-1"
+          ]
+        },
+        {
+          "timestamp": "2026-03-08T20:24:02.983828+00:00",
+          "query": {
+            "latitude": 48.85,
+            "longitude": 2.35,
+            "target_distance_km": 5.0,
+            "route_count": 3,
+            "ambiance": null,
+            "terrain": null,
+            "effort": null
+          },
+          "result_route_ids": [
+            "rte-test-1"
+          ]
+        },
+        {
+          "timestamp": "2026-03-08T20:24:02.980779+00:00",
+          "query": {
+            "latitude": 48.85,
+            "longitude": 2.35,
+            "target_distance_km": 5.0,
+            "route_count": 3,
+            "ambiance": null,
+            "terrain": null,
+            "effort": null
+          },
+          "result_route_ids": [
+            "rte-test-1"
+          ]
+        },
+        {
+          "timestamp": "2026-03-08T20:24:02.980269+00:00",
+          "query": {
+            "latitude": 48.85,
+            "longitude": 2.35,
+            "target_distance_km": 5.0,
+            "route_count": 3,
+            "ambiance": null,
+            "terrain": null,
+            "effort": null
+          },
+          "result_route_ids": [
+            "rte-test-1"
+          ]
+        },
+        {
+          "timestamp": "2026-03-08T20:22:57.453443+00:00",
+          "query": {
+            "latitude": 48.85,
+            "longitude": 2.35,
+            "target_distance_km": 5.0,
+            "route_count": 3,
+            "ambiance": null,
+            "terrain": null,
+            "effort": null
+          },
+          "result_route_ids": [
+            "rte-test-1"
+          ]
+        },
+        {
+          "timestamp": "2026-03-08T20:22:57.450758+00:00",
+          "query": {
+            "latitude": 48.85,
+            "longitude": 2.35,
+            "target_distance_km": 5.0,
+            "route_count": 3,
+            "ambiance": null,
+            "terrain": null,
+            "effort": null
+          },
+          "result_route_ids": [
+            "rte-test-1"
+          ]
+        },
+        {
+          "timestamp": "2026-03-08T20:22:57.450254+00:00",
+          "query": {
+            "latitude": 48.85,
+            "longitude": 2.35,
+            "target_distance_km": 5.0,
+            "route_count": 3,
+            "ambiance": null,
+            "terrain": null,
+            "effort": null
+          },
+          "result_route_ids": [
+            "rte-test-1"
+          ]
+        }
+      ],
+      "favorites": {},
+      "seen_routes": [
+        {
+          "stable_route_id": "rte-test-1",
+          "name": "Parcours test",
+          "distance_km": 5.0,
+          "estimated_duration_min": 75,
+          "estimated_elevation_gain_m": 110,
+          "difficulty": "moderee",
+          "score": 0.8,
+          "tags": [],
+          "highlighted_poi_labels": [],
+          "centroid_lat": null,
+          "centroid_lon": null,
+          "last_seen_at": "2026-03-08T22:23:37.807290+00:00",
+          "last_event": "generated"
+        }
+      ]
+    },
+    "dist-test-user": {
+      "history": [
+        {
+          "timestamp": "2026-03-08T22:23:37.805224+00:00",
+          "query": {
+            "latitude": 48.85,
+            "longitude": 2.35,
+            "target_distance_km": 6.0,
+            "route_count": 3,
+            "ambiance": null,
+            "terrain": null,
+            "effort": null
+          },
+          "result_route_ids": [
+            "rte-6.0"
+          ]
+        },
+        {
+          "timestamp": "2026-03-08T22:23:37.804861+00:00",
+          "query": {
+            "latitude": 48.85,
+            "longitude": 2.35,
+            "target_distance_km": 4.0,
+            "route_count": 3,
+            "ambiance": null,
+            "terrain": null,
+            "effort": null
+          },
+          "result_route_ids": [
+            "rte-4.0"
+          ]
+        },
+        {
+          "timestamp": "2026-03-08T22:22:36.408158+00:00",
+          "query": {
+            "latitude": 48.85,
+            "longitude": 2.35,
+            "target_distance_km": 6.0,
+            "route_count": 3,
+            "ambiance": null,
+            "terrain": null,
+            "effort": null
+          },
+          "result_route_ids": [
+            "rte-6.0"
+          ]
+        },
+        {
+          "timestamp": "2026-03-08T22:22:36.407835+00:00",
+          "query": {
+            "latitude": 48.85,
+            "longitude": 2.35,
+            "target_distance_km": 4.0,
+            "route_count": 3,
+            "ambiance": null,
+            "terrain": null,
+            "effort": null
+          },
+          "result_route_ids": [
+            "rte-4.0"
+          ]
+        },
+        {
+          "timestamp": "2026-03-08T22:21:52.724454+00:00",
+          "query": {
+            "latitude": 48.85,
+            "longitude": 2.35,
+            "target_distance_km": 6.0,
+            "route_count": 3,
+            "ambiance": null,
+            "terrain": null,
+            "effort": null
+          },
+          "result_route_ids": [
+            "rte-6.0"
+          ]
+        },
+        {
+          "timestamp": "2026-03-08T22:21:52.724126+00:00",
+          "query": {
+            "latitude": 48.85,
+            "longitude": 2.35,
+            "target_distance_km": 4.0,
+            "route_count": 3,
+            "ambiance": null,
+            "terrain": null,
+            "effort": null
+          },
+          "result_route_ids": [
+            "rte-4.0"
+          ]
+        },
+        {
+          "timestamp": "2026-03-08T22:21:23.516020+00:00",
+          "query": {
+            "latitude": 48.85,
+            "longitude": 2.35,
+            "target_distance_km": 6.0,
+            "route_count": 3,
+            "ambiance": null,
+            "terrain": null,
+            "effort": null
+          },
+          "result_route_ids": [
+            "rte-6.0"
+          ]
+        },
+        {
+          "timestamp": "2026-03-08T22:21:23.515686+00:00",
+          "query": {
+            "latitude": 48.85,
+            "longitude": 2.35,
+            "target_distance_km": 4.0,
+            "route_count": 3,
+            "ambiance": null,
+            "terrain": null,
+            "effort": null
+          },
+          "result_route_ids": [
+            "rte-4.0"
+          ]
+        },
+        {
+          "timestamp": "2026-03-08T22:16:44.304563+00:00",
+          "query": {
+            "latitude": 48.85,
+            "longitude": 2.35,
+            "target_distance_km": 6.0,
+            "route_count": 3,
+            "ambiance": null,
+            "terrain": null,
+            "effort": null
+          },
+          "result_route_ids": [
+            "rte-6.0"
+          ]
+        },
+        {
+          "timestamp": "2026-03-08T22:16:44.304243+00:00",
+          "query": {
+            "latitude": 48.85,
+            "longitude": 2.35,
+            "target_distance_km": 4.0,
+            "route_count": 3,
+            "ambiance": null,
+            "terrain": null,
+            "effort": null
+          },
+          "result_route_ids": [
+            "rte-4.0"
+          ]
+        },
+        {
+          "timestamp": "2026-03-08T20:35:20.494070+00:00",
+          "query": {
+            "latitude": 48.85,
+            "longitude": 2.35,
+            "target_distance_km": 6.0,
+            "route_count": 3,
+            "ambiance": null,
+            "terrain": null,
+            "effort": null
+          },
+          "result_route_ids": [
+            "rte-6.0"
+          ]
+        },
+        {
+          "timestamp": "2026-03-08T20:35:20.493786+00:00",
+          "query": {
+            "latitude": 48.85,
+            "longitude": 2.35,
+            "target_distance_km": 4.0,
+            "route_count": 3,
+            "ambiance": null,
+            "terrain": null,
+            "effort": null
+          },
+          "result_route_ids": [
+            "rte-4.0"
+          ]
+        },
+        {
+          "timestamp": "2026-03-08T20:31:11.326917+00:00",
+          "query": {
+            "latitude": 48.85,
+            "longitude": 2.35,
+            "target_distance_km": 6.0,
+            "route_count": 3,
+            "ambiance": null,
+            "terrain": null,
+            "effort": null
+          },
+          "result_route_ids": [
+            "rte-6.0"
+          ]
+        },
+        {
+          "timestamp": "2026-03-08T20:31:11.326652+00:00",
+          "query": {
+            "latitude": 48.85,
+            "longitude": 2.35,
+            "target_distance_km": 4.0,
+            "route_count": 3,
+            "ambiance": null,
+            "terrain": null,
+            "effort": null
+          },
+          "result_route_ids": [
+            "rte-4.0"
+          ]
+        },
+        {
+          "timestamp": "2026-03-08T20:30:52.621973+00:00",
+          "query": {
+            "latitude": 48.85,
+            "longitude": 2.35,
+            "target_distance_km": 6.0,
+            "route_count": 3,
+            "ambiance": null,
+            "terrain": null,
+            "effort": null
+          },
+          "result_route_ids": [
+            "rte-6.0"
+          ]
+        },
+        {
+          "timestamp": "2026-03-08T20:30:52.621735+00:00",
+          "query": {
+            "latitude": 48.85,
+            "longitude": 2.35,
+            "target_distance_km": 4.0,
+            "route_count": 3,
+            "ambiance": null,
+            "terrain": null,
+            "effort": null
+          },
+          "result_route_ids": [
+            "rte-4.0"
+          ]
+        },
+        {
+          "timestamp": "2026-03-08T20:24:24.406657+00:00",
+          "query": {
+            "latitude": 48.85,
+            "longitude": 2.35,
+            "target_distance_km": 6.0,
+            "route_count": 3,
+            "ambiance": null,
+            "terrain": null,
+            "effort": null
+          },
+          "result_route_ids": [
+            "rte-6.0"
+          ]
+        },
+        {
+          "timestamp": "2026-03-08T20:24:24.406437+00:00",
+          "query": {
+            "latitude": 48.85,
+            "longitude": 2.35,
+            "target_distance_km": 4.0,
+            "route_count": 3,
+            "ambiance": null,
+            "terrain": null,
+            "effort": null
+          },
+          "result_route_ids": [
+            "rte-4.0"
+          ]
+        },
+        {
+          "timestamp": "2026-03-08T20:24:02.982257+00:00",
+          "query": {
+            "latitude": 48.85,
+            "longitude": 2.35,
+            "target_distance_km": 6.0,
+            "route_count": 3,
+            "ambiance": null,
+            "terrain": null,
+            "effort": null
+          },
+          "result_route_ids": [
+            "rte-6.0"
+          ]
+        },
+        {
+          "timestamp": "2026-03-08T20:24:02.982050+00:00",
+          "query": {
+            "latitude": 48.85,
+            "longitude": 2.35,
+            "target_distance_km": 4.0,
+            "route_count": 3,
+            "ambiance": null,
+            "terrain": null,
+            "effort": null
+          },
+          "result_route_ids": [
+            "rte-4.0"
+          ]
+        },
+        {
+          "timestamp": "2026-03-08T20:22:57.452094+00:00",
+          "query": {
+            "latitude": 48.85,
+            "longitude": 2.35,
+            "target_distance_km": 6.0,
+            "route_count": 3,
+            "ambiance": null,
+            "terrain": null,
+            "effort": null
+          },
+          "result_route_ids": [
+            "rte-6.0"
+          ]
+        },
+        {
+          "timestamp": "2026-03-08T20:22:57.451892+00:00",
+          "query": {
+            "latitude": 48.85,
+            "longitude": 2.35,
+            "target_distance_km": 4.0,
+            "route_count": 3,
+            "ambiance": null,
+            "terrain": null,
+            "effort": null
+          },
+          "result_route_ids": [
+            "rte-4.0"
+          ]
+        }
+      ],
+      "favorites": {},
+      "seen_routes": [
+        {
+          "stable_route_id": "rte-6.0",
+          "name": "Parcours test",
+          "distance_km": 5.0,
+          "estimated_duration_min": 75,
+          "estimated_elevation_gain_m": 110,
+          "difficulty": "moderee",
+          "score": 0.8,
+          "tags": [],
+          "highlighted_poi_labels": [],
+          "centroid_lat": null,
+          "centroid_lon": null,
+          "last_seen_at": "2026-03-08T22:23:37.805230+00:00",
+          "last_event": "generated"
+        },
+        {
+          "stable_route_id": "rte-4.0",
+          "name": "Parcours test",
+          "distance_km": 5.0,
+          "estimated_duration_min": 75,
+          "estimated_elevation_gain_m": 110,
+          "difficulty": "moderee",
+          "score": 0.8,
+          "tags": [],
+          "highlighted_poi_labels": [],
+          "centroid_lat": null,
+          "centroid_lon": null,
+          "last_seen_at": "2026-03-08T22:23:37.804865+00:00",
+          "last_event": "generated"
+        }
+      ]
+    },
+    "fresh-user-xyz": {
+      "history": [],
+      "favorites": {},
+      "seen_routes": []
+    },
+    "pref-test-user": {
+      "history": [
+        {
+          "timestamp": "2026-03-08T22:23:37.806817+00:00",
+          "query": {
+            "latitude": 48.85,
+            "longitude": 2.35,
+            "target_distance_km": 5.0,
+            "route_count": 3,
+            "ambiance": "calme",
+            "terrain": null,
+            "effort": null
+          },
+          "result_route_ids": [
+            "rte-p2"
+          ]
+        },
+        {
+          "timestamp": "2026-03-08T22:23:37.806487+00:00",
+          "query": {
+            "latitude": 48.85,
+            "longitude": 2.35,
+            "target_distance_km": 5.0,
+            "route_count": 3,
+            "ambiance": "nature",
+            "terrain": null,
+            "effort": null
+          },
+          "result_route_ids": [
+            "rte-p1"
+          ]
+        },
+        {
+          "timestamp": "2026-03-08T22:23:37.806136+00:00",
+          "query": {
+            "latitude": 48.85,
+            "longitude": 2.35,
+            "target_distance_km": 5.0,
+            "route_count": 3,
+            "ambiance": "nature",
+            "terrain": null,
+            "effort": null
+          },
+          "result_route_ids": [
+            "rte-p1"
+          ]
+        },
+        {
+          "timestamp": "2026-03-08T22:23:37.805780+00:00",
+          "query": {
+            "latitude": 48.85,
+            "longitude": 2.35,
+            "target_distance_km": 5.0,
+            "route_count": 3,
+            "ambiance": "nature",
+            "terrain": null,
+            "effort": null
+          },
+          "result_route_ids": [
+            "rte-p1"
+          ]
+        },
+        {
+          "timestamp": "2026-03-08T22:22:36.409638+00:00",
+          "query": {
+            "latitude": 48.85,
+            "longitude": 2.35,
+            "target_distance_km": 5.0,
+            "route_count": 3,
+            "ambiance": "calme",
+            "terrain": null,
+            "effort": null
+          },
+          "result_route_ids": [
+            "rte-p2"
+          ]
+        },
+        {
+          "timestamp": "2026-03-08T22:22:36.409316+00:00",
+          "query": {
+            "latitude": 48.85,
+            "longitude": 2.35,
+            "target_distance_km": 5.0,
+            "route_count": 3,
+            "ambiance": "nature",
+            "terrain": null,
+            "effort": null
+          },
+          "result_route_ids": [
+            "rte-p1"
+          ]
+        },
+        {
+          "timestamp": "2026-03-08T22:22:36.408996+00:00",
+          "query": {
+            "latitude": 48.85,
+            "longitude": 2.35,
+            "target_distance_km": 5.0,
+            "route_count": 3,
+            "ambiance": "nature",
+            "terrain": null,
+            "effort": null
+          },
+          "result_route_ids": [
+            "rte-p1"
+          ]
+        },
+        {
+          "timestamp": "2026-03-08T22:22:36.408645+00:00",
+          "query": {
+            "latitude": 48.85,
+            "longitude": 2.35,
+            "target_distance_km": 5.0,
+            "route_count": 3,
+            "ambiance": "nature",
+            "terrain": null,
+            "effort": null
+          },
+          "result_route_ids": [
+            "rte-p1"
+          ]
+        },
+        {
+          "timestamp": "2026-03-08T22:21:52.726057+00:00",
+          "query": {
+            "latitude": 48.85,
+            "longitude": 2.35,
+            "target_distance_km": 5.0,
+            "route_count": 3,
+            "ambiance": "calme",
+            "terrain": null,
+            "effort": null
+          },
+          "result_route_ids": [
+            "rte-p2"
+          ]
+        },
+        {
+          "timestamp": "2026-03-08T22:21:52.725705+00:00",
+          "query": {
+            "latitude": 48.85,
+            "longitude": 2.35,
+            "target_distance_km": 5.0,
+            "route_count": 3,
+            "ambiance": "nature",
+            "terrain": null,
+            "effort": null
+          },
+          "result_route_ids": [
+            "rte-p1"
+          ]
+        },
+        {
+          "timestamp": "2026-03-08T22:21:52.725294+00:00",
+          "query": {
+            "latitude": 48.85,
+            "longitude": 2.35,
+            "target_distance_km": 5.0,
+            "route_count": 3,
+            "ambiance": "nature",
+            "terrain": null,
+            "effort": null
+          },
+          "result_route_ids": [
+            "rte-p1"
+          ]
+        },
+        {
+          "timestamp": "2026-03-08T22:21:52.724968+00:00",
+          "query": {
+            "latitude": 48.85,
+            "longitude": 2.35,
+            "target_distance_km": 5.0,
+            "route_count": 3,
+            "ambiance": "nature",
+            "terrain": null,
+            "effort": null
+          },
+          "result_route_ids": [
+            "rte-p1"
+          ]
+        },
+        {
+          "timestamp": "2026-03-08T22:21:23.517620+00:00",
+          "query": {
+            "latitude": 48.85,
+            "longitude": 2.35,
+            "target_distance_km": 5.0,
+            "route_count": 3,
+            "ambiance": "calme",
+            "terrain": null,
+            "effort": null
+          },
+          "result_route_ids": [
+            "rte-p2"
+          ]
+        },
+        {
+          "timestamp": "2026-03-08T22:21:23.517238+00:00",
+          "query": {
+            "latitude": 48.85,
+            "longitude": 2.35,
+            "target_distance_km": 5.0,
+            "route_count": 3,
+            "ambiance": "nature",
+            "terrain": null,
+            "effort": null
+          },
+          "result_route_ids": [
+            "rte-p1"
+          ]
+        },
+        {
+          "timestamp": "2026-03-08T22:21:23.516940+00:00",
+          "query": {
+            "latitude": 48.85,
+            "longitude": 2.35,
+            "target_distance_km": 5.0,
+            "route_count": 3,
+            "ambiance": "nature",
+            "terrain": null,
+            "effort": null
+          },
+          "result_route_ids": [
+            "rte-p1"
+          ]
+        },
+        {
+          "timestamp": "2026-03-08T22:21:23.516617+00:00",
+          "query": {
+            "latitude": 48.85,
+            "longitude": 2.35,
+            "target_distance_km": 5.0,
+            "route_count": 3,
+            "ambiance": "nature",
+            "terrain": null,
+            "effort": null
+          },
+          "result_route_ids": [
+            "rte-p1"
+          ]
+        },
+        {
+          "timestamp": "2026-03-08T22:16:44.305934+00:00",
+          "query": {
+            "latitude": 48.85,
+            "longitude": 2.35,
+            "target_distance_km": 5.0,
+            "route_count": 3,
+            "ambiance": "calme",
+            "terrain": null,
+            "effort": null
+          },
+          "result_route_ids": [
+            "rte-p2"
+          ]
+        },
+        {
+          "timestamp": "2026-03-08T22:16:44.305661+00:00",
+          "query": {
+            "latitude": 48.85,
+            "longitude": 2.35,
+            "target_distance_km": 5.0,
+            "route_count": 3,
+            "ambiance": "nature",
+            "terrain": null,
+            "effort": null
+          },
+          "result_route_ids": [
+            "rte-p1"
+          ]
+        },
+        {
+          "timestamp": "2026-03-08T22:16:44.305371+00:00",
+          "query": {
+            "latitude": 48.85,
+            "longitude": 2.35,
+            "target_distance_km": 5.0,
+            "route_count": 3,
+            "ambiance": "nature",
+            "terrain": null,
+            "effort": null
+          },
+          "result_route_ids": [
+            "rte-p1"
+          ]
+        },
+        {
+          "timestamp": "2026-03-08T22:16:44.305057+00:00",
+          "query": {
+            "latitude": 48.85,
+            "longitude": 2.35,
+            "target_distance_km": 5.0,
+            "route_count": 3,
+            "ambiance": "nature",
+            "terrain": null,
+            "effort": null
+          },
+          "result_route_ids": [
+            "rte-p1"
+          ]
+        },
+        {
+          "timestamp": "2026-03-08T20:35:20.495334+00:00",
+          "query": {
+            "latitude": 48.85,
+            "longitude": 2.35,
+            "target_distance_km": 5.0,
+            "route_count": 3,
+            "ambiance": "calme",
+            "terrain": null,
+            "effort": null
+          },
+          "result_route_ids": [
+            "rte-p2"
+          ]
+        },
+        {
+          "timestamp": "2026-03-08T20:35:20.495040+00:00",
+          "query": {
+            "latitude": 48.85,
+            "longitude": 2.35,
+            "target_distance_km": 5.0,
+            "route_count": 3,
+            "ambiance": "nature",
+            "terrain": null,
+            "effort": null
+          },
+          "result_route_ids": [
+            "rte-p1"
+          ]
+        },
+        {
+          "timestamp": "2026-03-08T20:35:20.494776+00:00",
+          "query": {
+            "latitude": 48.85,
+            "longitude": 2.35,
+            "target_distance_km": 5.0,
+            "route_count": 3,
+            "ambiance": "nature",
+            "terrain": null,
+            "effort": null
+          },
+          "result_route_ids": [
+            "rte-p1"
+          ]
+        },
+        {
+          "timestamp": "2026-03-08T20:35:20.494507+00:00",
+          "query": {
+            "latitude": 48.85,
+            "longitude": 2.35,
+            "target_distance_km": 5.0,
+            "route_count": 3,
+            "ambiance": "nature",
+            "terrain": null,
+            "effort": null
+          },
+          "result_route_ids": [
+            "rte-p1"
+          ]
+        },
+        {
+          "timestamp": "2026-03-08T20:31:11.328131+00:00",
+          "query": {
+            "latitude": 48.85,
+            "longitude": 2.35,
+            "target_distance_km": 5.0,
+            "route_count": 3,
+            "ambiance": "calme",
+            "terrain": null,
+            "effort": null
+          },
+          "result_route_ids": [
+            "rte-p2"
+          ]
+        },
+        {
+          "timestamp": "2026-03-08T20:31:11.327894+00:00",
+          "query": {
+            "latitude": 48.85,
+            "longitude": 2.35,
+            "target_distance_km": 5.0,
+            "route_count": 3,
+            "ambiance": "nature",
+            "terrain": null,
+            "effort": null
+          },
+          "result_route_ids": [
+            "rte-p1"
+          ]
+        },
+        {
+          "timestamp": "2026-03-08T20:31:11.327650+00:00",
+          "query": {
+            "latitude": 48.85,
+            "longitude": 2.35,
+            "target_distance_km": 5.0,
+            "route_count": 3,
+            "ambiance": "nature",
+            "terrain": null,
+            "effort": null
+          },
+          "result_route_ids": [
+            "rte-p1"
+          ]
+        },
+        {
+          "timestamp": "2026-03-08T20:31:11.327382+00:00",
+          "query": {
+            "latitude": 48.85,
+            "longitude": 2.35,
+            "target_distance_km": 5.0,
+            "route_count": 3,
+            "ambiance": "nature",
+            "terrain": null,
+            "effort": null
+          },
+          "result_route_ids": [
+            "rte-p1"
+          ]
+        },
+        {
+          "timestamp": "2026-03-08T20:30:52.623167+00:00",
+          "query": {
+            "latitude": 48.85,
+            "longitude": 2.35,
+            "target_distance_km": 5.0,
+            "route_count": 3,
+            "ambiance": "calme",
+            "terrain": null,
+            "effort": null
+          },
+          "result_route_ids": [
+            "rte-p2"
+          ]
+        },
+        {
+          "timestamp": "2026-03-08T20:30:52.622946+00:00",
+          "query": {
+            "latitude": 48.85,
+            "longitude": 2.35,
+            "target_distance_km": 5.0,
+            "route_count": 3,
+            "ambiance": "nature",
+            "terrain": null,
+            "effort": null
+          },
+          "result_route_ids": [
+            "rte-p1"
+          ]
+        },
+        {
+          "timestamp": "2026-03-08T20:30:52.622721+00:00",
+          "query": {
+            "latitude": 48.85,
+            "longitude": 2.35,
+            "target_distance_km": 5.0,
+            "route_count": 3,
+            "ambiance": "nature",
+            "terrain": null,
+            "effort": null
+          },
+          "result_route_ids": [
+            "rte-p1"
+          ]
+        },
+        {
+          "timestamp": "2026-03-08T20:30:52.622447+00:00",
+          "query": {
+            "latitude": 48.85,
+            "longitude": 2.35,
+            "target_distance_km": 5.0,
+            "route_count": 3,
+            "ambiance": "nature",
+            "terrain": null,
+            "effort": null
+          },
+          "result_route_ids": [
+            "rte-p1"
+          ]
+        },
+        {
+          "timestamp": "2026-03-08T20:24:24.407741+00:00",
+          "query": {
+            "latitude": 48.85,
+            "longitude": 2.35,
+            "target_distance_km": 5.0,
+            "route_count": 3,
+            "ambiance": "calme",
+            "terrain": null,
+            "effort": null
+          },
+          "result_route_ids": [
+            "rte-p2"
+          ]
+        },
+        {
+          "timestamp": "2026-03-08T20:24:24.407544+00:00",
+          "query": {
+            "latitude": 48.85,
+            "longitude": 2.35,
+            "target_distance_km": 5.0,
+            "route_count": 3,
+            "ambiance": "nature",
+            "terrain": null,
+            "effort": null
+          },
+          "result_route_ids": [
+            "rte-p1"
+          ]
+        },
+        {
+          "timestamp": "2026-03-08T20:24:24.407338+00:00",
+          "query": {
+            "latitude": 48.85,
+            "longitude": 2.35,
+            "target_distance_km": 5.0,
+            "route_count": 3,
+            "ambiance": "nature",
+            "terrain": null,
+            "effort": null
+          },
+          "result_route_ids": [
+            "rte-p1"
+          ]
+        },
+        {
+          "timestamp": "2026-03-08T20:24:24.407095+00:00",
+          "query": {
+            "latitude": 48.85,
+            "longitude": 2.35,
+            "target_distance_km": 5.0,
+            "route_count": 3,
+            "ambiance": "nature",
+            "terrain": null,
+            "effort": null
+          },
+          "result_route_ids": [
+            "rte-p1"
+          ]
+        },
+        {
+          "timestamp": "2026-03-08T20:24:02.983390+00:00",
+          "query": {
+            "latitude": 48.85,
+            "longitude": 2.35,
+            "target_distance_km": 5.0,
+            "route_count": 3,
+            "ambiance": "calme",
+            "terrain": null,
+            "effort": null
+          },
+          "result_route_ids": [
+            "rte-p2"
+          ]
+        },
+        {
+          "timestamp": "2026-03-08T20:24:02.983176+00:00",
+          "query": {
+            "latitude": 48.85,
+            "longitude": 2.35,
+            "target_distance_km": 5.0,
+            "route_count": 3,
+            "ambiance": "nature",
+            "terrain": null,
+            "effort": null
+          },
+          "result_route_ids": [
+            "rte-p1"
+          ]
+        },
+        {
+          "timestamp": "2026-03-08T20:24:02.982901+00:00",
+          "query": {
+            "latitude": 48.85,
+            "longitude": 2.35,
+            "target_distance_km": 5.0,
+            "route_count": 3,
+            "ambiance": "nature",
+            "terrain": null,
+            "effort": null
+          },
+          "result_route_ids": [
+            "rte-p1"
+          ]
+        },
+        {
+          "timestamp": "2026-03-08T20:24:02.982681+00:00",
+          "query": {
+            "latitude": 48.85,
+            "longitude": 2.35,
+            "target_distance_km": 5.0,
+            "route_count": 3,
+            "ambiance": "nature",
+            "terrain": null,
+            "effort": null
+          },
+          "result_route_ids": [
+            "rte-p1"
+          ]
+        },
+        {
+          "timestamp": "2026-03-08T20:22:57.453131+00:00",
+          "query": {
+            "latitude": 48.85,
+            "longitude": 2.35,
+            "target_distance_km": 5.0,
+            "route_count": 3,
+            "ambiance": "calme",
+            "terrain": null,
+            "effort": null
+          },
+          "result_route_ids": [
+            "rte-p2"
+          ]
+        },
+        {
+          "timestamp": "2026-03-08T20:22:57.452954+00:00",
+          "query": {
+            "latitude": 48.85,
+            "longitude": 2.35,
+            "target_distance_km": 5.0,
+            "route_count": 3,
+            "ambiance": "nature",
+            "terrain": null,
+            "effort": null
+          },
+          "result_route_ids": [
+            "rte-p1"
+          ]
+        },
+        {
+          "timestamp": "2026-03-08T20:22:57.452771+00:00",
+          "query": {
+            "latitude": 48.85,
+            "longitude": 2.35,
+            "target_distance_km": 5.0,
+            "route_count": 3,
+            "ambiance": "nature",
+            "terrain": null,
+            "effort": null
+          },
+          "result_route_ids": [
+            "rte-p1"
+          ]
+        },
+        {
+          "timestamp": "2026-03-08T20:22:57.452557+00:00",
+          "query": {
+            "latitude": 48.85,
+            "longitude": 2.35,
+            "target_distance_km": 5.0,
+            "route_count": 3,
+            "ambiance": "nature",
+            "terrain": null,
+            "effort": null
+          },
+          "result_route_ids": [
+            "rte-p1"
+          ]
+        }
+      ],
+      "favorites": {},
+      "seen_routes": [
+        {
+          "stable_route_id": "rte-p2",
+          "name": "Parcours test",
+          "distance_km": 5.0,
+          "estimated_duration_min": 75,
+          "estimated_elevation_gain_m": 110,
+          "difficulty": "moderee",
+          "score": 0.8,
+          "tags": [],
+          "highlighted_poi_labels": [],
+          "centroid_lat": null,
+          "centroid_lon": null,
+          "last_seen_at": "2026-03-08T22:23:37.806821+00:00",
+          "last_event": "generated"
+        },
+        {
+          "stable_route_id": "rte-p1",
+          "name": "Parcours test",
+          "distance_km": 5.0,
+          "estimated_duration_min": 75,
+          "estimated_elevation_gain_m": 110,
+          "difficulty": "moderee",
+          "score": 0.8,
+          "tags": [],
+          "highlighted_poi_labels": [],
+          "centroid_lat": null,
+          "centroid_lon": null,
+          "last_seen_at": "2026-03-08T22:23:37.806492+00:00",
+          "last_event": "generated"
+        }
+      ]
+    },
+    "fav-summary-user": {
+      "history": [],
+      "favorites": {
+        "rte-summary-1": {
+          "stable_route_id": "rte-summary-1",
+          "name": "Parcours r\u00e9sum\u00e9",
+          "distance_km": 7.5,
+          "estimated_duration_min": 90,
+          "estimated_elevation_gain_m": 120,
+          "difficulty": "moderee",
+          "score": 0.75,
+          "tags": [
+            "Nature",
+            "Calme"
+          ],
+          "highlighted_poi_labels": [
+            "Point de vue"
+          ],
+          "added_at": "2026-03-08T22:23:37.799349+00:00"
+        }
+      },
+      "seen_routes": []
+    },
+    "fav-empty-user": {
+      "history": [],
+      "favorites": {
+        "rte-empty-1": {
+          "stable_route_id": "rte-empty-1",
+          "name": "",
+          "distance_km": 0.0,
+          "estimated_duration_min": 0,
+          "estimated_elevation_gain_m": 0,
+          "difficulty": "moderee",
+          "score": 0.0,
+          "tags": [],
+          "highlighted_poi_labels": [],
+          "added_at": "2026-03-08T22:23:37.800100+00:00"
+        }
+      },
+      "seen_routes": []
+    },
+    "fresh-user-abc": {
+      "history": [],
+      "favorites": {},
+      "seen_routes": []
+    },
+    "seen-update-user": {
+      "history": [
+        {
+          "timestamp": "2026-03-08T22:23:37.804083+00:00",
+          "query": {
+            "latitude": 48.85,
+            "longitude": 2.35,
+            "target_distance_km": 5.0,
+            "route_count": 3,
+            "ambiance": null,
+            "terrain": null,
+            "effort": null
+          },
+          "result_route_ids": [
+            "rte-seen-1"
+          ]
+        },
+        {
+          "timestamp": "2026-03-08T22:22:36.407114+00:00",
+          "query": {
+            "latitude": 48.85,
+            "longitude": 2.35,
+            "target_distance_km": 5.0,
+            "route_count": 3,
+            "ambiance": null,
+            "terrain": null,
+            "effort": null
+          },
+          "result_route_ids": [
+            "rte-seen-1"
+          ]
+        },
+        {
+          "timestamp": "2026-03-08T22:21:52.723364+00:00",
+          "query": {
+            "latitude": 48.85,
+            "longitude": 2.35,
+            "target_distance_km": 5.0,
+            "route_count": 3,
+            "ambiance": null,
+            "terrain": null,
+            "effort": null
+          },
+          "result_route_ids": [
+            "rte-seen-1"
+          ]
+        },
+        {
+          "timestamp": "2026-03-08T22:21:23.514625+00:00",
+          "query": {
+            "latitude": 48.85,
+            "longitude": 2.35,
+            "target_distance_km": 5.0,
+            "route_count": 3,
+            "ambiance": null,
+            "terrain": null,
+            "effort": null
+          },
+          "result_route_ids": [
+            "rte-seen-1"
+          ]
+        },
+        {
+          "timestamp": "2026-03-08T22:16:44.303403+00:00",
+          "query": {
+            "latitude": 48.85,
+            "longitude": 2.35,
+            "target_distance_km": 5.0,
+            "route_count": 3,
+            "ambiance": null,
+            "terrain": null,
+            "effort": null
+          },
+          "result_route_ids": [
+            "rte-seen-1"
+          ]
+        },
+        {
+          "timestamp": "2026-03-08T20:35:20.493164+00:00",
+          "query": {
+            "latitude": 48.85,
+            "longitude": 2.35,
+            "target_distance_km": 5.0,
+            "route_count": 3,
+            "ambiance": null,
+            "terrain": null,
+            "effort": null
+          },
+          "result_route_ids": [
+            "rte-seen-1"
+          ]
+        },
+        {
+          "timestamp": "2026-03-08T20:31:11.326037+00:00",
+          "query": {
+            "latitude": 48.85,
+            "longitude": 2.35,
+            "target_distance_km": 5.0,
+            "route_count": 3,
+            "ambiance": null,
+            "terrain": null,
+            "effort": null
+          },
+          "result_route_ids": [
+            "rte-seen-1"
+          ]
+        }
+      ],
+      "favorites": {},
+      "seen_routes": [
+        {
+          "stable_route_id": "rte-seen-1",
+          "name": "Parcours test",
+          "distance_km": 5.0,
+          "estimated_duration_min": 75,
+          "estimated_elevation_gain_m": 110,
+          "difficulty": "moderee",
+          "score": 0.8,
+          "tags": [],
+          "highlighted_poi_labels": [],
+          "centroid_lat": null,
+          "centroid_lon": null,
+          "last_seen_at": "2026-03-08T22:23:37.804432+00:00",
+          "last_event": "viewed"
+        }
+      ]
+    }
+  }
+}

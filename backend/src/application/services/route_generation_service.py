@@ -1,22 +1,31 @@
-from __future__ import annotations
+﻿from __future__ import annotations
 
 import logging
 import random
 import time
+import hashlib
+import copy
+import math
 from dataclasses import dataclass
 from typing import Any
 
 logger = logging.getLogger(__name__)
 
+from src.application.services.poi_enrichment_service import PoiEnrichmentService
+from src.application.services.contextual_scoring_service import ContextualScoringService
+from src.application.services.user_memory_service import UserMemoryService
 from src.domain.entities.route_candidate import RouteCandidate
 from src.domain.entities.route_point import RoutePoint
 from src.domain.entities.user_search import UserSearch
 from src.infrastructure.config.settings import settings
 from src.infrastructure.routing.ors_client import OrsClient, OrsClientError, OrsRateLimitError
+from src.infrastructure.weather.open_meteo_client import OpenMeteoClient
 
-# Module-level TTL cache: key → (timestamp, results)
+# Module-level TTL cache: key -> (timestamp, results)
 _route_cache: dict[str, tuple[float, list[RouteCandidate]]] = {}
 _CACHE_TTL_S: float = 300.0  # 5 minutes
+_shared_route_cache: dict[str, tuple[float, RouteCandidate]] = {}
+_SHARED_ROUTE_TTL_S: float = 86_400.0  # 24h
 
 
 @dataclass
@@ -28,6 +37,17 @@ class CandidateEvaluation:
     road_share: float
 
 
+@dataclass
+class GenerationDiagnostics:
+    status: str
+    warnings: list[str]
+    requested_route_count: int
+    generated_route_count: int
+    used_mock_fallback: bool
+    technical_issue: bool
+    low_data: bool
+
+
 class RouteGenerationService:
     def __init__(self) -> None:
         self._ors_client = OrsClient(
@@ -36,13 +56,38 @@ class RouteGenerationService:
             profile=settings.ors_profile,
             timeout_s=settings.ors_request_timeout_s,
         )
+        self._poi_enrichment_service = PoiEnrichmentService()
+        self._contextual_scoring_service = ContextualScoringService(
+            weather_client=OpenMeteoClient(timeout_s=settings.weather_request_timeout_s)
+        )
+        self._user_memory_service = UserMemoryService()
+        self._last_real_generation_stats: dict[str, Any] = {
+            "evaluations": 0,
+            "rate_limit_errors": 0,
+            "other_errors": 0,
+        }
+        self._last_generation_diagnostics = GenerationDiagnostics(
+            status="ok",
+            warnings=[],
+            requested_route_count=0,
+            generated_route_count=0,
+            used_mock_fallback=False,
+            technical_issue=False,
+            low_data=False,
+        )
 
     def generate_routes(self, search: UserSearch) -> list[RouteCandidate]:
+        self._last_real_generation_stats = {
+            "evaluations": 0,
+            "rate_limit_errors": 0,
+            "other_errors": 0,
+        }
         logger.info(
             "generate_routes: enable_real_routing=%s is_configured=%s",
             settings.enable_real_routing,
             self._ors_client.is_configured(),
         )
+        used_mock_fallback = False
         if settings.enable_real_routing and self._ors_client.is_configured():
             cache_key = self._make_cache_key(search)
             cached = _route_cache.get(cache_key)
@@ -50,7 +95,9 @@ class RouteGenerationService:
                 ts, routes = cached
                 if time.time() - ts < _CACHE_TTL_S:
                     logger.info("generate_routes: cache hit (age=%.0fs)", time.time() - ts)
-                    return routes
+                    cached_routes = copy.deepcopy(routes)
+                    self._set_generation_diagnostics(search=search, routes=cached_routes, used_mock_fallback=False)
+                    return cached_routes
                 del _route_cache[cache_key]
 
             t0 = time.perf_counter()
@@ -62,18 +109,31 @@ class RouteGenerationService:
                 elapsed,
             )
             if len(real_routes) > 0:
-                _route_cache[cache_key] = (time.time(), real_routes)
+                _route_cache[cache_key] = (time.time(), copy.deepcopy(real_routes))
+                self._set_generation_diagnostics(search=search, routes=real_routes, used_mock_fallback=False)
                 return real_routes
 
         logger.warning("generate_routes: falling back to mock routes")
-        return self._generate_mock_routes(search)
+        used_mock_fallback = True
+        mock_routes = self._generate_mock_routes(search)
+        self._set_generation_diagnostics(
+            search=search,
+            routes=mock_routes,
+            used_mock_fallback=used_mock_fallback,
+        )
+        return mock_routes
 
     @staticmethod
     def _make_cache_key(search: UserSearch) -> str:
         return (
+            f"{search.user_id}:"
             f"{search.latitude:.5f}:{search.longitude:.5f}"
             f":{search.target_distance_km}:{search.route_count}"
             f":{search.ambiance}:{search.terrain}:{search.effort}"
+            f":{int(search.prioritize_nature)}:{int(search.prioritize_viewpoints)}:{int(search.prioritize_calm)}"
+            f":{int(search.avoid_urban)}:{int(search.avoid_roads)}:{int(search.avoid_steep)}:{int(search.avoid_touristic)}"
+            f":{int(search.adapt_to_weather)}"
+            ":poi-v3"
         )
 
     def _generate_real_round_trip_routes(self, search: UserSearch) -> list[RouteCandidate]:
@@ -88,6 +148,11 @@ class RouteGenerationService:
 
         rate_limit_errors = 0
         other_errors = 0
+        rejected_reasons: dict[str, int] = {
+            "distance_tolerance": 0,
+            "elevation_limit": 0,
+            "invalid_geometry": 0,
+        }
 
         for index in range(attempts):
             # Early exit: enough candidates already pass the strict filter
@@ -132,6 +197,10 @@ class RouteGenerationService:
                 time.sleep(0.3)
                 continue
 
+            if len(result.points) < 2:
+                rejected_reasons["invalid_geometry"] += 1
+                continue
+
             actual_distance_km = result.distance_m / 1000.0
             distance_error_ratio = self._compute_distance_error_ratio(
                 target_distance_km=search.target_distance_km,
@@ -165,11 +234,13 @@ class RouteGenerationService:
             )
 
             if distance_error_ratio > style["max_distance_error_ratio"]:
+                rejected_reasons["distance_tolerance"] += 1
                 continue
 
             max_gain_per_km = style.get("max_elevation_gain_per_km")
             if max_gain_per_km is not None and actual_distance_km > 0:
                 if elevation_gain_m / actual_distance_km > max_gain_per_km:
+                    rejected_reasons["elevation_limit"] += 1
                     continue
 
             trail_ratio = self._compute_trail_ratio(result.extras)
@@ -215,11 +286,17 @@ class RouteGenerationService:
             )
 
         logger.info(
-            "generate_routes: loop done — %d evaluations, %d rate-limit errors, %d other errors",
+            "generate_routes: loop done - %d evaluations, %d rate-limit errors, %d other errors",
             len(evaluations),
             rate_limit_errors,
             other_errors,
         )
+        logger.info("generate_routes: rejected candidates reasons = %s", rejected_reasons)
+        self._last_real_generation_stats = {
+            "evaluations": len(evaluations),
+            "rate_limit_errors": rate_limit_errors,
+            "other_errors": other_errors,
+        }
 
         if len(evaluations) == 0:
             return []
@@ -234,7 +311,8 @@ class RouteGenerationService:
             )
         )
 
-        return self._select_routes(evaluations, search.route_count, style["max_road_share"])
+        selected = self._select_routes(evaluations, search.route_count, style["max_road_share"])
+        return self._attach_pois_to_routes(selected, search)
 
     def _select_routes(
         self,
@@ -243,7 +321,7 @@ class RouteGenerationService:
         max_road_share: float,
     ) -> list[RouteCandidate]:
         """Two-pass selection: prefer routes under max_road_share, fill remaining with best available.
-        Routes too similar (Jaccard ≥ threshold) to an already-selected route are skipped."""
+        Routes too similar (Jaccard >= threshold) to an already-selected route are skipped."""
         selected: list[RouteCandidate] = []
         selected_grids: list[frozenset[str]] = []
         used_signatures: set[str] = set()
@@ -256,8 +334,10 @@ class RouteGenerationService:
             if signature in used_signatures:
                 return False
             grid = self._build_route_grid(evaluation.route)
-            for existing_grid in selected_grids:
+            for idx, existing_grid in enumerate(selected_grids):
                 if self._jaccard_similarity(grid, existing_grid) >= threshold:
+                    return False
+                if self._route_shape_similarity(evaluation.route, selected[idx]) >= 0.88:
                     return False
             used_signatures.add(signature)
             selected_grids.append(grid)
@@ -267,13 +347,13 @@ class RouteGenerationService:
             selected.append(route)
             return True
 
-        # Pass 1 — strict: respect the style's road share limit
+        # Pass 1 - strict: respect the style's road share limit
         for evaluation in evaluations:
             if len(selected) >= count:
                 break
             _try_add(evaluation, max_road_share)
 
-        # Pass 2 — relaxed: fill missing slots with the best remaining candidates
+        # Pass 2 - relaxed: fill missing slots with the best remaining candidates
         # (happens in dense urban areas where ideal trails are unavailable)
         if len(selected) < count:
             logger.info(
@@ -294,14 +374,14 @@ class RouteGenerationService:
         Used for Jaccard-based similarity detection."""
         cells: set[str] = set()
         for point in route.points:
-            # 0.002° ≈ 222m latitude, ≈ 140m longitude at mid-latitudes
+            # 0.002 deg ~= 222m latitude, ~= 140m longitude at mid-latitudes
             lat_cell = int(point.latitude * 500)
             lon_cell = int(point.longitude * 500)
             cells.add(f"{lat_cell}:{lon_cell}")
         return frozenset(cells)
 
     def _jaccard_similarity(self, grid_a: frozenset[str], grid_b: frozenset[str]) -> float:
-        """Jaccard index between two grid-cell sets: |A∩B| / |A∪B|."""
+        """Jaccard index between two grid-cell sets: |A n B| / |A u B|."""
         if not grid_a and not grid_b:
             return 1.0
         if not grid_a or not grid_b:
@@ -309,6 +389,47 @@ class RouteGenerationService:
         intersection = len(grid_a & grid_b)
         union = len(grid_a | grid_b)
         return intersection / union
+
+    def _route_shape_similarity(self, a: RouteCandidate, b: RouteCandidate) -> float:
+        if len(a.points) < 2 or len(b.points) < 2:
+            return 0.0
+        sampled_a = self._sample_route_points(a.points, 16)
+        sampled_b = self._sample_route_points(b.points, 16)
+        count = min(len(sampled_a), len(sampled_b))
+        if count == 0:
+            return 0.0
+        avg_distance_m = sum(
+            self._haversine_m(
+                sampled_a[i].latitude,
+                sampled_a[i].longitude,
+                sampled_b[i].latitude,
+                sampled_b[i].longitude,
+            )
+            for i in range(count)
+        ) / count
+        return max(0.0, min(1.0, 1.0 - (avg_distance_m / 350.0)))
+
+    def _sample_route_points(self, points: list[RoutePoint], max_points: int) -> list[RoutePoint]:
+        if len(points) <= max_points:
+            return points
+        step = max(1, len(points) // max_points)
+        sampled = [points[i] for i in range(0, len(points), step)]
+        if sampled[-1] != points[-1]:
+            sampled.append(points[-1])
+        return sampled[:max_points]
+
+    def _haversine_m(self, lat1: float, lon1: float, lat2: float, lon2: float) -> float:
+        earth_radius_m = 6_371_000.0
+        phi1 = math.radians(lat1)
+        phi2 = math.radians(lat2)
+        d_phi = math.radians(lat2 - lat1)
+        d_lambda = math.radians(lon2 - lon1)
+        a = (
+            math.sin(d_phi / 2.0) ** 2
+            + math.cos(phi1) * math.cos(phi2) * math.sin(d_lambda / 2.0) ** 2
+        )
+        c = 2.0 * math.atan2(math.sqrt(a), math.sqrt(1.0 - a))
+        return earth_radius_m * c
 
     def _get_style_config(self, hike_style: str) -> dict[str, float]:
         normalized = (hike_style or "equilibree").strip().lower()
@@ -321,6 +442,7 @@ class RouteGenerationService:
                 "quiet_weight": 0.10,
                 "suitability_weight": 0.05,
                 "elevation_weight": 0.00,
+                "poi_weight": 0.05,
                 "max_distance_error_ratio": 0.50,
                 "max_road_share": 0.65,
             },
@@ -331,6 +453,7 @@ class RouteGenerationService:
                 "quiet_weight": 0.10,
                 "suitability_weight": 0.05,
                 "elevation_weight": 0.00,
+                "poi_weight": 0.03,
                 "max_distance_error_ratio": 0.60,
                 "max_road_share": 0.20,
             },
@@ -341,6 +464,7 @@ class RouteGenerationService:
                 "quiet_weight": 0.15,
                 "suitability_weight": 0.05,
                 "elevation_weight": 0.00,
+                "poi_weight": 0.08,
                 "max_distance_error_ratio": 0.60,
                 "max_road_share": 0.25,
             },
@@ -351,6 +475,7 @@ class RouteGenerationService:
                 "quiet_weight": 0.25,
                 "suitability_weight": 0.05,
                 "elevation_weight": 0.00,
+                "poi_weight": 0.04,
                 "max_distance_error_ratio": 0.60,
                 "max_road_share": 0.25,
             },
@@ -361,6 +486,7 @@ class RouteGenerationService:
                 "quiet_weight": 0.10,
                 "suitability_weight": 0.05,
                 "elevation_weight": 0.20,
+                "poi_weight": 0.04,
                 "elevation_target": "flat",
                 "max_distance_error_ratio": 0.50,
                 "max_road_share": 0.70,
@@ -373,6 +499,7 @@ class RouteGenerationService:
                 "quiet_weight": 0.10,
                 "suitability_weight": 0.05,
                 "elevation_weight": 0.20,
+                "poi_weight": 0.06,
                 "elevation_target": "hilly",
                 "max_distance_error_ratio": 0.60,
                 "max_road_share": 0.50,
@@ -384,6 +511,7 @@ class RouteGenerationService:
                 "quiet_weight": 0.05,
                 "suitability_weight": 0.10,
                 "elevation_weight": 0.30,
+                "poi_weight": 0.06,
                 "elevation_target": "hilly",
                 "max_distance_error_ratio": 0.60,
                 "max_road_share": 0.50,
@@ -395,6 +523,7 @@ class RouteGenerationService:
                 "quiet_weight": 0.15,
                 "suitability_weight": 0.05,
                 "elevation_weight": 0.10,
+                "poi_weight": 0.08,
                 "elevation_target": "flat",
                 "max_distance_error_ratio": 0.50,
                 "max_road_share": 0.80,
@@ -427,6 +556,11 @@ class RouteGenerationService:
         if total > 0:
             for k in weight_keys:
                 merged[k] = round(merged[k] / total, 4)
+
+        merged["poi_weight"] = round(
+            sum(c.get("poi_weight", 0.05) for c in active) / len(active),
+            4,
+        )
 
         merged["max_distance_error_ratio"] = min(c["max_distance_error_ratio"] for c in active)
         merged["max_road_share"] = min(c["max_road_share"] for c in active)
@@ -494,10 +628,10 @@ class RouteGenerationService:
             return 0.5
         gain_per_km = elevation_gain_m / distance_km
         if target == "flat":
-            # 0m/km → 1.0, 50m/km → 0.0
+            # 0m/km -> 1.0, 50m/km -> 0.0
             return round(max(0.0, min(1.0, 1.0 - gain_per_km / 50.0)), 2)
         if target == "hilly":
-            # 0m/km → 0.0, 100m/km → 1.0
+            # 0m/km -> 0.0, 100m/km -> 1.0
             return round(max(0.0, min(1.0, gain_per_km / 100.0)), 2)
         return 0.5  # neutral
 
@@ -668,7 +802,453 @@ class RouteGenerationService:
             )
             routes.append(route)
 
+        return self._attach_pois_to_routes(routes, search)
+
+    def _attach_pois_to_routes(self, routes: list[RouteCandidate], search: UserSearch) -> list[RouteCandidate]:
+        for route in routes:
+            try:
+                self._poi_enrichment_service.enrich_route(route, search)
+                style = self._style_from_route_type(route.route_type)
+                poi_weight = float(style.get("poi_weight", 0.05))
+                pre_preference_score = route.score
+                route.score = self._apply_user_preference_adjustments(
+                    route=route,
+                    search=search,
+                    poi_weight=poi_weight,
+                )
+                if settings.enable_weather_context and search.adapt_to_weather:
+                    context_adjustment = self._contextual_scoring_service.adjust_route(
+                        route=route,
+                        search=search,
+                    )
+                    route.context_score_delta = context_adjustment.score_delta
+                    route.context_warnings = context_adjustment.warnings
+                    for tag in context_adjustment.tags:
+                        if tag not in route.tags:
+                            route.tags.append(tag)
+                    route.score = round(max(0.1, min(1.0, route.score + route.context_score_delta)), 2)
+                else:
+                    route.context_score_delta = 0.0
+                    route.context_warnings = []
+                route.score_breakdown = self._build_score_breakdown(
+                    route=route,
+                    search=search,
+                    base_score=pre_preference_score,
+                    poi_weight=poi_weight,
+                )
+                route.explanation_reasons = self._build_explanation_reasons(route)
+                route.explanation = self._build_explanation_sentence(route)
+                route.description = self._build_route_description(route)
+                route.stable_route_id = self._build_stable_route_id(route)
+                route.seen_before = self._user_memory_service.has_seen_recently(
+                    user_id=search.user_id,
+                    stable_route_id=route.stable_route_id,
+                    within_hours=72,
+                )
+                if route.seen_before:
+                    route.score = round(max(0.1, route.score - 0.04), 2)
+                    if "Deja vu recemment" not in route.tags:
+                        route.tags.append("Deja vu recemment")
+                zone_penalty = self._user_memory_service.compute_zone_novelty_factor(
+                    user_id=search.user_id,
+                    route=route,
+                )
+                if zone_penalty > 0:
+                    route.score = round(max(0.1, route.score - zone_penalty), 2)
+                    if zone_penalty >= 0.04 and "Zone recemment exploree" not in route.tags:
+                        route.tags.append("Zone recemment exploree")
+                if search.difficulty_pref:
+                    diff = route.difficulty.lower() if route.difficulty else "moderee"
+                    pref = search.difficulty_pref.lower()
+                    _DIFF_RANK = {"facile": 0, "moderee": 1, "difficile": 2, "soutenue": 3}
+                    diff_rank = _DIFF_RANK.get(diff, 1)
+                    pref_rank = _DIFF_RANK.get(pref, 1)
+                    gap = abs(diff_rank - pref_rank)
+                    if gap == 0:
+                        route.score = round(min(1.0, route.score + 0.05), 2)
+                    elif gap == 1:
+                        route.score = round(max(0.05, route.score - 0.04), 2)
+                    else:
+                        route.score = round(max(0.05, route.score - 0.09), 2)
+                ordered_pois = sorted(
+                    route.pois,
+                    key=lambda p: (
+                        p.distance_from_start_m if p.distance_from_start_m is not None else 999_999.0,
+                        p.distance_to_route_m,
+                    ),
+                )
+                route.pois = ordered_pois
+                route.poi_on_route_count = sum(1 for poi in ordered_pois if poi.distance_to_route_m <= 80.0)
+                route.poi_near_route_count = len(ordered_pois) - route.poi_on_route_count
+                self._register_shared_route(route)
+            except Exception as exc:
+                logger.warning("Unable to enrich route %s with POIs: %s", route.id, exc)
+                route.pois = []
+                route.poi_score = 0.0
+                route.poi_quantity_score = 0.0
+                route.poi_diversity_score = 0.0
+                route.poi_highlight_count = 0
+                route.highlighted_poi_labels = []
+                route.poi_highlights = []
+                route.score_breakdown = {}
+                route.explanation = ""
+                route.explanation_reasons = []
+                route.description = ""
+                route.stable_route_id = ""
+                route.poi_on_route_count = 0
+                route.poi_near_route_count = 0
+                route.context_score_delta = 0.0
+                route.context_warnings = []
+                route.seen_before = False
+                # Keep a stable share/export id even when POI enrichment fails.
+                route.stable_route_id = self._build_stable_route_id(route)
+                self._register_shared_route(route)
+        routes.sort(key=lambda r: (-r.score, r.distance_km))
         return routes
+
+    def _set_generation_diagnostics(
+        self,
+        *,
+        search: UserSearch,
+        routes: list[RouteCandidate],
+        used_mock_fallback: bool,
+    ) -> None:
+        warnings: list[str] = []
+        generated_count = len(routes)
+        requested_count = search.route_count
+
+        technical_issue = False
+        low_data = False
+        status = "ok"
+
+        if used_mock_fallback:
+            status = "fallback"
+            technical_issue = True
+            warnings.append("Service de routage externe indisponible: fallback local utilise.")
+
+        if generated_count == 0:
+            status = "error"
+            warnings.append("Aucun parcours valide n'a pu etre genere.")
+        elif generated_count < requested_count:
+            if status == "ok":
+                status = "partial"
+            warnings.append(f"Generation partielle: {generated_count}/{requested_count} parcours seulement.")
+
+        total_pois = sum(len(route.pois) for route in routes)
+        avg_pois = (total_pois / generated_count) if generated_count > 0 else 0.0
+        if generated_count > 0 and avg_pois < 1.0:
+            low_data = True
+            if status == "ok":
+                status = "low_data"
+            warnings.append("Zone pauvre en POI: resultats limites mais exploitables.")
+
+        if not used_mock_fallback:
+            rate_limit_errors = int(self._last_real_generation_stats.get("rate_limit_errors", 0))
+            other_errors = int(self._last_real_generation_stats.get("other_errors", 0))
+            if rate_limit_errors > 0 or other_errors > 0:
+                warnings.append(
+                    f"Instabilite API detectee (ratelimit={rate_limit_errors}, autres_erreurs={other_errors})."
+                )
+                technical_issue = True
+
+        for route in routes:
+            for warning in route.context_warnings:
+                if warning not in warnings:
+                    warnings.append(warning)
+
+        self._last_generation_diagnostics = GenerationDiagnostics(
+            status=status,
+            warnings=warnings,
+            requested_route_count=requested_count,
+            generated_route_count=generated_count,
+            used_mock_fallback=used_mock_fallback,
+            technical_issue=technical_issue,
+            low_data=low_data,
+        )
+        logger.info(
+            "generation diagnostics: status=%s generated=%d requested=%d warnings=%s",
+            status,
+            generated_count,
+            requested_count,
+            warnings,
+        )
+
+    def get_last_generation_diagnostics(self) -> GenerationDiagnostics:
+        diagnostics = self._last_generation_diagnostics
+        return GenerationDiagnostics(
+            status=diagnostics.status,
+            warnings=list(diagnostics.warnings),
+            requested_route_count=diagnostics.requested_route_count,
+            generated_route_count=diagnostics.generated_route_count,
+            used_mock_fallback=diagnostics.used_mock_fallback,
+            technical_issue=diagnostics.technical_issue,
+            low_data=diagnostics.low_data,
+        )
+
+    def get_shared_route(self, stable_route_id: str) -> RouteCandidate | None:
+        self._cleanup_shared_routes()
+        cached = _shared_route_cache.get(stable_route_id)
+        if cached is None:
+            return None
+        ts, route = cached
+        if time.time() - ts > _SHARED_ROUTE_TTL_S:
+            _shared_route_cache.pop(stable_route_id, None)
+            return None
+        return copy.deepcopy(route)
+
+    def export_route_gpx(self, stable_route_id: str) -> str | None:
+        route = self.get_shared_route(stable_route_id)
+        if route is None:
+            return None
+
+        def _escape(value: str) -> str:
+            return (
+                value.replace("&", "&amp;")
+                .replace("<", "&lt;")
+                .replace(">", "&gt;")
+                .replace('"', "&quot;")
+                .replace("'", "&apos;")
+            )
+
+        trk_points = []
+        for point in route.points:
+            ele_block = f"<ele>{(point.elevation_m or 0.0):.1f}</ele>" if (point.elevation_m or 0.0) != 0.0 else ""
+            trk_points.append(f'      <trkpt lat="{point.latitude}" lon="{point.longitude}">{ele_block}</trkpt>')
+
+        wpt_points = []
+        for poi in route.pois:
+            wpt_points.append(
+                "\n".join(
+                    [
+                        f'  <wpt lat="{poi.latitude}" lon="{poi.longitude}">',
+                        f"    <name>{_escape(poi.name)}</name>",
+                        f"    <type>{_escape(poi.category)}</type>",
+                        f"    <desc>distance trace: {int(round(poi.distance_to_route_m))} m</desc>",
+                        "  </wpt>",
+                    ]
+                )
+            )
+
+        return (
+            '<?xml version="1.0" encoding="UTF-8"?>\n'
+            '<gpx version="1.1" creator="Randogen" xmlns="http://www.topografix.com/GPX/1/1">\n'
+            "  <metadata>\n"
+            f"    <name>{_escape(route.name)}</name>\n"
+            f"    <desc>{_escape(route.description or route.explanation)}</desc>\n"
+            "  </metadata>\n"
+            + ("\n".join(wpt_points) + "\n" if len(wpt_points) > 0 else "")
+            + "  <trk>\n"
+            f"    <name>{_escape(route.name)}</name>\n"
+            "    <trkseg>\n"
+            + "\n".join(trk_points)
+            + "\n    </trkseg>\n"
+            "  </trk>\n"
+            "</gpx>\n"
+        )
+
+    def export_route_geojson(self, stable_route_id: str) -> dict[str, Any] | None:
+        route = self.get_shared_route(stable_route_id)
+        if route is None:
+            return None
+
+        coordinates = [
+            [point.longitude, point.latitude, (point.elevation_m or 0.0)]
+            for point in route.points
+        ]
+        poi_features = [
+            {
+                "type": "Feature",
+                "geometry": {
+                    "type": "Point",
+                    "coordinates": [poi.longitude, poi.latitude],
+                },
+                "properties": {
+                    "id": poi.id,
+                    "name": poi.name,
+                    "category": poi.category,
+                    "sub_category": poi.sub_category,
+                    "distance_to_route_m": poi.distance_to_route_m,
+                    "score": poi.score,
+                },
+            }
+            for poi in route.pois
+        ]
+        return {
+            "type": "FeatureCollection",
+            "features": [
+                {
+                    "type": "Feature",
+                    "geometry": {"type": "LineString", "coordinates": coordinates},
+                    "properties": {
+                        "id": route.id,
+                        "stable_route_id": route.stable_route_id,
+                        "name": route.name,
+                        "distance_km": route.distance_km,
+                        "estimated_duration_min": route.estimated_duration_min,
+                        "estimated_elevation_gain_m": route.estimated_elevation_gain_m,
+                        "difficulty": route.difficulty,
+                        "score": route.score,
+                        "description": route.description,
+                    },
+                },
+                *poi_features,
+            ],
+        }
+
+    def _apply_user_preference_adjustments(
+        self,
+        *,
+        route: RouteCandidate,
+        search: UserSearch,
+        poi_weight: float,
+    ) -> float:
+        base_weight = max(0.0, 1.0 - poi_weight)
+        score = (route.score * base_weight) + (route.poi_score * poi_weight)
+
+        categories = {poi.category for poi in route.pois}
+        gain_per_km = (
+            route.estimated_elevation_gain_m / route.distance_km
+            if route.distance_km > 0
+            else 0.0
+        )
+        urban_index = (route.road_ratio * 0.65) + ((1.0 - route.quiet_score) * 0.35)
+
+        if search.prioritize_nature:
+            score += 0.03 * route.nature_score
+            if {"nature", "water", "viewpoint"} & categories:
+                score += 0.02
+        if search.prioritize_viewpoints:
+            if {"viewpoint", "summit"} & categories:
+                score += 0.04
+            else:
+                score -= 0.02
+        if search.prioritize_calm:
+            score += 0.04 * route.quiet_score
+
+        if search.avoid_urban:
+            score -= max(0.0, urban_index - 0.40) * 0.10
+        if search.avoid_roads:
+            score -= max(0.0, route.road_ratio - 0.20) * 0.12
+        if search.avoid_steep:
+            score -= max(0.0, gain_per_km - 35.0) / 600.0
+        if search.avoid_touristic:
+            touristic_count = sum(
+                1
+                for poi in route.pois
+                if poi.category in {"heritage", "start_access"}
+            )
+            score -= min(0.08, touristic_count * 0.015)
+
+        # Guardrails: keep feasibility-first ranking while still differentiating profiles.
+        return round(max(0.1, min(1.0, score)), 2)
+
+    def _build_score_breakdown(
+        self,
+        *,
+        route: RouteCandidate,
+        search: UserSearch,
+        base_score: float,
+        poi_weight: float,
+    ) -> dict[str, float]:
+        distance_score = self._compute_distance_score(
+            target_distance_km=search.target_distance_km,
+            actual_distance_km=route.distance_km,
+        )
+        elevation_score = self._score_elevation(
+            elevation_gain_m=route.estimated_elevation_gain_m,
+            distance_km=route.distance_km,
+            target="flat" if search.terrain == "plat" else ("hilly" if search.terrain == "vallonne" else "neutral"),
+        )
+        return {
+            "distance": round(distance_score, 3),
+            "sentiers": round(route.trail_ratio, 3),
+            "nature": round(route.nature_score, 3),
+            "calme": round(route.quiet_score, 3),
+            "suitability": round(route.hiking_suitability_score, 3),
+            "denivele": round(elevation_score, 3),
+            "poi": round(route.poi_score, 3),
+            "poi_weight": round(poi_weight, 3),
+            "context": round(route.context_score_delta, 3),
+            "repetition": round(-0.04 if route.seen_before else 0.0, 3),
+            "base": round(base_score, 3),
+            "final": round(route.score, 3),
+        }
+
+    def _build_explanation_reasons(self, route: RouteCandidate) -> list[str]:
+        reasons: list[tuple[str, float]] = []
+        breakdown = route.score_breakdown
+
+        if breakdown.get("distance", 0.0) >= 0.85:
+            reasons.append(("Tres proche de la distance demandee", breakdown["distance"]))
+        if route.road_ratio <= 0.2:
+            reasons.append(("Peu de routes", 1.0 - route.road_ratio))
+        if route.trail_ratio >= 0.6:
+            reasons.append(("Majoritairement sur sentiers", route.trail_ratio))
+        if route.nature_score >= 0.65:
+            reasons.append(("Ambiance nature marquee", route.nature_score))
+        if route.quiet_score >= 0.65:
+            reasons.append(("Parcours plutot calme", route.quiet_score))
+        if route.poi_score >= 0.55 and len(route.highlighted_poi_labels) > 0:
+            reasons.append((f"Presence de POI: {', '.join(route.highlighted_poi_labels[:2])}", route.poi_score))
+        if route.difficulty == "facile":
+            reasons.append(("Niveau accessible", 0.55))
+
+        reasons.sort(key=lambda item: item[1], reverse=True)
+        return [text for text, _ in reasons[:3]]
+
+    def _build_explanation_sentence(self, route: RouteCandidate) -> str:
+        reasons = route.explanation_reasons[:3]
+        if len(reasons) == 0:
+            return "Parcours retenu pour son bon equilibre global."
+        if len(reasons) == 1:
+            return f"Parcours choisi car {reasons[0].lower()}."
+        if len(reasons) == 2:
+            return f"Parcours choisi pour {reasons[0].lower()} et {reasons[1].lower()}."
+        return (
+            "Parcours choisi pour "
+            f"{reasons[0].lower()}, {reasons[1].lower()} et {reasons[2].lower()}."
+        )
+
+    def _build_route_description(self, route: RouteCandidate) -> str:
+        poi_part = ""
+        if route.poi_on_route_count > 0:
+            poi_part = f" {route.poi_on_route_count} POI directement sur le trace."
+        elif route.poi_near_route_count > 0:
+            poi_part = f" {route.poi_near_route_count} POI a proximite."
+        return (
+            f"Boucle de {route.distance_km:.2f} km en {route.estimated_duration_min} min, "
+            f"denivele {route.estimated_elevation_gain_m} m, difficulte {route.difficulty}."
+            f"{poi_part}"
+        )
+
+    def _build_stable_route_id(self, route: RouteCandidate) -> str:
+        if len(route.points) == 0:
+            return route.id
+        points_key = "|".join(
+            f"{round(point.latitude, 5)}:{round(point.longitude, 5)}"
+            for point in route.points[:: max(1, len(route.points) // 24)]
+        )
+        raw = f"{route.distance_km:.2f}|{route.route_type}|{points_key}"
+        digest = hashlib.sha1(raw.encode("utf-8")).hexdigest()[:12]
+        return f"rte-{digest}"
+
+    def _register_shared_route(self, route: RouteCandidate) -> None:
+        self._cleanup_shared_routes()
+        if route.stable_route_id:
+            _shared_route_cache[route.stable_route_id] = (time.time(), copy.deepcopy(route))
+
+    def _cleanup_shared_routes(self) -> None:
+        now = time.time()
+        expired = [route_id for route_id, (ts, _) in _shared_route_cache.items() if now - ts > _SHARED_ROUTE_TTL_S]
+        for route_id in expired:
+            _shared_route_cache.pop(route_id, None)
+
+    def _style_from_route_type(self, route_type: str) -> dict[str, Any]:
+        parts = [token.strip() for token in route_type.split("+") if token.strip()]
+        ambiance = parts[0] if len(parts) > 0 else None
+        terrain = parts[1] if len(parts) > 1 else None
+        effort = parts[2] if len(parts) > 2 else None
+        return self._build_combined_style(ambiance=ambiance, terrain=terrain, effort=effort)
 
     def _estimate_duration_min(
         self,
@@ -692,7 +1272,7 @@ class RouteGenerationService:
         trail_ratio: float,
     ) -> str:
         """Three-level difficulty based on effective distance (Gorge metric)."""
-        # 100m elevation ≈ 1km effective distance
+        # 100m elevation ~= 1km effective distance
         effective_km = distance_km + elevation_gain_m / 100.0
         # Technical trails add roughness
         terrain_factor = 1.0 + trail_ratio * 0.20
@@ -701,7 +1281,7 @@ class RouteGenerationService:
         if difficulty_score < 7:
             return "facile"
         if difficulty_score < 15:
-            return "modérée"
+            return "moderee"
         return "soutenue"
 
     def _compute_tags(
@@ -727,42 +1307,42 @@ class RouteGenerationService:
         if road_ratio < 0.05:
             tags.append("Sans route")
         elif road_ratio < 0.2:
-            tags.append("Très peu de routes")
+            tags.append("Tres peu de routes")
         elif road_ratio >= 0.6:
             tags.append("Passage routier")
 
         # Nature
         if nature_score >= 0.7:
-            tags.append("Très nature")
+            tags.append("Tres nature")
         elif nature_score >= 0.5:
             tags.append("Cadre verdoyant")
 
         # Calme
         if quiet_score >= 0.7:
-            tags.append("Très calme")
+            tags.append("Tres calme")
         elif quiet_score >= 0.5:
             tags.append("Ambiance tranquille")
 
         # Suitability
         if suitability_score >= 0.7:
-            tags.append("Idéal randonnée")
+            tags.append("Ideal randonnee")
 
-        # Précision de la distance
+        # Precision de la distance
         if distance_score >= 0.95:
             tags.append("Distance exacte")
         elif distance_score >= 0.85:
-            tags.append("Très proche")
+            tags.append("Tres proche")
 
-        # Dénivelé
+        # Denivele
         gain_per_km = (elevation_gain_m / distance_km) if distance_km > 0 else 0.0
         if gain_per_km >= 80:
-            tags.append("Très vallonné")
+            tags.append("Tres vallonne")
         elif gain_per_km >= 35:
-            tags.append("Quelques dénivelés")
+            tags.append("Quelques deniveles")
         else:
             tags.append("Terrain plat")
 
-        # Best-profile designation — "Idéal pour X"
+        # Best-profile designation - "Ideal pour X"
         # Score this route against each named profile using its key characteristics
         flat_score = max(0.0, min(1.0, 1.0 - gain_per_km / 50.0))
         hilly_score = max(0.0, min(1.0, gain_per_km / 100.0))
@@ -776,11 +1356,11 @@ class RouteGenerationService:
         }
 
         label_map = {
-            "sentiers": "Idéal : sentiers",
-            "nature": "Idéal : nature",
-            "calme": "Idéal : calme",
-            "sportif": "Idéal : sportif",
-            "promenade": "Idéal : promenade",
+            "sentiers": "Ideal : sentiers",
+            "nature": "Ideal : nature",
+            "calme": "Ideal : calme",
+            "sportif": "Ideal : sportif",
+            "promenade": "Ideal : promenade",
         }
 
         best_profile = max(profile_fits, key=lambda k: profile_fits[k])
