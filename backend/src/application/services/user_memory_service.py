@@ -36,6 +36,7 @@ class UserMemoryService:
                     "ambiance": search.ambiance,
                     "terrain": search.terrain,
                     "effort": search.effort,
+                    "biome_preference": search.biome_preference,
                 },
                 "result_route_ids": [route.stable_route_id for route in routes if route.stable_route_id],
             }

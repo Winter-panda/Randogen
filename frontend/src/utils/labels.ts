@@ -15,6 +15,15 @@ export const EFFORT_LABELS: Record<string, string> = {
   sportif: "Sportif",
 };
 
+export const BIOME_LABELS: Record<string, string> = {
+  foret: "Forêt",
+  campagne: "Campagne",
+  cotier: "Chemins côtiers",
+  montagne: "Montagne",
+  bord_eau: "Bord d'eau",
+  patrimoine: "Patrimoine",
+};
+
 export const AMBIANCE_HINTS: Record<string, string> = {
   equilibree: "Mix équilibré de sentiers et de routes",
   sentiers: "Privilégie les chemins et sentiers naturels",
@@ -32,12 +41,22 @@ export const EFFORT_HINTS: Record<string, string> = {
   sportif: "Effort soutenu, dénivelé et suitability favorisés",
 };
 
+export const BIOME_HINTS: Record<string, string> = {
+  foret: "Favorise les zones boisées et sentiers en nature dense",
+  campagne: "Privilégie les zones ouvertes, calmes et peu urbaines",
+  cotier: "Favorise les parcours à proximité de l'eau",
+  montagne: "Privilégie le relief, les points hauts et les panoramas",
+  bord_eau: "Favorise lacs, rivières, étangs et portions proches de l'eau",
+  patrimoine: "Privilégie les points d'intérêt historiques et monuments",
+};
+
 export function formatRouteType(routeType: string): string {
   if (!routeType || routeType === "libre") return "Libre";
   const map: Record<string, string> = {
     ...AMBIANCE_LABELS,
     ...TERRAIN_LABELS,
     ...EFFORT_LABELS,
+    ...BIOME_LABELS,
   };
   return routeType
     .split(" + ")
@@ -48,12 +67,14 @@ export function formatRouteType(routeType: string): string {
 export function formatFiltersLabel(
   ambiance: string | null,
   terrain: string | null,
-  effort: string | null
+  effort: string | null,
+  biomePreference: string | null = null
 ): string {
   const parts: string[] = [];
   if (ambiance) parts.push(AMBIANCE_LABELS[ambiance] ?? ambiance);
   if (terrain) parts.push(TERRAIN_LABELS[terrain] ?? terrain);
   if (effort) parts.push(EFFORT_LABELS[effort] ?? effort);
+  if (biomePreference) parts.push(BIOME_LABELS[biomePreference] ?? biomePreference);
   return parts.join(" · ") || "libre";
 }
 

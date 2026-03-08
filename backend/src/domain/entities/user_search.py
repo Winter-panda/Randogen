@@ -13,6 +13,7 @@ class UserSearch:
     ambiance: str | None = None
     terrain: str | None = None
     effort: str | None = None
+    biome_preference: str | None = None
     prioritize_nature: bool = False
     prioritize_viewpoints: bool = False
     prioritize_calm: bool = False

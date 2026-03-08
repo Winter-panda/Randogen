@@ -65,6 +65,7 @@ export type AmbianceFilter = "equilibree" | "sentiers" | "nature" | "calme";
 export type TerrainFilter = "plat" | "vallonne";
 export type EffortFilter = "promenade" | "sportif";
 export type DifficultyPref = "facile" | "moderee" | "difficile";
+export type BiomePreference = "foret" | "campagne" | "cotier" | "montagne" | "bord_eau" | "patrimoine";
 
 export interface GenerateRoutesRequest {
   user_id: string;
@@ -75,6 +76,7 @@ export interface GenerateRoutesRequest {
   ambiance: AmbianceFilter | null;
   terrain: TerrainFilter | null;
   effort: EffortFilter | null;
+  biome_preference: BiomePreference | null;
   prioritize_nature: boolean;
   prioritize_viewpoints: boolean;
   prioritize_calm: boolean;
@@ -96,6 +98,7 @@ export interface HistoryItem {
     ambiance: string | null;
     terrain: string | null;
     effort: string | null;
+    biome_preference?: string | null;
   };
   result_route_ids: string[];
 }

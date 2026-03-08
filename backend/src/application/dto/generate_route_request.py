@@ -43,6 +43,10 @@ class GenerateRouteRequest(BaseModel):
         default=None,
         description="Niveau d'effort : promenade, sportif",
     )
+    biome_preference: Literal["foret", "campagne", "cotier", "montagne", "bord_eau", "patrimoine"] | None = Field(
+        default=None,
+        description="Biome prefere : foret, campagne, cotier, montagne, bord_eau, patrimoine",
+    )
     prioritize_nature: bool = Field(default=False, description="Privilegier la nature")
     prioritize_viewpoints: bool = Field(default=False, description="Privilegier les points de vue")
     prioritize_calm: bool = Field(default=False, description="Privilegier les lieux calmes")

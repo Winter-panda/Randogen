@@ -25,6 +25,7 @@ class GenerateRoutesUseCase:
             ambiance=request.ambiance,
             terrain=request.terrain,
             effort=request.effort,
+            biome_preference=request.biome_preference,
             prioritize_nature=request.prioritize_nature,
             prioritize_viewpoints=request.prioritize_viewpoints,
             prioritize_calm=request.prioritize_calm,

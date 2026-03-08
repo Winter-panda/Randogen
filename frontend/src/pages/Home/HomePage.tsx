@@ -25,6 +25,7 @@ import {
 } from "../../services/geolocation/geolocation";
 import type {
   AmbianceFilter,
+  BiomePreference,
   DifficultyPref,
   EffortFilter,
   FavoriteItem,
@@ -137,6 +138,7 @@ export default function HomePage() {
   const [ambiance, setAmbiance] = useState<AmbianceFilter | null>(null);
   const [terrain, setTerrain] = useState<TerrainFilter | null>(null);
   const [effort, setEffort] = useState<EffortFilter | null>(null);
+  const [biomePreference, setBiomePreference] = useState<BiomePreference | null>(null);
   const [prioritizeNature, setPrioritizeNature] = useState<boolean>(false);
   const [prioritizeViewpoints, setPrioritizeViewpoints] = useState<boolean>(false);
   const [prioritizeCalm, setPrioritizeCalm] = useState<boolean>(false);
@@ -299,6 +301,7 @@ export default function HomePage() {
         ambiance,
         terrain,
         effort,
+        biome_preference: biomePreference,
         prioritize_nature: prioritizeNature,
         prioritize_viewpoints: prioritizeViewpoints,
         prioritize_calm: prioritizeCalm,
@@ -317,7 +320,7 @@ export default function HomePage() {
       setWarnings(response.warnings ?? []);
       void listHistory(resolvedUserId).then(setHistoryItems).catch(() => undefined);
       void listFavorites(resolvedUserId).then(setFavoriteItems).catch(() => undefined);
-      const baseMessage = `${response.routes.length} parcours generes (${formatFiltersLabel(ambiance, terrain, effort)}).`;
+      const baseMessage = `${response.routes.length} parcours generes (${formatFiltersLabel(ambiance, terrain, effort, biomePreference)}).`;
       if (response.status === "fallback") {
         setMessage(`${baseMessage} Generation de secours activee.`);
       } else if (response.status === "partial") {
@@ -510,6 +513,7 @@ export default function HomePage() {
             ambiance={ambiance}
             terrain={terrain}
             effort={effort}
+            biomePreference={biomePreference}
             prioritizeNature={prioritizeNature}
             prioritizeViewpoints={prioritizeViewpoints}
             prioritizeCalm={prioritizeCalm}
@@ -526,6 +530,7 @@ export default function HomePage() {
             onAmbianceChange={setAmbiance}
             onTerrainChange={setTerrain}
             onEffortChange={setEffort}
+            onBiomePreferenceChange={setBiomePreference}
             onDifficultyPrefChange={setDifficultyPref}
             onPrioritizeNatureChange={setPrioritizeNature}
             onPrioritizeViewpointsChange={setPrioritizeViewpoints}
@@ -631,6 +636,7 @@ export default function HomePage() {
                     {item.query.target_distance_km} km
                     {item.query.ambiance ? `, ${item.query.ambiance}` : ""}
                     {item.query.terrain ? `, ${item.query.terrain}` : ""}
+                    {item.query.biome_preference ? `, ${item.query.biome_preference}` : ""}
                   </div>
                 ))}
               </div>

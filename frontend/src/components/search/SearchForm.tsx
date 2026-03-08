@@ -1,6 +1,6 @@
 import { useState } from "react";
-import type { AmbianceFilter, DifficultyPref, EffortFilter, TerrainFilter } from "../../types/route";
-import { AMBIANCE_HINTS, EFFORT_HINTS, TERRAIN_HINTS } from "../../utils/labels";
+import type { AmbianceFilter, BiomePreference, DifficultyPref, EffortFilter, TerrainFilter } from "../../types/route";
+import { AMBIANCE_HINTS, BIOME_HINTS, EFFORT_HINTS, TERRAIN_HINTS } from "../../utils/labels";
 
 interface SearchFormProps {
   distanceKm: number;
@@ -8,6 +8,7 @@ interface SearchFormProps {
   ambiance: AmbianceFilter | null;
   terrain: TerrainFilter | null;
   effort: EffortFilter | null;
+  biomePreference: BiomePreference | null;
   difficultyPref: DifficultyPref | null;
   prioritizeNature: boolean;
   prioritizeViewpoints: boolean;
@@ -24,6 +25,7 @@ interface SearchFormProps {
   onAmbianceChange: (value: AmbianceFilter | null) => void;
   onTerrainChange: (value: TerrainFilter | null) => void;
   onEffortChange: (value: EffortFilter | null) => void;
+  onBiomePreferenceChange: (value: BiomePreference | null) => void;
   onDifficultyPrefChange: (value: DifficultyPref | null) => void;
   onPrioritizeNatureChange: (value: boolean) => void;
   onPrioritizeViewpointsChange: (value: boolean) => void;
@@ -37,8 +39,14 @@ interface SearchFormProps {
   onGenerate: () => Promise<void> | void;
 }
 
-function activeHint(ambiance: AmbianceFilter | null, terrain: TerrainFilter | null, effort: EffortFilter | null): string | null {
+function activeHint(
+  ambiance: AmbianceFilter | null,
+  terrain: TerrainFilter | null,
+  effort: EffortFilter | null,
+  biomePreference: BiomePreference | null,
+): string | null {
   if (ambiance) return AMBIANCE_HINTS[ambiance];
+  if (biomePreference) return BIOME_HINTS[biomePreference];
   if (terrain) return TERRAIN_HINTS[terrain];
   if (effort) return EFFORT_HINTS[effort];
   return null;
@@ -46,12 +54,12 @@ function activeHint(ambiance: AmbianceFilter | null, terrain: TerrainFilter | nu
 
 export default function SearchForm(props: SearchFormProps) {
   const {
-    distanceKm, routeCount, ambiance, terrain, effort, difficultyPref,
+    distanceKm, routeCount, ambiance, terrain, effort, biomePreference, difficultyPref,
     prioritizeNature, prioritizeViewpoints, prioritizeCalm,
     avoidUrban, avoidRoads, avoidSteep, avoidTouristic, adaptToWeather,
     loading, hasPosition,
     onDistanceChange, onRouteCountChange, onAmbianceChange, onTerrainChange,
-    onEffortChange, onDifficultyPrefChange,
+    onEffortChange, onBiomePreferenceChange, onDifficultyPrefChange,
     onPrioritizeNatureChange, onPrioritizeViewpointsChange, onPrioritizeCalmChange,
     onAvoidUrbanChange, onAvoidRoadsChange, onAvoidSteepChange, onAvoidTouristicChange,
     onAdaptToWeatherChange, onLocate, onGenerate,
@@ -86,7 +94,7 @@ export default function SearchForm(props: SearchFormProps) {
     avoidUrban, avoidRoads, avoidSteep, avoidTouristic,
   ].filter(Boolean).length + (adaptToWeather ? 0 : 1);
 
-  const hint = activeHint(ambiance, terrain, effort);
+  const hint = activeHint(ambiance, terrain, effort, biomePreference);
 
   const difficultyLabel: Record<DifficultyPref, string> = {
     facile: "Facile",
@@ -185,6 +193,24 @@ export default function SearchForm(props: SearchFormProps) {
             <option value="">Tous</option>
             <option value="promenade">Promenade</option>
             <option value="sportif">Sportif</option>
+          </select>
+        </div>
+
+        <div className="sf-select-field">
+          <label htmlFor="sf-biome">Biome</label>
+          <select
+            id="sf-biome"
+            className="sf-select"
+            value={biomePreference ?? ""}
+            onChange={(e) => onBiomePreferenceChange((e.target.value as BiomePreference) || null)}
+          >
+            <option value="">Tous</option>
+            <option value="foret">Forêt</option>
+            <option value="campagne">Campagne</option>
+            <option value="cotier">Chemins côtiers</option>
+            <option value="montagne">Montagne</option>
+            <option value="bord_eau">Bord d'eau</option>
+            <option value="patrimoine">Patrimoine</option>
           </select>
         </div>
 
