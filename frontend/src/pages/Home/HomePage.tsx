@@ -276,6 +276,7 @@ export default function HomePage() {
     if (preferenceProfile.suggested_ambiance) setAmbiance(preferenceProfile.suggested_ambiance);
     if (preferenceProfile.suggested_terrain) setTerrain(preferenceProfile.suggested_terrain);
     if (preferenceProfile.suggested_effort) setEffort(preferenceProfile.suggested_effort);
+    if (preferenceProfile.suggested_biome) setBiomePreference(preferenceProfile.suggested_biome);
     if (preferenceProfile.average_distance_km) setDistanceKm(preferenceProfile.average_distance_km);
   };
 
@@ -694,6 +695,9 @@ export default function HomePage() {
             )}
             {preferenceProfile.suggested_effort && (
               <span className="profile-chip">Effort : <strong>{preferenceProfile.suggested_effort}</strong></span>
+            )}
+            {preferenceProfile.suggested_biome && (
+              <span className="profile-chip">Biome : <strong>{preferenceProfile.suggested_biome}</strong></span>
             )}
             {preferenceProfile.average_distance_km && (
               <span className="profile-chip">Distance moy. : <strong>{preferenceProfile.average_distance_km} km</strong></span>

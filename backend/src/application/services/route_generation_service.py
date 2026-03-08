@@ -129,7 +129,7 @@ class RouteGenerationService:
             f"{search.user_id}:"
             f"{search.latitude:.5f}:{search.longitude:.5f}"
             f":{search.target_distance_km}:{search.route_count}"
-            f":{search.ambiance}:{search.terrain}:{search.effort}"
+            f":{search.ambiance}:{search.terrain}:{search.effort}:{search.biome_preference}"
             f":{int(search.prioritize_nature)}:{int(search.prioritize_viewpoints)}:{int(search.prioritize_calm)}"
             f":{int(search.avoid_urban)}:{int(search.avoid_roads)}:{int(search.avoid_steep)}:{int(search.avoid_touristic)}"
             f":{int(search.adapt_to_weather)}"
@@ -816,6 +816,20 @@ class RouteGenerationService:
                     search=search,
                     poi_weight=poi_weight,
                 )
+                if search.biome_preference:
+                    biome_affinity = self._compute_biome_affinity(route=route, biome=search.biome_preference)
+                    if biome_affinity >= 0.62:
+                        biome_label_map = {
+                            "foret": "Biome : forêt",
+                            "campagne": "Biome : campagne",
+                            "cotier": "Biome : côtier",
+                            "montagne": "Biome : montagne",
+                            "bord_eau": "Biome : bord d'eau",
+                            "patrimoine": "Biome : patrimoine",
+                        }
+                        biome_tag = biome_label_map.get(search.biome_preference)
+                        if biome_tag and biome_tag not in route.tags:
+                            route.tags.append(biome_tag)
                 if settings.enable_weather_context and search.adapt_to_weather:
                     context_adjustment = self._contextual_scoring_service.adjust_route(
                         route=route,
@@ -1106,6 +1120,7 @@ class RouteGenerationService:
         score = (route.score * base_weight) + (route.poi_score * poi_weight)
 
         categories = {poi.category for poi in route.pois}
+        biome_affinity = self._compute_biome_affinity(route=route, biome=search.biome_preference)
         gain_per_km = (
             route.estimated_elevation_gain_m / route.distance_km
             if route.distance_km > 0
@@ -1138,9 +1153,77 @@ class RouteGenerationService:
                 if poi.category in {"heritage", "start_access"}
             )
             score -= min(0.08, touristic_count * 0.015)
+        if search.biome_preference:
+            # Keep biome influence as a secondary tie-breaker.
+            score += (biome_affinity - 0.5) * 0.10
 
         # Guardrails: keep feasibility-first ranking while still differentiating profiles.
         return round(max(0.1, min(1.0, score)), 2)
+
+    def _compute_biome_affinity(self, *, route: RouteCandidate, biome: str | None) -> float:
+        normalized = (biome or "").strip().lower()
+        if not normalized:
+            return 0.5
+
+        category_counts: dict[str, int] = {}
+        for poi in route.pois:
+            category_counts[poi.category] = category_counts.get(poi.category, 0) + 1
+
+        def cat_signal(category: str, cap: float = 2.0) -> float:
+            return max(0.0, min(1.0, category_counts.get(category, 0) / cap))
+
+        water_signal = cat_signal("water", cap=2.0)
+        nature_poi_signal = cat_signal("nature", cap=2.0)
+        viewpoint_signal = max(cat_signal("viewpoint", cap=2.0), cat_signal("summit", cap=2.0))
+        heritage_signal = cat_signal("heritage", cap=2.0)
+
+        gain_per_km = (
+            route.estimated_elevation_gain_m / route.distance_km
+            if route.distance_km > 0
+            else 0.0
+        )
+        hilly_signal = max(0.0, min(1.0, gain_per_km / 70.0))
+        flat_signal = 1.0 - hilly_signal
+        urban_index = (route.road_ratio * 0.65) + ((1.0 - route.quiet_score) * 0.35)
+        rural_signal = max(0.0, min(1.0, 1.0 - urban_index))
+
+        affinities: dict[str, float] = {
+            "foret": (
+                route.nature_score * 0.55
+                + nature_poi_signal * 0.25
+                + route.trail_ratio * 0.20
+            ),
+            "campagne": (
+                rural_signal * 0.35
+                + route.quiet_score * 0.25
+                + flat_signal * 0.20
+                + route.nature_score * 0.20
+            ),
+            "cotier": (
+                water_signal * 0.70
+                + viewpoint_signal * 0.20
+                + rural_signal * 0.10
+            ),
+            "montagne": (
+                hilly_signal * 0.45
+                + viewpoint_signal * 0.30
+                + route.trail_ratio * 0.15
+                + route.nature_score * 0.10
+            ),
+            "bord_eau": (
+                water_signal * 0.80
+                + route.nature_score * 0.10
+                + route.quiet_score * 0.10
+            ),
+            "patrimoine": (
+                heritage_signal * 0.70
+                + rural_signal * 0.15
+                + route.quiet_score * 0.15
+            ),
+        }
+
+        affinity = affinities.get(normalized, 0.5)
+        return round(max(0.0, min(1.0, affinity)), 3)
 
     def _build_score_breakdown(
         self,
@@ -1159,6 +1242,8 @@ class RouteGenerationService:
             distance_km=route.distance_km,
             target="flat" if search.terrain == "plat" else ("hilly" if search.terrain == "vallonne" else "neutral"),
         )
+        biome_affinity = self._compute_biome_affinity(route=route, biome=search.biome_preference)
+        biome_breakdown_value = biome_affinity if search.biome_preference else 0.0
         return {
             "distance": round(distance_score, 3),
             "sentiers": round(route.trail_ratio, 3),
@@ -1167,6 +1252,7 @@ class RouteGenerationService:
             "suitability": round(route.hiking_suitability_score, 3),
             "denivele": round(elevation_score, 3),
             "poi": round(route.poi_score, 3),
+            "biome": round(biome_breakdown_value, 3),
             "poi_weight": round(poi_weight, 3),
             "context": round(route.context_score_delta, 3),
             "repetition": round(-0.04 if route.seen_before else 0.0, 3),
@@ -1190,6 +1276,8 @@ class RouteGenerationService:
             reasons.append(("Parcours plutot calme", route.quiet_score))
         if route.poi_score >= 0.55 and len(route.highlighted_poi_labels) > 0:
             reasons.append((f"Presence de POI: {', '.join(route.highlighted_poi_labels[:2])}", route.poi_score))
+        if breakdown.get("biome", 0.0) >= 0.65:
+            reasons.append(("Correspond bien au biome souhaite", breakdown["biome"]))
         if route.difficulty == "facile":
             reasons.append(("Niveau accessible", 0.55))
 

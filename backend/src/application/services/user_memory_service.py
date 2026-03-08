@@ -204,6 +204,7 @@ class UserMemoryService:
         ambiance_counts: dict[str, int] = {}
         terrain_counts: dict[str, int] = {}
         effort_counts: dict[str, int] = {}
+        biome_counts: dict[str, int] = {}
         distances: list[float] = []
 
         for item in history[:20]:
@@ -217,6 +218,9 @@ class UserMemoryService:
             effort = query.get("effort")
             if effort:
                 effort_counts[effort] = effort_counts.get(effort, 0) + 1
+            biome = query.get("biome_preference")
+            if biome:
+                biome_counts[biome] = biome_counts.get(biome, 0) + 1
             d = query.get("target_distance_km")
             if isinstance(d, (int, float)) and d > 0:
                 distances.append(float(d))
@@ -224,6 +228,7 @@ class UserMemoryService:
         suggested_ambiance = max(ambiance_counts, key=ambiance_counts.__getitem__) if ambiance_counts else None
         suggested_terrain = max(terrain_counts, key=terrain_counts.__getitem__) if terrain_counts else None
         suggested_effort = max(effort_counts, key=effort_counts.__getitem__) if effort_counts else None
+        suggested_biome = max(biome_counts, key=biome_counts.__getitem__) if biome_counts else None
         avg_distance = round(sum(distances) / len(distances), 1) if distances else None
 
         return {
@@ -232,10 +237,12 @@ class UserMemoryService:
             "suggested_ambiance": suggested_ambiance,
             "suggested_terrain": suggested_terrain,
             "suggested_effort": suggested_effort,
+            "suggested_biome": suggested_biome,
             "average_distance_km": avg_distance,
             "ambiance_counts": ambiance_counts,
             "terrain_counts": terrain_counts,
             "effort_counts": effort_counts,
+            "biome_counts": biome_counts,
         }
 
     def compute_zone_novelty_factor(

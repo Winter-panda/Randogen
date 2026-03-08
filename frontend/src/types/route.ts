@@ -134,8 +134,10 @@ export interface PreferenceProfile {
   suggested_ambiance: AmbianceFilter | null;
   suggested_terrain: TerrainFilter | null;
   suggested_effort: EffortFilter | null;
+  suggested_biome?: BiomePreference | null;
   average_distance_km: number | null;
   ambiance_counts: Record<string, number>;
   terrain_counts: Record<string, number>;
   effort_counts: Record<string, number>;
+  biome_counts?: Record<string, number>;
 }

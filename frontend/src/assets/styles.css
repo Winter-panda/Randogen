@@ -294,7 +294,7 @@ button:hover:not(:disabled) {
 /* 2×2 selects grid */
 .sf-selects-grid {
   display: grid;
-  grid-template-columns: 1fr 1fr;
+  grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
   gap: 8px;
   margin-bottom: 8px;
 }
@@ -1514,6 +1514,10 @@ button:hover:not(:disabled) {
   .mini-bars {
     grid-template-columns: 1fr;
   }
+
+  .sf-top-row {
+    align-items: stretch;
+  }
 }
 
 @media (max-width: 560px) {
@@ -1535,5 +1539,14 @@ button:hover:not(:disabled) {
 
   .route-card-name {
     font-size: 0.95rem;
+  }
+
+  .sf-selects-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .sf-distance-input-row input {
+    width: 100%;
+    min-width: 0;
   }
 }
