@@ -237,6 +237,20 @@ npm run dev -- --host 127.0.0.1 --port 5173
 - Erreur `Error: spawn EPERM` avec Vite/esbuild :
   utiliser Node LTS 22 (`.nvmrc` = `22.13.1`). Node 24 provoque ce blocage dans cet environnement.
 
+## Projet portable (web + mobile + desktop)
+
+Un script d'initialisation existe pour créer un projet frère
+`Randogen-portable` sans casser le projet stable.
+
+```powershell
+cd D:\Github\Randogen
+powershell -ExecutionPolicy Bypass -File .\scripts\maintenance\init-portable-app.ps1
+```
+
+Documentation:
+
+- `docs/portable-app-bootstrap.md`
+
 ## Contribution
 
 Les contributions sont les bienvenues.

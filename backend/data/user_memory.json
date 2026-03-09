@@ -2133,6 +2133,31 @@
           "centroid_lat": 48.365805,
           "centroid_lon": -1.176603,
           "added_at": "2026-03-09T00:34:56.583999+00:00"
+        },
+        "rte-ef5ed8009072": {
+          "stable_route_id": "rte-ef5ed8009072",
+          "name": "Parcours 3",
+          "distance_km": 13.82,
+          "estimated_duration_min": 227,
+          "estimated_elevation_gain_m": 257,
+          "difficulty": "soutenue",
+          "score": 0.61,
+          "tags": [
+            "Bon mix sentiers",
+            "Tres nature",
+            "Ideal randonnee",
+            "Terrain plat",
+            "Ideal : nature",
+            "Passage en bord d'eau"
+          ],
+          "highlighted_poi_labels": [
+            "\u00c9tang des Cotter\u00eats",
+            "Patrimoine",
+            "Parc naturel"
+          ],
+          "centroid_lat": 48.362842,
+          "centroid_lon": -1.162125,
+          "added_at": "2026-03-09T16:53:43.548177+00:00"
         }
       },
       "seen_routes": [
@@ -2185,7 +2210,7 @@
           ],
           "centroid_lat": 48.375341,
           "centroid_lon": -1.177544,
-          "last_seen_at": "2026-03-09T16:32:13.772381+00:00",
+          "last_seen_at": "2026-03-09T16:46:33.973783+00:00",
           "last_event": "viewed"
         },
         {
