@@ -3,6 +3,7 @@ import type {
   GenerateRoutesRequest,
   GenerateRoutesResponse,
   HistoryItem,
+  PoiCategoryFilter,
   PointOfInterest,
   PreferenceProfile,
   RouteCandidate,
@@ -11,6 +12,15 @@ import type {
 
 const API_BASE_URL = import.meta.env.VITE_API_URL ?? "http://127.0.0.1:8000/api";
 const USER_ID_STORAGE_KEY = "randogen_user_id_v1";
+const ALLOWED_POI_CATEGORIES: ReadonlyArray<PointOfInterest["category"]> = [
+  "viewpoint",
+  "water",
+  "summit",
+  "nature",
+  "heritage",
+  "facility",
+  "start_access"
+];
 
 const MOJIBAKE_PATTERN = /[ÃÂ�□Æâ]/;
 const MOJIBAKE_REPLACEMENTS: ReadonlyArray<[string, string]> = [
@@ -68,6 +78,34 @@ function sanitizeDifficulty(value: string): string {
   return "moderee";
 }
 
+function sanitizePoiCategory(value: string): PointOfInterest["category"] {
+  const normalized = fixMojibakeText(value).toLowerCase().trim();
+  if ((ALLOWED_POI_CATEGORIES as ReadonlyArray<string>).includes(normalized)) {
+    return normalized as PointOfInterest["category"];
+  }
+  if (normalized.includes("view")) return "viewpoint";
+  if (normalized.includes("water") || normalized.includes("eau")) return "water";
+  if (normalized.includes("summit") || normalized.includes("peak")) return "summit";
+  if (normalized.includes("herit")) return "heritage";
+  if (normalized.includes("access") || normalized.includes("start") || normalized.includes("parking")) {
+    return "start_access";
+  }
+  if (normalized.includes("facility") || normalized.includes("service") || normalized.includes("amenity")) {
+    return "facility";
+  }
+  return "nature";
+}
+
+function sanitizePoi(poi: PointOfInterest): PointOfInterest {
+  return {
+    ...poi,
+    name: fixMojibakeText(poi.name),
+    category: sanitizePoiCategory(poi.category),
+    sub_category: poi.sub_category ? fixMojibakeText(poi.sub_category) : poi.sub_category,
+    tags: (poi.tags ?? []).map((tag) => fixMojibakeText(tag)).filter((tag) => tag.length > 0)
+  };
+}
+
 function buildTagsFromMetrics(route: RouteCandidate): string[] {
   const tags: string[] = [];
 
@@ -112,12 +150,7 @@ function sanitizeRoute(route: RouteCandidate): RouteCandidate {
     .map((warning) => fixMojibakeText(warning))
     .filter((warning) => warning.length > 0);
 
-  const cleanedPois: PointOfInterest[] = (route.pois ?? []).map((poi) => ({
-    ...poi,
-    name: fixMojibakeText(poi.name),
-    sub_category: poi.sub_category ? fixMojibakeText(poi.sub_category) : poi.sub_category,
-    tags: (poi.tags ?? []).map((tag) => fixMojibakeText(tag)).filter((tag) => tag.length > 0)
-  }));
+  const cleanedPois: PointOfInterest[] = (route.pois ?? []).map((poi) => sanitizePoi(poi));
 
   return {
     ...route,
@@ -281,5 +314,52 @@ export async function fetchWeather(lat: number, lon: number): Promise<WeatherDat
   if (!response.ok) {
     throw new Error("Météo indisponible");
   }
-  return (await response.json()) as WeatherData;
+  const data = (await response.json()) as Partial<WeatherData>;
+  if (
+    typeof data?.temperature_c !== "number"
+    || typeof data?.precipitation_mm !== "number"
+    || typeof data?.wind_kmh !== "number"
+    || typeof data?.weather_code !== "number"
+  ) {
+    throw new Error("Météo indisponible");
+  }
+  return data as WeatherData;
+}
+
+export async function fetchNearbyPois(
+  lat: number,
+  lon: number,
+  options?: {
+    radiusKm?: number;
+    categories?: PoiCategoryFilter[];
+    limit?: number;
+  }
+): Promise<PointOfInterest[]> {
+  const params = new URLSearchParams();
+  params.set("lat", String(lat));
+  params.set("lon", String(lon));
+  params.set("radius_km", String(options?.radiusKm ?? 5));
+  params.set("limit", String(options?.limit ?? 250));
+  for (const category of options?.categories ?? []) {
+    params.append("categories", category);
+  }
+
+  const response = await fetch(`${API_BASE_URL}/routes/pois/nearby?${params.toString()}`);
+  if (!response.ok) {
+    let detail = "POI indisponibles";
+    try {
+      const data = (await response.json()) as { detail?: string };
+      if (typeof data.detail === "string" && data.detail.trim().length > 0) {
+        detail = data.detail.trim();
+      }
+    } catch {
+      // ignore malformed error payload
+    }
+    throw new Error(detail);
+  }
+  const data = await response.json();
+  if (!Array.isArray(data)) {
+    throw new Error("Format POI invalide");
+  }
+  return data.map((poi) => sanitizePoi(poi as PointOfInterest));
 }

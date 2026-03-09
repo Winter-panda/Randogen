@@ -37,9 +37,12 @@ self.addEventListener("fetch", (event) => {
   // API calls: network first, no offline fallback (data must be fresh)
   if (url.pathname.startsWith("/api/")) {
     event.respondWith(
-      fetch(request).catch(() => new Response(JSON.stringify({ error: "Hors ligne" }), {
-        headers: { "Content-Type": "application/json" }
-      }))
+      fetch(request).catch(() =>
+        new Response(JSON.stringify({ detail: "Hors ligne" }), {
+          status: 503,
+          headers: { "Content-Type": "application/json" }
+        })
+      )
     );
     return;
   }
@@ -51,7 +54,10 @@ self.addEventListener("fetch", (event) => {
         const cached = await cache.match(request);
         if (cached) return cached;
         const response = await fetch(request);
-        if (response.ok) cache.put(request, response.clone());
+        if (response.ok) {
+          const responseClone = response.clone();
+          event.waitUntil(cache.put(request, responseClone));
+        }
         return response;
       })
     );
@@ -63,7 +69,10 @@ self.addEventListener("fetch", (event) => {
     fetch(request)
       .then((response) => {
         if (response.ok) {
-          caches.open(CACHE_NAME).then((cache) => cache.put(request, response.clone()));
+          const responseClone = response.clone();
+          event.waitUntil(
+            caches.open(CACHE_NAME).then((cache) => cache.put(request, responseClone))
+          );
         }
         return response;
       })

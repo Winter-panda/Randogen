@@ -1758,6 +1758,1773 @@
           "last_event": "viewed"
         }
       ]
+    },
+    "u-mmi3cs58-3h7p30": {
+      "history": [
+        {
+          "timestamp": "2026-03-09T16:31:44.690608+00:00",
+          "query": {
+            "latitude": 48.365151,
+            "longitude": -1.1829285,
+            "target_distance_km": 10.5,
+            "route_count": 3,
+            "ambiance": "equilibree",
+            "terrain": "plat",
+            "effort": "sportif",
+            "biome_preference": "patrimoine",
+            "desired_poi_categories": []
+          },
+          "result_route_ids": [
+            "rte-ef5ed8009072",
+            "rte-2619db369844",
+            "rte-49122f40e47d"
+          ]
+        },
+        {
+          "timestamp": "2026-03-09T16:29:20.008842+00:00",
+          "query": {
+            "latitude": 48.365151,
+            "longitude": -1.1829285,
+            "target_distance_km": 10.5,
+            "route_count": 3,
+            "ambiance": null,
+            "terrain": null,
+            "effort": null,
+            "biome_preference": null,
+            "desired_poi_categories": []
+          },
+          "result_route_ids": [
+            "rte-d5378f3bf8c0",
+            "rte-5306ba78aa8b",
+            "rte-ca8a5e66145b"
+          ]
+        },
+        {
+          "timestamp": "2026-03-09T16:26:33.024130+00:00",
+          "query": {
+            "latitude": 48.365151,
+            "longitude": -1.1829285,
+            "target_distance_km": 5.0,
+            "route_count": 3,
+            "ambiance": null,
+            "terrain": null,
+            "effort": null,
+            "biome_preference": null,
+            "desired_poi_categories": []
+          },
+          "result_route_ids": [
+            "rte-83a41c291a4e",
+            "rte-8f2d3405f6e7",
+            "rte-613f44fcee6c"
+          ]
+        },
+        {
+          "timestamp": "2026-03-09T16:16:25.372551+00:00",
+          "query": {
+            "latitude": 48.3648625,
+            "longitude": -1.1828965,
+            "target_distance_km": 5.0,
+            "route_count": 3,
+            "ambiance": null,
+            "terrain": null,
+            "effort": null,
+            "biome_preference": null,
+            "desired_poi_categories": []
+          },
+          "result_route_ids": [
+            "rte-16fda66df06e",
+            "rte-6ad5a5110681",
+            "rte-8dbdf572200e"
+          ]
+        },
+        {
+          "timestamp": "2026-03-09T16:10:41.212554+00:00",
+          "query": {
+            "latitude": 48.365151,
+            "longitude": -1.1829285,
+            "target_distance_km": 5.0,
+            "route_count": 3,
+            "ambiance": null,
+            "terrain": null,
+            "effort": null,
+            "biome_preference": null,
+            "desired_poi_categories": []
+          },
+          "result_route_ids": [
+            "rte-6bc500ef297b",
+            "rte-202211fda3d6",
+            "rte-0849344b0225"
+          ]
+        },
+        {
+          "timestamp": "2026-03-09T15:57:28.663406+00:00",
+          "query": {
+            "latitude": 48.3648625,
+            "longitude": -1.1828965,
+            "target_distance_km": 5.0,
+            "route_count": 3,
+            "ambiance": null,
+            "terrain": null,
+            "effort": null,
+            "biome_preference": null,
+            "desired_poi_categories": []
+          },
+          "result_route_ids": [
+            "rte-61236384cc0a",
+            "rte-b40d804d8d05",
+            "rte-c525d2d3cb3d"
+          ]
+        },
+        {
+          "timestamp": "2026-03-09T15:49:48.263263+00:00",
+          "query": {
+            "latitude": 48.365151,
+            "longitude": -1.1829285,
+            "target_distance_km": 5.0,
+            "route_count": 3,
+            "ambiance": null,
+            "terrain": null,
+            "effort": null,
+            "biome_preference": null,
+            "desired_poi_categories": []
+          },
+          "result_route_ids": [
+            "rte-c4bf2ec8c525",
+            "rte-94f6624e1df1",
+            "rte-b9af300324e0"
+          ]
+        },
+        {
+          "timestamp": "2026-03-09T15:45:58.493680+00:00",
+          "query": {
+            "latitude": 48.3648625,
+            "longitude": -1.1828965,
+            "target_distance_km": 5.0,
+            "route_count": 3,
+            "ambiance": null,
+            "terrain": null,
+            "effort": null,
+            "biome_preference": null,
+            "desired_poi_categories": []
+          },
+          "result_route_ids": [
+            "rte-3cfbf22a51ee",
+            "rte-4b854a0012ae",
+            "rte-3761be9969d4"
+          ]
+        },
+        {
+          "timestamp": "2026-03-09T15:17:33.131955+00:00",
+          "query": {
+            "latitude": 48.365151,
+            "longitude": -1.1829285,
+            "target_distance_km": 5.0,
+            "route_count": 3,
+            "ambiance": null,
+            "terrain": null,
+            "effort": null,
+            "biome_preference": null,
+            "desired_poi_categories": []
+          },
+          "result_route_ids": [
+            "rte-2c25e567979b",
+            "rte-9a16927ffcb7",
+            "rte-7b2efd13f8f2"
+          ]
+        },
+        {
+          "timestamp": "2026-03-09T14:54:45.852224+00:00",
+          "query": {
+            "latitude": 48.365151,
+            "longitude": -1.1829285,
+            "target_distance_km": 5.0,
+            "route_count": 3,
+            "ambiance": "nature",
+            "terrain": null,
+            "effort": "promenade",
+            "biome_preference": "foret",
+            "desired_poi_categories": [
+              "heritage",
+              "nature",
+              "water"
+            ]
+          },
+          "result_route_ids": [
+            "rte-583e672b1eea",
+            "rte-bd4e7080e7df",
+            "rte-566f4a10e99f"
+          ]
+        },
+        {
+          "timestamp": "2026-03-09T14:51:04.202524+00:00",
+          "query": {
+            "latitude": 48.3648625,
+            "longitude": -1.1828965,
+            "target_distance_km": 5.0,
+            "route_count": 3,
+            "ambiance": null,
+            "terrain": null,
+            "effort": null,
+            "biome_preference": null,
+            "desired_poi_categories": []
+          },
+          "result_route_ids": [
+            "rte-950f9d312410",
+            "rte-8d571d7dcee9",
+            "rte-d32b3287a5a1"
+          ]
+        },
+        {
+          "timestamp": "2026-03-09T00:43:46.907314+00:00",
+          "query": {
+            "latitude": 48.3648625,
+            "longitude": -1.1828965,
+            "target_distance_km": 5.0,
+            "route_count": 3,
+            "ambiance": null,
+            "terrain": null,
+            "effort": null,
+            "biome_preference": null,
+            "desired_poi_categories": []
+          },
+          "result_route_ids": [
+            "rte-786473740745",
+            "rte-d215c23b9941",
+            "rte-eeaeebee4dbd"
+          ]
+        },
+        {
+          "timestamp": "2026-03-09T00:31:28.024852+00:00",
+          "query": {
+            "latitude": 48.365151,
+            "longitude": -1.1829285,
+            "target_distance_km": 5.0,
+            "route_count": 3,
+            "ambiance": null,
+            "terrain": null,
+            "effort": null,
+            "biome_preference": null,
+            "desired_poi_categories": []
+          },
+          "result_route_ids": [
+            "rte-2c25e567979b",
+            "rte-d7bcb1b269e5",
+            "rte-fefcc84c6d86"
+          ]
+        },
+        {
+          "timestamp": "2026-03-09T00:16:06.017722+00:00",
+          "query": {
+            "latitude": 48.3646125793457,
+            "longitude": -1.182730793952942,
+            "target_distance_km": 5.0,
+            "route_count": 3,
+            "ambiance": null,
+            "terrain": null,
+            "effort": null,
+            "biome_preference": null,
+            "desired_poi_categories": []
+          },
+          "result_route_ids": [
+            "rte-7ff447cfb2a6",
+            "rte-e88065e327ee",
+            "rte-ab29df7b7023"
+          ]
+        },
+        {
+          "timestamp": "2026-03-08T23:59:20.190558+00:00",
+          "query": {
+            "latitude": 48.3648625,
+            "longitude": -1.1828965,
+            "target_distance_km": 5.0,
+            "route_count": 3,
+            "ambiance": null,
+            "terrain": null,
+            "effort": null,
+            "biome_preference": null,
+            "desired_poi_categories": []
+          },
+          "result_route_ids": [
+            "rte-6ad5a5110681",
+            "rte-22069c27af65",
+            "rte-580a184649c5"
+          ]
+        },
+        {
+          "timestamp": "2026-03-08T23:57:57.379726+00:00",
+          "query": {
+            "latitude": 48.3646125793457,
+            "longitude": -1.182730793952942,
+            "target_distance_km": 5.0,
+            "route_count": 3,
+            "ambiance": null,
+            "terrain": null,
+            "effort": null,
+            "biome_preference": null,
+            "desired_poi_categories": []
+          },
+          "result_route_ids": [
+            "rte-358504e3181d",
+            "rte-3460cbebd44e",
+            "rte-752d1db7a292"
+          ]
+        },
+        {
+          "timestamp": "2026-03-08T23:54:31.569736+00:00",
+          "query": {
+            "latitude": 48.365151,
+            "longitude": -1.1829285,
+            "target_distance_km": 5.0,
+            "route_count": 3,
+            "ambiance": null,
+            "terrain": null,
+            "effort": null,
+            "biome_preference": null,
+            "desired_poi_categories": []
+          },
+          "result_route_ids": [
+            "rte-e03543d10d40",
+            "rte-e8006031b279",
+            "rte-7cabe304ecbb"
+          ]
+        },
+        {
+          "timestamp": "2026-03-08T23:45:08.106919+00:00",
+          "query": {
+            "latitude": 48.3648625,
+            "longitude": -1.1828965,
+            "target_distance_km": 5.0,
+            "route_count": 3,
+            "ambiance": null,
+            "terrain": null,
+            "effort": null,
+            "biome_preference": null,
+            "desired_poi_categories": []
+          },
+          "result_route_ids": [
+            "rte-21bfbbbaccfe",
+            "rte-01413e87ec6f",
+            "rte-53853d0fdcff"
+          ]
+        }
+      ],
+      "favorites": {
+        "rte-d7bcb1b269e5": {
+          "stable_route_id": "rte-d7bcb1b269e5",
+          "name": "Parcours 2",
+          "distance_km": 5.46,
+          "estimated_duration_min": 95,
+          "estimated_elevation_gain_m": 119,
+          "difficulty": "moderee",
+          "score": 0.73,
+          "tags": [
+            "Sentiers dominants",
+            "Tres peu de routes",
+            "Tres nature",
+            "Ideal randonnee",
+            "Tres proche",
+            "Terrain plat"
+          ],
+          "highlighted_poi_labels": [
+            "\u00c9tang des Cotter\u00eats",
+            "Lac / riviere",
+            "Etang"
+          ],
+          "centroid_lat": 48.365805,
+          "centroid_lon": -1.176603,
+          "added_at": "2026-03-09T00:34:56.583999+00:00"
+        }
+      },
+      "seen_routes": [
+        {
+          "stable_route_id": "rte-49122f40e47d",
+          "name": "Parcours 2",
+          "distance_km": 8.96,
+          "estimated_duration_min": 153,
+          "estimated_elevation_gain_m": 183,
+          "difficulty": "moderee",
+          "score": 0.5,
+          "tags": [
+            "Sentiers dominants",
+            "Tres peu de routes",
+            "Tres nature",
+            "Ideal randonnee",
+            "Tres proche",
+            "Terrain plat"
+          ],
+          "highlighted_poi_labels": [
+            "Lac / riviere",
+            "\u00c9tang des Cotter\u00eats",
+            "\u00c9tang de Chenedet"
+          ],
+          "centroid_lat": 48.37407,
+          "centroid_lon": -1.177861,
+          "last_seen_at": "2026-03-09T16:32:29.990645+00:00",
+          "last_event": "viewed"
+        },
+        {
+          "stable_route_id": "rte-2619db369844",
+          "name": "Parcours 1",
+          "distance_km": 9.0,
+          "estimated_duration_min": 153,
+          "estimated_elevation_gain_m": 156,
+          "difficulty": "moderee",
+          "score": 0.52,
+          "tags": [
+            "Sentiers dominants",
+            "Tres peu de routes",
+            "Tres nature",
+            "Ideal randonnee",
+            "Tres proche",
+            "Terrain plat"
+          ],
+          "highlighted_poi_labels": [
+            "\u00c9tang des Cotter\u00eats",
+            "Lac / riviere",
+            "\u00c9tang de Chenedet"
+          ],
+          "centroid_lat": 48.375341,
+          "centroid_lon": -1.177544,
+          "last_seen_at": "2026-03-09T16:32:13.772381+00:00",
+          "last_event": "viewed"
+        },
+        {
+          "stable_route_id": "rte-ef5ed8009072",
+          "name": "Parcours 3",
+          "distance_km": 13.82,
+          "estimated_duration_min": 227,
+          "estimated_elevation_gain_m": 257,
+          "difficulty": "soutenue",
+          "score": 0.61,
+          "tags": [
+            "Bon mix sentiers",
+            "Tres nature",
+            "Ideal randonnee",
+            "Terrain plat",
+            "Ideal : nature",
+            "Passage en bord d'eau"
+          ],
+          "highlighted_poi_labels": [
+            "\u00c9tang des Cotter\u00eats",
+            "Patrimoine",
+            "Parc naturel"
+          ],
+          "centroid_lat": 48.362842,
+          "centroid_lon": -1.162125,
+          "last_seen_at": "2026-03-09T16:31:44.710107+00:00",
+          "last_event": "viewed"
+        },
+        {
+          "stable_route_id": "rte-ca8a5e66145b",
+          "name": "Parcours 3",
+          "distance_km": 9.36,
+          "estimated_duration_min": 153,
+          "estimated_elevation_gain_m": 198,
+          "difficulty": "moderee",
+          "score": 0.57,
+          "tags": [
+            "Bon mix sentiers",
+            "Tres nature",
+            "Ideal randonnee",
+            "Tres proche",
+            "Terrain plat",
+            "Ideal : nature"
+          ],
+          "highlighted_poi_labels": [],
+          "centroid_lat": 48.362313,
+          "centroid_lon": -1.202748,
+          "last_seen_at": "2026-03-09T16:29:20.008891+00:00",
+          "last_event": "generated"
+        },
+        {
+          "stable_route_id": "rte-5306ba78aa8b",
+          "name": "Parcours 2",
+          "distance_km": 11.53,
+          "estimated_duration_min": 185,
+          "estimated_elevation_gain_m": 193,
+          "difficulty": "moderee",
+          "score": 0.59,
+          "tags": [
+            "Bon mix sentiers",
+            "Tres nature",
+            "Ideal randonnee",
+            "Tres proche",
+            "Terrain plat",
+            "Ideal : nature"
+          ],
+          "highlighted_poi_labels": [],
+          "centroid_lat": 48.355808,
+          "centroid_lon": -1.183205,
+          "last_seen_at": "2026-03-09T16:29:20.008867+00:00",
+          "last_event": "generated"
+        },
+        {
+          "stable_route_id": "rte-d5378f3bf8c0",
+          "name": "Parcours 1",
+          "distance_km": 9.88,
+          "estimated_duration_min": 165,
+          "estimated_elevation_gain_m": 156,
+          "difficulty": "moderee",
+          "score": 0.74,
+          "tags": [
+            "Sentiers dominants",
+            "Tres peu de routes",
+            "Tres nature",
+            "Ideal randonnee",
+            "Tres proche",
+            "Terrain plat"
+          ],
+          "highlighted_poi_labels": [],
+          "centroid_lat": 48.375352,
+          "centroid_lon": -1.165605,
+          "last_seen_at": "2026-03-09T16:29:20.016855+00:00",
+          "last_event": "viewed"
+        },
+        {
+          "stable_route_id": "rte-613f44fcee6c",
+          "name": "Parcours 3",
+          "distance_km": 5.75,
+          "estimated_duration_min": 97,
+          "estimated_elevation_gain_m": 100,
+          "difficulty": "moderee",
+          "score": 0.76,
+          "tags": [
+            "Sentiers dominants",
+            "Tres peu de routes",
+            "Tres nature",
+            "Ideal randonnee",
+            "Tres proche",
+            "Terrain plat"
+          ],
+          "highlighted_poi_labels": [
+            "\u00c9tang des Cotter\u00eats",
+            "Lac / riviere",
+            "Etang"
+          ],
+          "centroid_lat": 48.37111,
+          "centroid_lon": -1.182242,
+          "last_seen_at": "2026-03-09T16:26:33.024183+00:00",
+          "last_event": "generated"
+        },
+        {
+          "stable_route_id": "rte-8f2d3405f6e7",
+          "name": "Parcours 2",
+          "distance_km": 5.45,
+          "estimated_duration_min": 95,
+          "estimated_elevation_gain_m": 124,
+          "difficulty": "moderee",
+          "score": 0.79,
+          "tags": [
+            "Sentiers dominants",
+            "Tres peu de routes",
+            "Tres nature",
+            "Ideal randonnee",
+            "Tres proche",
+            "Terrain plat"
+          ],
+          "highlighted_poi_labels": [
+            "\u00c9tang des Cotter\u00eats",
+            "Lac / riviere",
+            "Etang"
+          ],
+          "centroid_lat": 48.36412,
+          "centroid_lon": -1.176928,
+          "last_seen_at": "2026-03-09T16:26:33.024164+00:00",
+          "last_event": "generated"
+        },
+        {
+          "stable_route_id": "rte-83a41c291a4e",
+          "name": "Parcours 1",
+          "distance_km": 5.02,
+          "estimated_duration_min": 87,
+          "estimated_elevation_gain_m": 101,
+          "difficulty": "moderee",
+          "score": 0.86,
+          "tags": [
+            "Sentiers dominants",
+            "Sans route",
+            "Tres nature",
+            "Ideal randonnee",
+            "Distance exacte",
+            "Terrain plat"
+          ],
+          "highlighted_poi_labels": [
+            "\u00c9tang des Cotter\u00eats",
+            "Lac / riviere",
+            "Etang"
+          ],
+          "centroid_lat": 48.369347,
+          "centroid_lon": -1.176825,
+          "last_seen_at": "2026-03-09T16:26:33.035472+00:00",
+          "last_event": "viewed"
+        },
+        {
+          "stable_route_id": "rte-8dbdf572200e",
+          "name": "Parcours 3",
+          "distance_km": 6.87,
+          "estimated_duration_min": 117,
+          "estimated_elevation_gain_m": 138,
+          "difficulty": "moderee",
+          "score": 0.65,
+          "tags": [
+            "Sentiers dominants",
+            "Tres peu de routes",
+            "Tres nature",
+            "Ideal randonnee",
+            "Terrain plat",
+            "Ideal : sentiers"
+          ],
+          "highlighted_poi_labels": [
+            "Lac / riviere",
+            "\u00c9tang des Cotter\u00eats",
+            "Etang"
+          ],
+          "centroid_lat": 48.367228,
+          "centroid_lon": -1.17778,
+          "last_seen_at": "2026-03-09T16:16:25.372593+00:00",
+          "last_event": "generated"
+        },
+        {
+          "stable_route_id": "rte-16fda66df06e",
+          "name": "Parcours 2",
+          "distance_km": 4.48,
+          "estimated_duration_min": 77,
+          "estimated_elevation_gain_m": 92,
+          "difficulty": "facile",
+          "score": 0.82,
+          "tags": [
+            "Sentiers dominants",
+            "Tres peu de routes",
+            "Tres nature",
+            "Ideal randonnee",
+            "Tres proche",
+            "Terrain plat"
+          ],
+          "highlighted_poi_labels": [
+            "\u00c9tang des Cotter\u00eats",
+            "Lac / riviere",
+            "Etang"
+          ],
+          "centroid_lat": 48.368006,
+          "centroid_lon": -1.173107,
+          "last_seen_at": "2026-03-09T16:16:25.383731+00:00",
+          "last_event": "viewed"
+        },
+        {
+          "stable_route_id": "rte-0849344b0225",
+          "name": "Parcours 1",
+          "distance_km": 5.61,
+          "estimated_duration_min": 95,
+          "estimated_elevation_gain_m": 101,
+          "difficulty": "moderee",
+          "score": 0.73,
+          "tags": [
+            "Sentiers dominants",
+            "Tres peu de routes",
+            "Tres nature",
+            "Ideal randonnee",
+            "Tres proche",
+            "Terrain plat"
+          ],
+          "highlighted_poi_labels": [],
+          "centroid_lat": 48.369811,
+          "centroid_lon": -1.181053,
+          "last_seen_at": "2026-03-09T16:12:33.716464+00:00",
+          "last_event": "viewed"
+        },
+        {
+          "stable_route_id": "rte-202211fda3d6",
+          "name": "Parcours 3",
+          "distance_km": 4.18,
+          "estimated_duration_min": 71,
+          "estimated_elevation_gain_m": 81,
+          "difficulty": "facile",
+          "score": 0.79,
+          "tags": [
+            "Sentiers dominants",
+            "Tres peu de routes",
+            "Tres nature",
+            "Ideal randonnee",
+            "Terrain plat",
+            "Ideal : sentiers"
+          ],
+          "highlighted_poi_labels": [
+            "\u00c9tang des Cotter\u00eats",
+            "Lac / riviere",
+            "Etang"
+          ],
+          "centroid_lat": 48.367507,
+          "centroid_lon": -1.174142,
+          "last_seen_at": "2026-03-09T16:15:13.107800+00:00",
+          "last_event": "viewed"
+        },
+        {
+          "stable_route_id": "rte-6bc500ef297b",
+          "name": "Parcours 2",
+          "distance_km": 4.79,
+          "estimated_duration_min": 82,
+          "estimated_elevation_gain_m": 111,
+          "difficulty": "facile",
+          "score": 0.8,
+          "tags": [
+            "Sentiers dominants",
+            "Tres nature",
+            "Ideal randonnee",
+            "Distance exacte",
+            "Terrain plat",
+            "Ideal : sentiers"
+          ],
+          "highlighted_poi_labels": [
+            "\u00c9tang des Cotter\u00eats",
+            "Lac / riviere",
+            "Etang"
+          ],
+          "centroid_lat": 48.36797,
+          "centroid_lon": -1.175059,
+          "last_seen_at": "2026-03-09T16:10:41.224415+00:00",
+          "last_event": "viewed"
+        },
+        {
+          "stable_route_id": "rte-c525d2d3cb3d",
+          "name": "Parcours 2",
+          "distance_km": 4.99,
+          "estimated_duration_min": 84,
+          "estimated_elevation_gain_m": 106,
+          "difficulty": "facile",
+          "score": 0.74,
+          "tags": [
+            "Bon mix sentiers",
+            "Tres nature",
+            "Ideal randonnee",
+            "Distance exacte",
+            "Terrain plat",
+            "Ideal : nature"
+          ],
+          "highlighted_poi_labels": [],
+          "centroid_lat": 48.368508,
+          "centroid_lon": -1.176534,
+          "last_seen_at": "2026-03-09T15:57:28.663460+00:00",
+          "last_event": "generated"
+        },
+        {
+          "stable_route_id": "rte-b40d804d8d05",
+          "name": "Parcours 3",
+          "distance_km": 4.7,
+          "estimated_duration_min": 78,
+          "estimated_elevation_gain_m": 90,
+          "difficulty": "facile",
+          "score": 0.75,
+          "tags": [
+            "Bon mix sentiers",
+            "Tres nature",
+            "Ideal randonnee",
+            "Tres proche",
+            "Terrain plat",
+            "Ideal : nature"
+          ],
+          "highlighted_poi_labels": [
+            "\u00c9tang des Cotter\u00eats",
+            "Lac / riviere",
+            "Etang"
+          ],
+          "centroid_lat": 48.367232,
+          "centroid_lon": -1.184861,
+          "last_seen_at": "2026-03-09T15:57:28.663442+00:00",
+          "last_event": "generated"
+        },
+        {
+          "stable_route_id": "rte-61236384cc0a",
+          "name": "Parcours 1",
+          "distance_km": 5.22,
+          "estimated_duration_min": 88,
+          "estimated_elevation_gain_m": 86,
+          "difficulty": "moderee",
+          "score": 0.8,
+          "tags": [
+            "Sentiers dominants",
+            "Tres peu de routes",
+            "Tres nature",
+            "Ideal randonnee",
+            "Distance exacte",
+            "Terrain plat"
+          ],
+          "highlighted_poi_labels": [],
+          "centroid_lat": 48.369731,
+          "centroid_lon": -1.181976,
+          "last_seen_at": "2026-03-09T15:57:28.676022+00:00",
+          "last_event": "viewed"
+        },
+        {
+          "stable_route_id": "rte-b9af300324e0",
+          "name": "Parcours 3",
+          "distance_km": 6.0,
+          "estimated_duration_min": 101,
+          "estimated_elevation_gain_m": 124,
+          "difficulty": "moderee",
+          "score": 0.69,
+          "tags": [
+            "Bon mix sentiers",
+            "Tres nature",
+            "Ideal randonnee",
+            "Terrain plat",
+            "Ideal : nature",
+            "Passage en bord d'eau"
+          ],
+          "highlighted_poi_labels": [
+            "\u00c9tang des Cotter\u00eats",
+            "Foret",
+            "Lac / riviere"
+          ],
+          "centroid_lat": 48.363038,
+          "centroid_lon": -1.178416,
+          "last_seen_at": "2026-03-09T15:50:32.919910+00:00",
+          "last_event": "viewed"
+        },
+        {
+          "stable_route_id": "rte-94f6624e1df1",
+          "name": "Parcours 2",
+          "distance_km": 4.49,
+          "estimated_duration_min": 77,
+          "estimated_elevation_gain_m": 102,
+          "difficulty": "facile",
+          "score": 0.78,
+          "tags": [
+            "Sentiers dominants",
+            "Tres nature",
+            "Ideal randonnee",
+            "Tres proche",
+            "Terrain plat",
+            "Ideal : sentiers"
+          ],
+          "highlighted_poi_labels": [
+            "\u00c9tang des Cotter\u00eats",
+            "Lac / riviere",
+            "Etang"
+          ],
+          "centroid_lat": 48.36799,
+          "centroid_lon": -1.17564,
+          "last_seen_at": "2026-03-09T15:49:48.263320+00:00",
+          "last_event": "generated"
+        },
+        {
+          "stable_route_id": "rte-c4bf2ec8c525",
+          "name": "Parcours 1",
+          "distance_km": 4.96,
+          "estimated_duration_min": 86,
+          "estimated_elevation_gain_m": 114,
+          "difficulty": "moderee",
+          "score": 0.86,
+          "tags": [
+            "Sentiers dominants",
+            "Tres peu de routes",
+            "Tres nature",
+            "Ideal randonnee",
+            "Distance exacte",
+            "Terrain plat"
+          ],
+          "highlighted_poi_labels": [
+            "\u00c9tang des Cotter\u00eats",
+            "\u00c9glise Bienheureux Julien Maunoir",
+            "Foret"
+          ],
+          "centroid_lat": 48.365247,
+          "centroid_lon": -1.177173,
+          "last_seen_at": "2026-03-09T15:49:48.276303+00:00",
+          "last_event": "viewed"
+        },
+        {
+          "stable_route_id": "rte-3761be9969d4",
+          "name": "Parcours 2",
+          "distance_km": 4.54,
+          "estimated_duration_min": 75,
+          "estimated_elevation_gain_m": 94,
+          "difficulty": "facile",
+          "score": 0.67,
+          "tags": [
+            "Bon mix sentiers",
+            "Tres nature",
+            "Ideal randonnee",
+            "Tres proche",
+            "Terrain plat",
+            "Ideal : nature"
+          ],
+          "highlighted_poi_labels": [],
+          "centroid_lat": 48.357233,
+          "centroid_lon": -1.188107,
+          "last_seen_at": "2026-03-09T15:45:58.493755+00:00",
+          "last_event": "generated"
+        },
+        {
+          "stable_route_id": "rte-4b854a0012ae",
+          "name": "Parcours 3",
+          "distance_km": 4.91,
+          "estimated_duration_min": 80,
+          "estimated_elevation_gain_m": 102,
+          "difficulty": "facile",
+          "score": 0.72,
+          "tags": [
+            "Bon mix sentiers",
+            "Tres nature",
+            "Ideal randonnee",
+            "Distance exacte",
+            "Terrain plat",
+            "Ideal : nature"
+          ],
+          "highlighted_poi_labels": [
+            "Point de vue",
+            "Lac / riviere",
+            "\u00c9glise Bienheureux Julien Maunoir"
+          ],
+          "centroid_lat": 48.360578,
+          "centroid_lon": -1.19155,
+          "last_seen_at": "2026-03-09T15:45:58.493728+00:00",
+          "last_event": "generated"
+        },
+        {
+          "stable_route_id": "rte-3cfbf22a51ee",
+          "name": "Parcours 1",
+          "distance_km": 5.02,
+          "estimated_duration_min": 82,
+          "estimated_elevation_gain_m": 99,
+          "difficulty": "facile",
+          "score": 0.73,
+          "tags": [
+            "Bon mix sentiers",
+            "Tres nature",
+            "Ideal randonnee",
+            "Distance exacte",
+            "Terrain plat",
+            "Ideal : nature"
+          ],
+          "highlighted_poi_labels": [
+            "Lac / riviere",
+            "Foret",
+            "Etang"
+          ],
+          "centroid_lat": 48.356103,
+          "centroid_lon": -1.187175,
+          "last_seen_at": "2026-03-09T15:45:58.505860+00:00",
+          "last_event": "viewed"
+        },
+        {
+          "stable_route_id": "rte-7b2efd13f8f2",
+          "name": "Parcours 3",
+          "distance_km": 5.8,
+          "estimated_duration_min": 96,
+          "estimated_elevation_gain_m": 102,
+          "difficulty": "moderee",
+          "score": 0.7,
+          "tags": [
+            "Sentiers dominants",
+            "Tres nature",
+            "Ideal randonnee",
+            "Terrain plat",
+            "Ideal : nature",
+            "Interet patrimonial"
+          ],
+          "highlighted_poi_labels": [
+            "\u00c9glise Bienheureux Julien Maunoir"
+          ],
+          "centroid_lat": 48.368182,
+          "centroid_lon": -1.184058,
+          "last_seen_at": "2026-03-09T15:17:33.131991+00:00",
+          "last_event": "generated"
+        },
+        {
+          "stable_route_id": "rte-9a16927ffcb7",
+          "name": "Parcours 2",
+          "distance_km": 5.65,
+          "estimated_duration_min": 99,
+          "estimated_elevation_gain_m": 140,
+          "difficulty": "moderee",
+          "score": 0.77,
+          "tags": [
+            "Sentiers dominants",
+            "Tres peu de routes",
+            "Tres nature",
+            "Ideal randonnee",
+            "Tres proche",
+            "Terrain plat"
+          ],
+          "highlighted_poi_labels": [
+            "\u00c9glise Bienheureux Julien Maunoir",
+            "\u00c9glise protestante \u00e9vang\u00e9lique"
+          ],
+          "centroid_lat": 48.366036,
+          "centroid_lon": -1.177552,
+          "last_seen_at": "2026-03-09T15:17:33.131970+00:00",
+          "last_event": "generated"
+        },
+        {
+          "stable_route_id": "rte-566f4a10e99f",
+          "name": "Parcours 3",
+          "distance_km": 6.23,
+          "estimated_duration_min": 105,
+          "estimated_elevation_gain_m": 116,
+          "difficulty": "moderee",
+          "score": 0.57,
+          "tags": [
+            "Sentiers dominants",
+            "Tres peu de routes",
+            "Tres nature",
+            "Ideal randonnee",
+            "Terrain plat",
+            "Ideal : sentiers"
+          ],
+          "highlighted_poi_labels": [
+            "\u00c9glise Bienheureux Julien Maunoir",
+            "Patrimoine",
+            "\u00c9glise Saint-Martin"
+          ],
+          "centroid_lat": 48.36831,
+          "centroid_lon": -1.171456,
+          "last_seen_at": "2026-03-09T14:54:59.053855+00:00",
+          "last_event": "viewed"
+        },
+        {
+          "stable_route_id": "rte-bd4e7080e7df",
+          "name": "Parcours 2",
+          "distance_km": 5.59,
+          "estimated_duration_min": 95,
+          "estimated_elevation_gain_m": 105,
+          "difficulty": "moderee",
+          "score": 0.62,
+          "tags": [
+            "Sentiers dominants",
+            "Tres peu de routes",
+            "Tres nature",
+            "Ideal randonnee",
+            "Tres proche",
+            "Terrain plat"
+          ],
+          "highlighted_poi_labels": [
+            "\u00c9glise Bienheureux Julien Maunoir"
+          ],
+          "centroid_lat": 48.369419,
+          "centroid_lon": -1.181495,
+          "last_seen_at": "2026-03-09T14:55:07.538150+00:00",
+          "last_event": "viewed"
+        },
+        {
+          "stable_route_id": "rte-583e672b1eea",
+          "name": "Parcours 1",
+          "distance_km": 4.27,
+          "estimated_duration_min": 73,
+          "estimated_elevation_gain_m": 78,
+          "difficulty": "facile",
+          "score": 0.99,
+          "tags": [
+            "Sentiers dominants",
+            "Tres peu de routes",
+            "Tres nature",
+            "Ideal randonnee",
+            "Tres proche",
+            "Terrain plat"
+          ],
+          "highlighted_poi_labels": [
+            "\u00c9tang des Cotter\u00eats",
+            "Lac / riviere",
+            "Etang"
+          ],
+          "centroid_lat": 48.370523,
+          "centroid_lon": -1.179639,
+          "last_seen_at": "2026-03-09T14:55:03.382487+00:00",
+          "last_event": "viewed"
+        },
+        {
+          "stable_route_id": "rte-d32b3287a5a1",
+          "name": "Parcours 3",
+          "distance_km": 5.87,
+          "estimated_duration_min": 97,
+          "estimated_elevation_gain_m": 102,
+          "difficulty": "moderee",
+          "score": 0.69,
+          "tags": [
+            "Sentiers dominants",
+            "Tres nature",
+            "Ideal randonnee",
+            "Terrain plat",
+            "Ideal : nature",
+            "Zone recemment exploree"
+          ],
+          "highlighted_poi_labels": [],
+          "centroid_lat": 48.368146,
+          "centroid_lon": -1.184003,
+          "last_seen_at": "2026-03-09T14:51:04.202561+00:00",
+          "last_event": "generated"
+        },
+        {
+          "stable_route_id": "rte-8d571d7dcee9",
+          "name": "Parcours 2",
+          "distance_km": 4.95,
+          "estimated_duration_min": 81,
+          "estimated_elevation_gain_m": 97,
+          "difficulty": "facile",
+          "score": 0.72,
+          "tags": [
+            "Bon mix sentiers",
+            "Tres nature",
+            "Ideal randonnee",
+            "Distance exacte",
+            "Terrain plat",
+            "Ideal : nature"
+          ],
+          "highlighted_poi_labels": [
+            "\u00c9glise Bienheureux Julien Maunoir",
+            "\u00c9glise protestante \u00e9vang\u00e9lique",
+            "Notre-Dame de Bonabry"
+          ],
+          "centroid_lat": 48.359464,
+          "centroid_lon": -1.181232,
+          "last_seen_at": "2026-03-09T14:51:04.202549+00:00",
+          "last_event": "generated"
+        },
+        {
+          "stable_route_id": "rte-950f9d312410",
+          "name": "Parcours 1",
+          "distance_km": 5.2,
+          "estimated_duration_min": 87,
+          "estimated_elevation_gain_m": 95,
+          "difficulty": "moderee",
+          "score": 0.81,
+          "tags": [
+            "Sentiers dominants",
+            "Tres peu de routes",
+            "Tres nature",
+            "Ideal randonnee",
+            "Distance exacte",
+            "Terrain plat"
+          ],
+          "highlighted_poi_labels": [
+            "\u00c9glise Bienheureux Julien Maunoir",
+            "Patrimoine",
+            "\u00c9glise Saint-Martin"
+          ],
+          "centroid_lat": 48.367284,
+          "centroid_lon": -1.172339,
+          "last_seen_at": "2026-03-09T14:51:04.214717+00:00",
+          "last_event": "viewed"
+        },
+        {
+          "stable_route_id": "rte-eeaeebee4dbd",
+          "name": "Parcours 3",
+          "distance_km": 6.82,
+          "estimated_duration_min": 115,
+          "estimated_elevation_gain_m": 138,
+          "difficulty": "moderee",
+          "score": 0.55,
+          "tags": [
+            "Sentiers dominants",
+            "Tres nature",
+            "Ideal randonnee",
+            "Terrain plat",
+            "Ideal : sentiers",
+            "Interet patrimonial"
+          ],
+          "highlighted_poi_labels": [
+            "\u00c9glise Bienheureux Julien Maunoir"
+          ],
+          "centroid_lat": 48.368227,
+          "centroid_lon": -1.182265,
+          "last_seen_at": "2026-03-09T13:54:46.790789+00:00",
+          "last_event": "viewed"
+        },
+        {
+          "stable_route_id": "rte-d215c23b9941",
+          "name": "Parcours 2",
+          "distance_km": 6.28,
+          "estimated_duration_min": 108,
+          "estimated_elevation_gain_m": 141,
+          "difficulty": "moderee",
+          "score": 0.62,
+          "tags": [
+            "Sentiers dominants",
+            "Tres nature",
+            "Ideal randonnee",
+            "Terrain plat",
+            "Ideal : sentiers",
+            "Passage en bord d'eau"
+          ],
+          "highlighted_poi_labels": [
+            "Lac / riviere",
+            "\u00c9tang des Cotter\u00eats",
+            "Etang"
+          ],
+          "centroid_lat": 48.364944,
+          "centroid_lon": -1.177003,
+          "last_seen_at": "2026-03-09T00:45:37.930451+00:00",
+          "last_event": "viewed"
+        },
+        {
+          "stable_route_id": "rte-786473740745",
+          "name": "Parcours 1",
+          "distance_km": 6.12,
+          "estimated_duration_min": 104,
+          "estimated_elevation_gain_m": 110,
+          "difficulty": "moderee",
+          "score": 0.67,
+          "tags": [
+            "Sentiers dominants",
+            "Tres peu de routes",
+            "Tres nature",
+            "Ideal randonnee",
+            "Terrain plat",
+            "Ideal : sentiers"
+          ],
+          "highlighted_poi_labels": [
+            "\u00c9tang des Cotter\u00eats",
+            "Lac / riviere",
+            "\u00c9glise Bienheureux Julien Maunoir"
+          ],
+          "centroid_lat": 48.371396,
+          "centroid_lon": -1.182535,
+          "last_seen_at": "2026-03-09T00:43:46.926448+00:00",
+          "last_event": "viewed"
+        },
+        {
+          "stable_route_id": "rte-fefcc84c6d86",
+          "name": "Parcours 3",
+          "distance_km": 4.65,
+          "estimated_duration_min": 77,
+          "estimated_elevation_gain_m": 88,
+          "difficulty": "facile",
+          "score": 0.63,
+          "tags": [
+            "Bon mix sentiers",
+            "Tres nature",
+            "Ideal randonnee",
+            "Tres proche",
+            "Terrain plat",
+            "Ideal : nature"
+          ],
+          "highlighted_poi_labels": [
+            "\u00c9glise Bienheureux Julien Maunoir"
+          ],
+          "centroid_lat": 48.367247,
+          "centroid_lon": -1.184978,
+          "last_seen_at": "2026-03-09T00:31:28.024924+00:00",
+          "last_event": "generated"
+        },
+        {
+          "stable_route_id": "rte-d7bcb1b269e5",
+          "name": "Parcours 2",
+          "distance_km": 5.46,
+          "estimated_duration_min": 95,
+          "estimated_elevation_gain_m": 119,
+          "difficulty": "moderee",
+          "score": 0.73,
+          "tags": [
+            "Sentiers dominants",
+            "Tres peu de routes",
+            "Tres nature",
+            "Ideal randonnee",
+            "Tres proche",
+            "Terrain plat"
+          ],
+          "highlighted_poi_labels": [
+            "\u00c9tang des Cotter\u00eats",
+            "Lac / riviere",
+            "Etang"
+          ],
+          "centroid_lat": 48.365805,
+          "centroid_lon": -1.176603,
+          "last_seen_at": "2026-03-09T00:31:49.561876+00:00",
+          "last_event": "viewed"
+        },
+        {
+          "stable_route_id": "rte-2c25e567979b",
+          "name": "Parcours 1",
+          "distance_km": 4.95,
+          "estimated_duration_min": 84,
+          "estimated_elevation_gain_m": 82,
+          "difficulty": "facile",
+          "score": 0.74,
+          "tags": [
+            "Sentiers dominants",
+            "Sans route",
+            "Tres nature",
+            "Ideal randonnee",
+            "Distance exacte",
+            "Terrain plat"
+          ],
+          "highlighted_poi_labels": [
+            "\u00c9glise Bienheureux Julien Maunoir"
+          ],
+          "centroid_lat": 48.368968,
+          "centroid_lon": -1.174113,
+          "last_seen_at": "2026-03-09T15:17:33.142886+00:00",
+          "last_event": "viewed"
+        },
+        {
+          "stable_route_id": "rte-ab29df7b7023",
+          "name": "Parcours 3",
+          "distance_km": 6.25,
+          "estimated_duration_min": 106,
+          "estimated_elevation_gain_m": 124,
+          "difficulty": "moderee",
+          "score": 0.6,
+          "tags": [
+            "Sentiers dominants",
+            "Tres nature",
+            "Ideal randonnee",
+            "Terrain plat",
+            "Ideal : sentiers",
+            "Interet patrimonial"
+          ],
+          "highlighted_poi_labels": [
+            "\u00c9glise Bienheureux Julien Maunoir",
+            "\u00c9glise protestante \u00e9vang\u00e9lique"
+          ],
+          "centroid_lat": 48.362375,
+          "centroid_lon": -1.176485,
+          "last_seen_at": "2026-03-09T00:16:06.017771+00:00",
+          "last_event": "generated"
+        },
+        {
+          "stable_route_id": "rte-e88065e327ee",
+          "name": "Parcours 2",
+          "distance_km": 4.82,
+          "estimated_duration_min": 79,
+          "estimated_elevation_gain_m": 90,
+          "difficulty": "facile",
+          "score": 0.64,
+          "tags": [
+            "Bon mix sentiers",
+            "Tres nature",
+            "Ideal randonnee",
+            "Distance exacte",
+            "Terrain plat",
+            "Ideal : nature"
+          ],
+          "highlighted_poi_labels": [
+            "Lac / riviere",
+            "\u00c9tang des Cotter\u00eats",
+            "\u00c9glise Bienheureux Julien Maunoir"
+          ],
+          "centroid_lat": 48.367297,
+          "centroid_lon": -1.184956,
+          "last_seen_at": "2026-03-09T00:17:43.970177+00:00",
+          "last_event": "viewed"
+        },
+        {
+          "stable_route_id": "rte-7ff447cfb2a6",
+          "name": "Parcours 1",
+          "distance_km": 4.49,
+          "estimated_duration_min": 78,
+          "estimated_elevation_gain_m": 98,
+          "difficulty": "facile",
+          "score": 0.7,
+          "tags": [
+            "Sentiers dominants",
+            "Tres peu de routes",
+            "Tres nature",
+            "Ideal randonnee",
+            "Tres proche",
+            "Terrain plat"
+          ],
+          "highlighted_poi_labels": [
+            "\u00c9glise Bienheureux Julien Maunoir",
+            "\u00c9glise protestante \u00e9vang\u00e9lique"
+          ],
+          "centroid_lat": 48.364977,
+          "centroid_lon": -1.177151,
+          "last_seen_at": "2026-03-09T00:16:06.042572+00:00",
+          "last_event": "viewed"
+        },
+        {
+          "stable_route_id": "rte-580a184649c5",
+          "name": "Parcours 2",
+          "distance_km": 6.37,
+          "estimated_duration_min": 107,
+          "estimated_elevation_gain_m": 125,
+          "difficulty": "moderee",
+          "score": 0.57,
+          "tags": [
+            "Sentiers dominants",
+            "Tres nature",
+            "Ideal randonnee",
+            "Terrain plat",
+            "Ideal : sentiers",
+            "Zone recemment exploree"
+          ],
+          "highlighted_poi_labels": [],
+          "centroid_lat": 48.36247,
+          "centroid_lon": -1.176354,
+          "last_seen_at": "2026-03-08T23:59:20.190604+00:00",
+          "last_event": "generated"
+        },
+        {
+          "stable_route_id": "rte-22069c27af65",
+          "name": "Parcours 3",
+          "distance_km": 5.0,
+          "estimated_duration_min": 80,
+          "estimated_elevation_gain_m": 101,
+          "difficulty": "facile",
+          "score": 0.58,
+          "tags": [
+            "Passage routier",
+            "Tres nature",
+            "Ideal randonnee",
+            "Distance exacte",
+            "Terrain plat",
+            "Ideal : nature"
+          ],
+          "highlighted_poi_labels": [
+            "Point de vue",
+            "Lac / riviere",
+            "\u00c9glise Bienheureux Julien Maunoir"
+          ],
+          "centroid_lat": 48.36123,
+          "centroid_lon": -1.189425,
+          "last_seen_at": "2026-03-08T23:59:20.190587+00:00",
+          "last_event": "generated"
+        },
+        {
+          "stable_route_id": "rte-6ad5a5110681",
+          "name": "Parcours 1",
+          "distance_km": 4.98,
+          "estimated_duration_min": 85,
+          "estimated_elevation_gain_m": 109,
+          "difficulty": "moderee",
+          "score": 0.73,
+          "tags": [
+            "Sentiers dominants",
+            "Tres peu de routes",
+            "Tres nature",
+            "Ideal randonnee",
+            "Distance exacte",
+            "Terrain plat"
+          ],
+          "highlighted_poi_labels": [
+            "\u00c9glise Bienheureux Julien Maunoir",
+            "\u00c9glise protestante \u00e9vang\u00e9lique"
+          ],
+          "centroid_lat": 48.362783,
+          "centroid_lon": -1.175685,
+          "last_seen_at": "2026-03-09T16:16:25.372590+00:00",
+          "last_event": "generated"
+        },
+        {
+          "stable_route_id": "rte-752d1db7a292",
+          "name": "Parcours 3",
+          "distance_km": 6.61,
+          "estimated_duration_min": 113,
+          "estimated_elevation_gain_m": 145,
+          "difficulty": "moderee",
+          "score": 0.6,
+          "tags": [
+            "Sentiers dominants",
+            "Tres nature",
+            "Ideal randonnee",
+            "Terrain plat",
+            "Ideal : sentiers",
+            "Beau point de vue"
+          ],
+          "highlighted_poi_labels": [
+            "Point de vue",
+            "Lac / riviere",
+            "Sommet"
+          ],
+          "centroid_lat": 48.364811,
+          "centroid_lon": -1.176579,
+          "last_seen_at": "2026-03-08T23:57:57.379795+00:00",
+          "last_event": "generated"
+        },
+        {
+          "stable_route_id": "rte-3460cbebd44e",
+          "name": "Parcours 2",
+          "distance_km": 6.22,
+          "estimated_duration_min": 103,
+          "estimated_elevation_gain_m": 108,
+          "difficulty": "moderee",
+          "score": 0.61,
+          "tags": [
+            "Sentiers dominants",
+            "Tres nature",
+            "Ideal randonnee",
+            "Terrain plat",
+            "Ideal : nature",
+            "Beau point de vue"
+          ],
+          "highlighted_poi_labels": [
+            "Point de vue",
+            "\u00c9glise Bienheureux Julien Maunoir",
+            "Foret"
+          ],
+          "centroid_lat": 48.368603,
+          "centroid_lon": -1.184929,
+          "last_seen_at": "2026-03-08T23:57:57.379767+00:00",
+          "last_event": "generated"
+        },
+        {
+          "stable_route_id": "rte-358504e3181d",
+          "name": "Parcours 1",
+          "distance_km": 5.07,
+          "estimated_duration_min": 84,
+          "estimated_elevation_gain_m": 100,
+          "difficulty": "facile",
+          "score": 0.67,
+          "tags": [
+            "Bon mix sentiers",
+            "Tres nature",
+            "Ideal randonnee",
+            "Distance exacte",
+            "Terrain plat",
+            "Ideal : nature"
+          ],
+          "highlighted_poi_labels": [
+            "Point de vue",
+            "\u00c9glise Bienheureux Julien Maunoir",
+            "Foret"
+          ],
+          "centroid_lat": 48.360004,
+          "centroid_lon": -1.182343,
+          "last_seen_at": "2026-03-08T23:57:57.379739+00:00",
+          "last_event": "generated"
+        },
+        {
+          "stable_route_id": "rte-7cabe304ecbb",
+          "name": "Parcours 3",
+          "distance_km": 5.4,
+          "estimated_duration_min": 87,
+          "estimated_elevation_gain_m": 102,
+          "difficulty": "facile",
+          "score": 0.55,
+          "tags": [
+            "Bon mix sentiers",
+            "Passage routier",
+            "Tres nature",
+            "Ideal randonnee",
+            "Tres proche",
+            "Terrain plat"
+          ],
+          "highlighted_poi_labels": [
+            "Point de vue",
+            "Etang",
+            "Sommet"
+          ],
+          "centroid_lat": 48.360956,
+          "centroid_lon": -1.188544,
+          "last_seen_at": "2026-03-08T23:54:31.569813+00:00",
+          "last_event": "generated"
+        },
+        {
+          "stable_route_id": "rte-e8006031b279",
+          "name": "Parcours 2",
+          "distance_km": 3.96,
+          "estimated_duration_min": 65,
+          "estimated_elevation_gain_m": 69,
+          "difficulty": "facile",
+          "score": 0.61,
+          "tags": [
+            "Bon mix sentiers",
+            "Tres nature",
+            "Ideal randonnee",
+            "Terrain plat",
+            "Ideal : nature",
+            "Beau point de vue"
+          ],
+          "highlighted_poi_labels": [
+            "Point de vue",
+            "\u00c9glise Bienheureux Julien Maunoir",
+            "Foret"
+          ],
+          "centroid_lat": 48.368651,
+          "centroid_lon": -1.18269,
+          "last_seen_at": "2026-03-08T23:54:31.569787+00:00",
+          "last_event": "generated"
+        },
+        {
+          "stable_route_id": "rte-e03543d10d40",
+          "name": "Parcours 1",
+          "distance_km": 3.95,
+          "estimated_duration_min": 66,
+          "estimated_elevation_gain_m": 72,
+          "difficulty": "facile",
+          "score": 0.63,
+          "tags": [
+            "Sentiers dominants",
+            "Tres nature",
+            "Ideal randonnee",
+            "Terrain plat",
+            "Ideal : nature",
+            "Beau point de vue"
+          ],
+          "highlighted_poi_labels": [
+            "Point de vue",
+            "\u00c9tang des Cotter\u00eats",
+            "Sommet"
+          ],
+          "centroid_lat": 48.368215,
+          "centroid_lon": -1.17853,
+          "last_seen_at": "2026-03-08T23:54:31.569754+00:00",
+          "last_event": "generated"
+        },
+        {
+          "stable_route_id": "rte-53853d0fdcff",
+          "name": "Parcours 3",
+          "distance_km": 4.24,
+          "estimated_duration_min": 72,
+          "estimated_elevation_gain_m": 92,
+          "difficulty": "facile",
+          "score": 0.72,
+          "tags": [
+            "Sentiers dominants",
+            "Tres nature",
+            "Ideal randonnee",
+            "Tres proche",
+            "Terrain plat",
+            "Ideal : sentiers"
+          ],
+          "highlighted_poi_labels": [
+            "Point de vue",
+            "Lac / riviere",
+            "Sommet"
+          ],
+          "centroid_lat": 48.368989,
+          "centroid_lon": -1.176588,
+          "last_seen_at": "2026-03-08T23:45:08.106964+00:00",
+          "last_event": "generated"
+        },
+        {
+          "stable_route_id": "rte-01413e87ec6f",
+          "name": "Parcours 2",
+          "distance_km": 5.66,
+          "estimated_duration_min": 98,
+          "estimated_elevation_gain_m": 128,
+          "difficulty": "moderee",
+          "score": 0.75,
+          "tags": [
+            "Sentiers dominants",
+            "Tres peu de routes",
+            "Tres nature",
+            "Ideal randonnee",
+            "Tres proche",
+            "Terrain plat"
+          ],
+          "highlighted_poi_labels": [
+            "Point de vue",
+            "Lac / riviere",
+            "Sommet"
+          ],
+          "centroid_lat": 48.363582,
+          "centroid_lon": -1.17614,
+          "last_seen_at": "2026-03-08T23:45:08.106948+00:00",
+          "last_event": "generated"
+        },
+        {
+          "stable_route_id": "rte-21bfbbbaccfe",
+          "name": "Parcours 1",
+          "distance_km": 5.23,
+          "estimated_duration_min": 89,
+          "estimated_elevation_gain_m": 91,
+          "difficulty": "moderee",
+          "score": 0.8,
+          "tags": [
+            "Sentiers dominants",
+            "Tres peu de routes",
+            "Tres nature",
+            "Ideal randonnee",
+            "Distance exacte",
+            "Terrain plat"
+          ],
+          "highlighted_poi_labels": [
+            "Point de vue",
+            "Lac / riviere",
+            "Sommet"
+          ],
+          "centroid_lat": 48.369448,
+          "centroid_lon": -1.171737,
+          "last_seen_at": "2026-03-08T23:45:08.127905+00:00",
+          "last_event": "viewed"
+        }
+      ]
+    },
+    "local-test": {
+      "history": [
+        {
+          "timestamp": "2026-03-09T00:39:37.117459+00:00",
+          "query": {
+            "latitude": 48.3578,
+            "longitude": -1.208,
+            "target_distance_km": 5.0,
+            "route_count": 3,
+            "ambiance": null,
+            "terrain": null,
+            "effort": null,
+            "biome_preference": null,
+            "desired_poi_categories": []
+          },
+          "result_route_ids": [
+            "rte-c4083cca1e8c",
+            "rte-daacea662ac0",
+            "rte-aac0875b002d"
+          ]
+        }
+      ],
+      "favorites": {},
+      "seen_routes": [
+        {
+          "stable_route_id": "rte-aac0875b002d",
+          "name": "Parcours 1",
+          "distance_km": 4.75,
+          "estimated_duration_min": 69,
+          "estimated_elevation_gain_m": 30,
+          "difficulty": "facile",
+          "score": 0.58,
+          "tags": [
+            "Passage routier",
+            "Tres proche",
+            "Terrain plat",
+            "Ideal : promenade"
+          ],
+          "highlighted_poi_labels": [],
+          "centroid_lat": 48.3598,
+          "centroid_lon": -1.206,
+          "last_seen_at": "2026-03-09T00:39:37.117489+00:00",
+          "last_event": "generated"
+        },
+        {
+          "stable_route_id": "rte-daacea662ac0",
+          "name": "Parcours 2",
+          "distance_km": 4.9,
+          "estimated_duration_min": 73,
+          "estimated_elevation_gain_m": 55,
+          "difficulty": "facile",
+          "score": 0.66,
+          "tags": [
+            "Passage routier",
+            "Tres proche",
+            "Terrain plat",
+            "Ideal : promenade"
+          ],
+          "highlighted_poi_labels": [],
+          "centroid_lat": 48.3618,
+          "centroid_lon": -1.204,
+          "last_seen_at": "2026-03-09T00:39:37.117481+00:00",
+          "last_event": "generated"
+        },
+        {
+          "stable_route_id": "rte-c4083cca1e8c",
+          "name": "Parcours 3",
+          "distance_km": 5.05,
+          "estimated_duration_min": 78,
+          "estimated_elevation_gain_m": 80,
+          "difficulty": "facile",
+          "score": 0.74,
+          "tags": [
+            "Passage routier",
+            "Tres proche",
+            "Terrain plat",
+            "Ideal : promenade"
+          ],
+          "highlighted_poi_labels": [],
+          "centroid_lat": 48.3638,
+          "centroid_lon": -1.202,
+          "last_seen_at": "2026-03-09T00:39:37.117471+00:00",
+          "last_event": "generated"
+        }
+      ]
     }
   }
 }

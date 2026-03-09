@@ -37,6 +37,7 @@ class UserMemoryService:
                     "terrain": search.terrain,
                     "effort": search.effort,
                     "biome_preference": search.biome_preference,
+                    "desired_poi_categories": list(search.desired_poi_categories),
                 },
                 "result_route_ids": [route.stable_route_id for route in routes if route.stable_route_id],
             }
@@ -205,6 +206,7 @@ class UserMemoryService:
         terrain_counts: dict[str, int] = {}
         effort_counts: dict[str, int] = {}
         biome_counts: dict[str, int] = {}
+        poi_category_counts: dict[str, int] = {}
         distances: list[float] = []
 
         for item in history[:20]:
@@ -221,6 +223,11 @@ class UserMemoryService:
             biome = query.get("biome_preference")
             if biome:
                 biome_counts[biome] = biome_counts.get(biome, 0) + 1
+            poi_categories = query.get("desired_poi_categories") or []
+            if isinstance(poi_categories, list):
+                for category in poi_categories:
+                    if isinstance(category, str) and category:
+                        poi_category_counts[category] = poi_category_counts.get(category, 0) + 1
             d = query.get("target_distance_km")
             if isinstance(d, (int, float)) and d > 0:
                 distances.append(float(d))
@@ -229,6 +236,12 @@ class UserMemoryService:
         suggested_terrain = max(terrain_counts, key=terrain_counts.__getitem__) if terrain_counts else None
         suggested_effort = max(effort_counts, key=effort_counts.__getitem__) if effort_counts else None
         suggested_biome = max(biome_counts, key=biome_counts.__getitem__) if biome_counts else None
+        sorted_poi_categories = sorted(
+            poi_category_counts.items(),
+            key=lambda item: item[1],
+            reverse=True,
+        )
+        suggested_poi_categories = [category for category, _ in sorted_poi_categories[:3]]
         avg_distance = round(sum(distances) / len(distances), 1) if distances else None
 
         return {
@@ -238,11 +251,13 @@ class UserMemoryService:
             "suggested_terrain": suggested_terrain,
             "suggested_effort": suggested_effort,
             "suggested_biome": suggested_biome,
+            "suggested_poi_categories": suggested_poi_categories,
             "average_distance_km": avg_distance,
             "ambiance_counts": ambiance_counts,
             "terrain_counts": terrain_counts,
             "effort_counts": effort_counts,
             "biome_counts": biome_counts,
+            "poi_category_counts": poi_category_counts,
         }
 
     def compute_zone_novelty_factor(

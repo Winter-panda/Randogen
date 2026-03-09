@@ -1,3 +1,4 @@
+from pydantic import field_validator
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
 
@@ -26,6 +27,30 @@ class Settings(BaseSettings):
     avoid_noisy_roads: bool = True
     enable_weather_context: bool = True
     weather_request_timeout_s: int = 8
+
+    @field_validator(
+        "debug",
+        "enable_real_routing",
+        "prefer_trails",
+        "prefer_green_routes",
+        "avoid_noisy_roads",
+        "enable_weather_context",
+        mode="before",
+    )
+    @classmethod
+    def _coerce_bool(cls, value: object) -> object:
+        if not isinstance(value, str):
+            return value
+
+        normalized = value.strip().lower()
+        truthy_values = {"1", "true", "yes", "y", "on"}
+        falsy_values = {"0", "false", "no", "n", "off", "", "release", "prod", "production"}
+
+        if normalized in truthy_values:
+            return True
+        if normalized in falsy_values:
+            return False
+        return value
 
     model_config = SettingsConfigDict(
         env_file=".env",

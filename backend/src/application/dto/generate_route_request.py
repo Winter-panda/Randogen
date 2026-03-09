@@ -59,3 +59,9 @@ class GenerateRouteRequest(BaseModel):
         default=None,
         description="Preference de difficulte : facile, moderee, difficile",
     )
+    desired_poi_categories: list[
+        Literal["viewpoint", "water", "summit", "nature", "heritage", "facility", "start_access"]
+    ] = Field(
+        default_factory=list,
+        description="Categories de POI a privilegier (peut contenir plusieurs valeurs)",
+    )

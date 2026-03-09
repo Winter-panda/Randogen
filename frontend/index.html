@@ -6,6 +6,7 @@
     <title>Randogen</title>
     <link rel="manifest" href="/manifest.json" />
     <meta name="theme-color" content="#0e6ba8" />
+    <meta name="mobile-web-app-capable" content="yes" />
     <meta name="apple-mobile-web-app-capable" content="yes" />
     <meta name="apple-mobile-web-app-status-bar-style" content="default" />
     <meta name="apple-mobile-web-app-title" content="Randogen" />
@@ -17,6 +18,16 @@
     <script>
       if ("serviceWorker" in navigator) {
         window.addEventListener("load", () => {
+          const host = window.location.hostname;
+          const isLocalhost = host === "localhost" || host === "127.0.0.1";
+
+          if (isLocalhost) {
+            navigator.serviceWorker.getRegistrations().then((registrations) => {
+              registrations.forEach((registration) => registration.unregister());
+            });
+            return;
+          }
+
           navigator.serviceWorker.register("/sw.js").catch(() => {});
         });
       }

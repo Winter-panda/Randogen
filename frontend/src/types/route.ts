@@ -66,6 +66,14 @@ export type TerrainFilter = "plat" | "vallonne";
 export type EffortFilter = "promenade" | "sportif";
 export type DifficultyPref = "facile" | "moderee" | "difficile";
 export type BiomePreference = "foret" | "campagne" | "cotier" | "montagne" | "bord_eau" | "patrimoine";
+export type PoiCategoryFilter =
+  | "viewpoint"
+  | "water"
+  | "summit"
+  | "nature"
+  | "heritage"
+  | "facility"
+  | "start_access";
 
 export interface GenerateRoutesRequest {
   user_id: string;
@@ -86,6 +94,7 @@ export interface GenerateRoutesRequest {
   avoid_touristic: boolean;
   adapt_to_weather: boolean;
   difficulty_pref: DifficultyPref | null;
+  desired_poi_categories: PoiCategoryFilter[];
 }
 
 export interface HistoryItem {
@@ -99,6 +108,7 @@ export interface HistoryItem {
     terrain: string | null;
     effort: string | null;
     biome_preference?: string | null;
+    desired_poi_categories?: string[];
   };
   result_route_ids: string[];
 }
@@ -135,9 +145,11 @@ export interface PreferenceProfile {
   suggested_terrain: TerrainFilter | null;
   suggested_effort: EffortFilter | null;
   suggested_biome?: BiomePreference | null;
+  suggested_poi_categories?: PoiCategoryFilter[];
   average_distance_km: number | null;
   ambiance_counts: Record<string, number>;
   terrain_counts: Record<string, number>;
   effort_counts: Record<string, number>;
   biome_counts?: Record<string, number>;
+  poi_category_counts?: Record<string, number>;
 }

@@ -19,13 +19,17 @@ class _ClassifiedPoi:
 
 class PoiEnrichmentService:
     _ON_ROUTE_THRESHOLD_M = 80.0
-    _MAX_ROUTE_DISTANCE_M = 220.0
-    _MAX_ROUTE_DISTANCE_WATER_WAY_M = 2500.0
-    _MAX_ROUTE_DISTANCE_NATURE_WAY_M = 1200.0
-    _MAX_ROUTE_DISTANCE_VIEWPOINT_WAY_M = 800.0
-    _MAX_ROUTE_DISTANCE_HERITAGE_WAY_M = 1200.0
+    # Default max distance for OSM nodes (points).
+    _MAX_ROUTE_DISTANCE_M = 320.0
+    # Extended thresholds for OSM ways/relations: their centroid can be far from
+    # the actual boundary that crosses (or lies near) the route.
+    # All values must be > _MAX_ROUTE_DISTANCE_M to remain strictly more permissive.
+    _MAX_ROUTE_DISTANCE_WATER_WAY_M = 1200.0   # rivers/lakes: wide areas, centroid offset high
+    _MAX_ROUTE_DISTANCE_NATURE_WAY_M = 700.0   # forests/parks: moderate offset
+    _MAX_ROUTE_DISTANCE_VIEWPOINT_WAY_M = 550.0  # viewpoint areas: small offset
+    _MAX_ROUTE_DISTANCE_HERITAGE_WAY_M = 900.0  # castles/ruins: medium offset
     _DEDUP_DISTANCE_M = 35.0
-    _MAX_POIS_PER_ROUTE = 15
+    _MAX_POIS_PER_ROUTE = 24
     _MAX_HIGHLIGHTS = 5
     _CATEGORY_PRIORITY: tuple[str, ...] = (
         "viewpoint",
@@ -46,11 +50,55 @@ class PoiEnrichmentService:
         "facility": 0.35,
         "start_access": 0.25,
     }
+    _NEARBY_CATEGORY_CAP: dict[str, int] = {
+        "viewpoint": 24,
+        "water": 22,
+        "summit": 14,
+        "nature": 20,
+        "heritage": 26,
+        "facility": 40,
+        "start_access": 40,
+    }
+    _NEARBY_CATEGORY_MIN: dict[str, int] = {
+        "viewpoint": 3,
+        "water": 4,
+        "summit": 1,
+        "nature": 4,
+        "heritage": 4,
+        "facility": 4,
+        "start_access": 4,
+    }
 
     def __init__(self, client: OsmPoiClient | None = None) -> None:
         self._client = client or OsmPoiClient()
 
-    def enrich_route(self, route: RouteCandidate, search: UserSearch | None = None) -> RouteCandidate:
+    def get_last_provider_error(self) -> str | None:
+        return self._client.get_last_fetch_error()
+
+    def prefetch_candidates_for_routes(self, routes: list[RouteCandidate]) -> list[OsmPoiCandidate]:
+        all_points: list[RoutePoint] = []
+        for route in routes:
+            all_points.extend(route.points)
+        if len(all_points) < 2:
+            return []
+        sampled_points = self._sample_route_points(all_points, max_points=260)
+        return self._client.fetch_candidates_for_route(sampled_points)
+
+    def _sample_route_points(self, points: list[RoutePoint], max_points: int) -> list[RoutePoint]:
+        if len(points) <= max_points:
+            return points
+        step = max(1, len(points) // max_points)
+        sampled = [points[i] for i in range(0, len(points), step)]
+        if sampled[-1] != points[-1]:
+            sampled.append(points[-1])
+        return sampled[:max_points]
+
+    def enrich_route(
+        self,
+        route: RouteCandidate,
+        search: UserSearch | None = None,
+        candidates: list[OsmPoiCandidate] | None = None,
+    ) -> RouteCandidate:
         if len(route.points) < 2:
             route.pois = []
             route.poi_score = 0.0
@@ -62,8 +110,8 @@ class PoiEnrichmentService:
             return route
 
         profile = self._parse_profile(route.route_type)
-        candidates = self._client.fetch_candidates_for_route(route.points)
-        if len(candidates) == 0:
+        route_candidates = candidates if candidates is not None else self._client.fetch_candidates_for_route(route.points)
+        if len(route_candidates) == 0:
             route.pois = []
             route.poi_score = 0.0
             route.poi_quantity_score = 0.0
@@ -74,8 +122,13 @@ class PoiEnrichmentService:
             return route
 
         projected_route = self._project_route(route.points)
+        desired_categories = {
+            value.strip().lower()
+            for value in (search.desired_poi_categories if search is not None else [])
+            if isinstance(value, str) and value.strip()
+        }
         pois: list[PointOfInterest] = []
-        for candidate in candidates:
+        for candidate in route_candidates:
             classified = self._classify(candidate)
             if classified is None:
                 continue
@@ -90,6 +143,8 @@ class PoiEnrichmentService:
                 candidate=candidate,
                 category=classified.category,
             )
+            if classified.category in desired_categories:
+                max_distance_m *= 1.35
             if min_distance_m > max_distance_m:
                 continue
 
@@ -132,7 +187,10 @@ class PoiEnrichmentService:
 
         deduped = self._deduplicate(pois)
         deduped.sort(key=lambda p: (-p.score, p.distance_to_route_m, p.name.lower()))
-        selected = self._select_diverse_pois(deduped)
+        selected = self._select_diverse_pois(
+            deduped,
+            desired_categories=search.desired_poi_categories if search is not None else None,
+        )
 
         route.pois = selected
         route.poi_quantity_score = round(self._compute_quantity_score(selected), 3)
@@ -142,6 +200,7 @@ class PoiEnrichmentService:
                 pois=selected,
                 quantity_score=route.poi_quantity_score,
                 diversity_score=route.poi_diversity_score,
+                desired_categories=search.desired_poi_categories if search is not None else None,
             ),
             3,
         )
@@ -151,12 +210,184 @@ class PoiEnrichmentService:
         self._append_poi_explanatory_tags(route=route, profile=profile)
         return route
 
-    def _select_diverse_pois(self, pois: list[PointOfInterest]) -> list[PointOfInterest]:
+    def discover_nearby_pois(
+        self,
+        *,
+        latitude: float,
+        longitude: float,
+        radius_m: int = 5000,
+        categories: list[str] | None = None,
+        limit: int = 250,
+    ) -> list[PointOfInterest]:
+        normalized_categories = {
+            value.strip().lower()
+            for value in (categories or [])
+            if isinstance(value, str) and value.strip()
+        }
+        candidates = self._client.fetch_candidates_around_location(
+            latitude=latitude,
+            longitude=longitude,
+            radius_m=radius_m,
+        )
+        if len(candidates) == 0:
+            return []
+
+        pois: list[PointOfInterest] = []
+        for candidate in candidates:
+            classified = self._classify(candidate)
+            if classified is None:
+                continue
+            if normalized_categories and classified.category not in normalized_categories:
+                continue
+
+            distance_m = self._haversine_m(
+                latitude,
+                longitude,
+                candidate.latitude,
+                candidate.longitude,
+            )
+            proximity = max(0.0, 1.0 - (distance_m / max(1.0, float(radius_m))))
+            score = (self._CATEGORY_WEIGHT.get(classified.category, 0.5) * 0.70) + (proximity * 0.30)
+            poi = PointOfInterest(
+                id=f"osm:{candidate.osm_id}",
+                name=candidate.name or classified.label,
+                category=classified.category,
+                sub_category=classified.sub_category,
+                latitude=candidate.latitude,
+                longitude=candidate.longitude,
+                distance_to_route_m=round(distance_m, 1),
+                distance_from_start_m=None,
+                score=round(max(0.0, min(1.0, score)), 3),
+                tags=[classified.category, "nearby_discovery"],
+            )
+            pois.append(poi)
+
+        if len(pois) == 0:
+            return []
+
+        deduped = self._deduplicate_nearby(pois)
+        deduped.sort(key=lambda p: (-p.score, p.distance_to_route_m, p.name.lower()))
+        capped_limit = max(1, min(int(limit), 300))
+        return self._limit_nearby_pois(
+            deduped,
+            limit=capped_limit,
+            categories=list(normalized_categories),
+        )
+
+    def _limit_nearby_pois(
+        self,
+        pois: list[PointOfInterest],
+        *,
+        limit: int,
+        categories: list[str] | None = None,
+    ) -> list[PointOfInterest]:
+        if len(pois) <= limit:
+            return pois
+
+        category_filter = {
+            value.strip().lower()
+            for value in (categories or [])
+            if isinstance(value, str) and value.strip()
+        }
+        if len(category_filter) == 1:
+            # If user selected one category, keep top points from this category only.
+            category = next(iter(category_filter))
+            filtered = [poi for poi in pois if poi.category == category]
+            return filtered[:limit]
+
+        by_category: dict[str, list[PointOfInterest]] = {}
+        for poi in pois:
+            by_category.setdefault(poi.category, []).append(poi)
+
+        prioritized_categories = [
+            category
+            for category in self._CATEGORY_PRIORITY
+            if not category_filter or category in category_filter
+        ]
+        if len(prioritized_categories) == 0:
+            prioritized_categories = list(by_category.keys())
+
+        selected: list[PointOfInterest] = []
+        seen_ids: set[str] = set()
+
+        # Pass 1: guarantee a minimum per category when available.
+        for category in prioritized_categories:
+            candidates = by_category.get(category, [])
+            if len(candidates) == 0:
+                continue
+            min_count = self._NEARBY_CATEGORY_MIN.get(category, 0)
+            added = 0
+            for poi in candidates:
+                if poi.id in seen_ids:
+                    continue
+                selected.append(poi)
+                seen_ids.add(poi.id)
+                added += 1
+                if added >= min_count or len(selected) >= limit:
+                    break
+            if len(selected) >= limit:
+                return selected
+
+        # Pass 2: expand each category up to its cap.
+        for category in prioritized_categories:
+            candidates = by_category.get(category, [])
+            if len(candidates) == 0:
+                continue
+            cap = self._NEARBY_CATEGORY_CAP.get(category, 18)
+            already_selected = sum(1 for poi in selected if poi.category == category)
+            remaining = max(0, cap - already_selected)
+            if remaining == 0:
+                continue
+            for poi in candidates:
+                if poi.id in seen_ids:
+                    continue
+                selected.append(poi)
+                seen_ids.add(poi.id)
+                remaining -= 1
+                if len(selected) >= limit:
+                    return selected
+                if remaining <= 0:
+                    break
+
+        # Pass 3: fill with best remaining POIs.
+        for poi in pois:
+            if category_filter and poi.category not in category_filter:
+                continue
+            if poi.id in seen_ids:
+                continue
+            selected.append(poi)
+            seen_ids.add(poi.id)
+            if len(selected) >= limit:
+                break
+        return selected
+
+    def _select_diverse_pois(
+        self,
+        pois: list[PointOfInterest],
+        *,
+        desired_categories: list[str] | None = None,
+    ) -> list[PointOfInterest]:
         if len(pois) <= self._MAX_POIS_PER_ROUTE:
             return pois
 
         selected: list[PointOfInterest] = []
         used_ids: set[str] = set()
+        desired = {
+            value.strip().lower()
+            for value in (desired_categories or [])
+            if isinstance(value, str) and value.strip()
+        }
+
+        for category in self._CATEGORY_PRIORITY:
+            if category not in desired:
+                continue
+            best = next((poi for poi in pois if poi.category == category), None)
+            if best is None or best.id in used_ids:
+                continue
+            selected.append(best)
+            used_ids.add(best.id)
+            if len(selected) >= self._MAX_POIS_PER_ROUTE:
+                return selected
 
         for category in self._CATEGORY_PRIORITY:
             best = next((poi for poi in pois if poi.category == category), None)
@@ -202,14 +433,28 @@ class PoiEnrichmentService:
         if natural == "spring" or amenity == "drinking_water":
             return _ClassifiedPoi("facility", "drinking_water", "Fontaine")
         if (
-            natural in {"water", "wetland"}
-            or waterway
-            or water in {"lake", "river", "reservoir", "pond", "canal"}
+            natural == "water"
+            or water in {"lake", "reservoir", "pond"}
             or landuse == "reservoir"
+            or waterway == "riverbank"
         ):
-            return _ClassifiedPoi("water", "water", "Lac / riviere")
-        if natural == "wood" or landuse == "forest" or leisure in {"park", "nature_reserve"} or boundary == "protected_area":
-            return _ClassifiedPoi("nature", natural or leisure or "nature", "Foret / parc")
+            if water == "lake":
+                return _ClassifiedPoi("water", "lake", "Lac")
+            if water == "pond":
+                return _ClassifiedPoi("water", "pond", "Etang")
+            if water == "reservoir" or landuse == "reservoir":
+                return _ClassifiedPoi("water", "reservoir", "Reservoir")
+            if natural == "water":
+                return _ClassifiedPoi("water", "water", "Plan d'eau")
+            return _ClassifiedPoi("water", "riverbank", "Grand point d'eau")
+        if natural == "wetland":
+            return _ClassifiedPoi("nature", "wetland", "Zone humide")
+        if natural == "wood" or landuse == "forest":
+            return _ClassifiedPoi("nature", natural or landuse or "forest", "Foret")
+        if leisure == "nature_reserve" or boundary == "protected_area":
+            return _ClassifiedPoi("nature", leisure or boundary or "protected_area", "Reserve naturelle")
+        if leisure in {"park", "garden"} or landuse == "recreation_ground":
+            return _ClassifiedPoi("nature", "park", "Parc naturel")
         if historic == "castle" or building == "castle":
             return _ClassifiedPoi("heritage", "castle", "Chateau")
         if historic in {"monument", "ruins", "archaeological_site"}:
@@ -221,16 +466,22 @@ class PoiEnrichmentService:
             return _ClassifiedPoi("heritage", sub, "Eglise / chapelle")
         if historic or tourism in {"attraction", "museum", "gallery", "artwork"}:
             return _ClassifiedPoi("heritage", historic or tourism, "Patrimoine")
-        if amenity == "parking":
-            return _ClassifiedPoi("start_access", "parking", "Parking depart")
+        if amenity in {"parking", "parking_entrance"}:
+            return _ClassifiedPoi("start_access", "parking", "Parking")
         if amenity == "shelter":
             return _ClassifiedPoi("facility", "shelter", "Abri")
         if tourism == "picnic_site":
             return _ClassifiedPoi("facility", "picnic_site", "Pique-nique")
         if amenity == "bench":
             return _ClassifiedPoi("facility", "bench", "Banc")
-        if tourism == "information":
-            return _ClassifiedPoi("start_access", "information", "Depart")
+        if amenity == "restaurant":
+            return _ClassifiedPoi("facility", "restaurant", "Restaurant")
+        if amenity == "cafe":
+            return _ClassifiedPoi("facility", "cafe", "Cafe")
+        if amenity == "fast_food":
+            return _ClassifiedPoi("facility", "fast_food", "Restauration rapide")
+        if amenity in {"bar", "pub"}:
+            return _ClassifiedPoi("facility", amenity, "Bar / Pub")
         return None
 
     def _build_tags(
@@ -283,12 +534,29 @@ class PoiEnrichmentService:
         pois: list[PointOfInterest],
         quantity_score: float,
         diversity_score: float,
+        desired_categories: list[str] | None = None,
     ) -> float:
         if len(pois) == 0:
             return 0.0
         top = pois[:3]
         quality_score = max(0.0, min(1.0, sum(p.score for p in top) / len(top)))
-        return max(0.0, min(1.0, (quality_score * 0.50) + (diversity_score * 0.30) + (quantity_score * 0.20)))
+        desired = {
+            value.strip().lower()
+            for value in (desired_categories or [])
+            if isinstance(value, str) and value.strip()
+        }
+        if desired:
+            available = {poi.category for poi in pois}
+            desired_match = len(desired & available) / max(1, len(desired))
+            score = (
+                (quality_score * 0.44)
+                + (diversity_score * 0.24)
+                + (quantity_score * 0.16)
+                + (desired_match * 0.16)
+            )
+        else:
+            score = (quality_score * 0.50) + (diversity_score * 0.30) + (quantity_score * 0.20)
+        return max(0.0, min(1.0, score))
 
     def _compute_quantity_score(self, pois: list[PointOfInterest]) -> float:
         return max(0.0, min(1.0, len(pois) / self._MAX_POIS_PER_ROUTE))
@@ -322,6 +590,11 @@ class PoiEnrichmentService:
             "picnic_site": "Pique-nique",
             "bench": "Banc",
             "parking": "Parking depart",
+            "restaurant": "Restaurant",
+            "cafe": "Cafe",
+            "fast_food": "Restauration rapide",
+            "bar": "Bar",
+            "pub": "Pub",
         }
 
         labels: list[str] = []
@@ -436,8 +709,18 @@ class PoiEnrichmentService:
                 factor *= 1.10
             if search.avoid_touristic and category in {"heritage", "start_access"}:
                 factor *= 0.75
+            desired_categories = {
+                value.strip().lower()
+                for value in search.desired_poi_categories
+                if isinstance(value, str) and value.strip()
+            }
+            if desired_categories:
+                if category in desired_categories:
+                    factor *= 1.35
+                else:
+                    factor *= 0.92
 
-        return max(0.6, min(1.4, factor))
+        return max(0.5, min(1.7, factor))
 
     def _deduplicate(self, pois: list[PointOfInterest]) -> list[PointOfInterest]:
         kept: list[PointOfInterest] = []
@@ -455,6 +738,42 @@ class PoiEnrichmentService:
                     (not poi.name.strip() or not existing.name.strip())
                     and poi.category == existing.category
                     and close
+                )
+                if close and (same_name or same_category_no_name):
+                    duplicate_index = index
+                    break
+
+            if duplicate_index is None:
+                kept.append(poi)
+                continue
+
+            if poi.score > kept[duplicate_index].score:
+                kept[duplicate_index] = poi
+        return kept
+
+    def _deduplicate_nearby(self, pois: list[PointOfInterest]) -> list[PointOfInterest]:
+        kept: list[PointOfInterest] = []
+        for poi in sorted(pois, key=lambda p: (-p.score, p.distance_to_route_m)):
+            threshold_m = 90.0
+            if poi.category == "water":
+                threshold_m = 180.0
+            elif poi.category == "nature":
+                threshold_m = 75.0
+            elif poi.category == "heritage":
+                threshold_m = 120.0
+
+            duplicate_index: int | None = None
+            for index, existing in enumerate(kept):
+                same_name = poi.name.strip().lower() == existing.name.strip().lower()
+                close = self._haversine_m(
+                    poi.latitude,
+                    poi.longitude,
+                    existing.latitude,
+                    existing.longitude,
+                ) <= threshold_m
+                same_category = poi.category == existing.category
+                same_category_no_name = same_category and (
+                    not poi.name.strip() or not existing.name.strip()
                 )
                 if close and (same_name or same_category_no_name):
                     duplicate_index = index

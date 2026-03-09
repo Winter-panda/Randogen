@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import {
   CircleMarker,
   MapContainer,
@@ -18,6 +18,14 @@ import type { PointOfInterest, RouteCandidate, UserPosition } from "../../types/
 
 type MapLayer = "standard" | "topo" | "ign";
 type PoiFilter = "all" | "viewpoint" | "water" | "summit" | "nature" | "heritage" | "facility" | "start_access";
+type PoiCategory = Exclude<PoiFilter, "all">;
+
+interface DisplayedPoi {
+  poi: PointOfInterest;
+  latitude: number;
+  longitude: number;
+  isOnSelectedRoute: boolean;
+}
 
 interface LayerConfig {
   label: string;
@@ -55,13 +63,198 @@ const POI_CATEGORY_META: Record<PoiFilter, { label: string; icon: string; color:
   summit: { label: "Sommet", icon: "⛰️", color: "#334155" },
   nature: { label: "Nature", icon: "🌲", color: "#15803d" },
   heritage: { label: "Patrimoine", icon: "🏛️", color: "#b45309" },
-  facility: { label: "Services", icon: "🧭", color: "#0f766e" },
-  start_access: { label: "Accès", icon: "🅿️", color: "#1d4ed8" }
+  facility: { label: "Services & restau", icon: "🍽️", color: "#0f766e" },
+  start_access: { label: "Parkings", icon: "🅿️", color: "#1d4ed8" }
 };
+
+const POI_CATEGORY_PRIORITY: PoiCategory[] = [
+  "viewpoint",
+  "water",
+  "summit",
+  "nature",
+  "heritage",
+  "facility",
+  "start_access",
+];
+
+const POI_MIN_VISIBLE_BY_CATEGORY: Record<PoiCategory, number> = {
+  viewpoint: 4,
+  water: 5,
+  summit: 2,
+  nature: 5,
+  heritage: 5,
+  facility: 5,
+  start_access: 5,
+};
+
+const POI_MAX_VISIBLE_BY_CATEGORY: Record<PoiCategory, number> = {
+  viewpoint: 45,
+  water: 55,
+  summit: 30,
+  nature: 55,
+  heritage: 55,
+  facility: 55,
+  start_access: 55,
+};
+
+const POI_MAX_VISIBLE_TOTAL = 220;
+
+function sortPoiEntries(entries: DisplayedPoi[]): DisplayedPoi[] {
+  return [...entries].sort((a, b) => {
+    if (a.isOnSelectedRoute !== b.isOnSelectedRoute) {
+      return a.isOnSelectedRoute ? -1 : 1;
+    }
+    if (a.poi.score !== b.poi.score) {
+      return b.poi.score - a.poi.score;
+    }
+    if (a.poi.distance_to_route_m !== b.poi.distance_to_route_m) {
+      return a.poi.distance_to_route_m - b.poi.distance_to_route_m;
+    }
+    return a.poi.name.localeCompare(b.poi.name, "fr");
+  });
+}
+
+function spreadOverlappingPois(entries: DisplayedPoi[]): DisplayedPoi[] {
+  if (entries.length <= 1) {
+    return entries;
+  }
+
+  const byCell = new Map<string, DisplayedPoi[]>();
+  for (const entry of entries) {
+    const key = `${entry.poi.latitude.toFixed(5)}:${entry.poi.longitude.toFixed(5)}`;
+    const group = byCell.get(key);
+    if (group) {
+      group.push(entry);
+    } else {
+      byCell.set(key, [entry]);
+    }
+  }
+
+  const spread: DisplayedPoi[] = [];
+  for (const group of byCell.values()) {
+    if (group.length === 1) {
+      spread.push(group[0]);
+      continue;
+    }
+
+    const sorted = [...group].sort((a, b) => a.poi.id.localeCompare(b.poi.id, "en"));
+    const total = sorted.length;
+    for (let i = 0; i < total; i += 1) {
+      const entry = sorted[i];
+      const ring = Math.floor(i / 8);
+      const angle = ((i % 8) / 8) * 2 * Math.PI;
+      const radiusMeters = 8 + (ring * 8);
+      const latRadius = radiusMeters / 111_320;
+      const lonRadius = radiusMeters / (111_320 * Math.max(0.2, Math.cos((entry.poi.latitude * Math.PI) / 180)));
+      spread.push({
+        ...entry,
+        latitude: entry.poi.latitude + (Math.sin(angle) * latRadius),
+        longitude: entry.poi.longitude + (Math.cos(angle) * lonRadius),
+      });
+    }
+  }
+
+  return spread;
+}
+
+function selectVisiblePois(entries: DisplayedPoi[], poiFilter: PoiFilter): DisplayedPoi[] {
+  if (entries.length <= 1) {
+    return entries;
+  }
+
+  const maxTotal = POI_MAX_VISIBLE_TOTAL;
+
+  if (poiFilter !== "all") {
+    const sorted = sortPoiEntries(entries);
+    return spreadOverlappingPois(sorted.slice(0, maxTotal));
+  }
+
+  const byCategory: Record<PoiCategory, DisplayedPoi[]> = {
+    viewpoint: [],
+    water: [],
+    summit: [],
+    nature: [],
+    heritage: [],
+    facility: [],
+    start_access: [],
+  };
+
+  for (const entry of entries) {
+    byCategory[entry.poi.category].push(entry);
+  }
+  for (const category of POI_CATEGORY_PRIORITY) {
+    byCategory[category] = sortPoiEntries(byCategory[category]);
+  }
+
+  const selected: DisplayedPoi[] = [];
+  const seen = new Set<string>();
+  const indexByCategory: Record<PoiCategory, number> = {
+    viewpoint: 0,
+    water: 0,
+    summit: 0,
+    nature: 0,
+    heritage: 0,
+    facility: 0,
+    start_access: 0,
+  };
+  const countByCategory: Record<PoiCategory, number> = {
+    viewpoint: 0,
+    water: 0,
+    summit: 0,
+    nature: 0,
+    heritage: 0,
+    facility: 0,
+    start_access: 0,
+  };
+
+  const pushIfPossible = (category: PoiCategory): boolean => {
+    const list = byCategory[category];
+    while (indexByCategory[category] < list.length) {
+      const candidate = list[indexByCategory[category]];
+      indexByCategory[category] += 1;
+      if (seen.has(candidate.poi.id)) {
+        continue;
+      }
+      selected.push(candidate);
+      seen.add(candidate.poi.id);
+      countByCategory[category] += 1;
+      return true;
+    }
+    return false;
+  };
+
+  for (const category of POI_CATEGORY_PRIORITY) {
+    const targetMin = Math.min(POI_MIN_VISIBLE_BY_CATEGORY[category], byCategory[category].length);
+    while (countByCategory[category] < targetMin && selected.length < maxTotal) {
+      if (!pushIfPossible(category)) {
+        break;
+      }
+    }
+  }
+
+  let progress = true;
+  while (selected.length < maxTotal && progress) {
+    progress = false;
+    for (const category of POI_CATEGORY_PRIORITY) {
+      if (selected.length >= maxTotal) {
+        break;
+      }
+      if (countByCategory[category] >= POI_MAX_VISIBLE_BY_CATEGORY[category]) {
+        continue;
+      }
+      if (pushIfPossible(category)) {
+        progress = true;
+      }
+    }
+  }
+
+  return spreadOverlappingPois(selected);
+}
 
 interface MapViewProps {
   position: UserPosition | null;
   routes: RouteCandidate[];
+  nearbyPois: PointOfInterest[];
   selectedRouteId: string | null;
   hoveredRouteId: string | null;
   onSelectRoute: (routeId: string) => void;
@@ -75,7 +268,7 @@ const routeColors = [
   "#16a34a",
   "#dc2626",
   "#9333ea",
-  "#ea580c"
+  "#ea580c",
 ];
 
 const userIcon = L.icon({
@@ -90,58 +283,73 @@ const userIcon = L.icon({
 function MapViewportController({
   position,
   routes,
+  visibleNearbyPois,
+  selectedRoutePois,
+  selectedRoutePoints,
   selectedRouteId,
-  selectedRoutePois
 }: {
   position: UserPosition | null;
   routes: RouteCandidate[];
-  selectedRouteId: string | null;
+  visibleNearbyPois: PointOfInterest[];
   selectedRoutePois: PointOfInterest[];
+  selectedRoutePoints: Array<[number, number]>;
+  selectedRouteId: string | null;
 }) {
   const map = useMap();
+  const lastFocusedRouteIdRef = useRef<string | null>(null);
 
   useEffect(() => {
-    const selectedRoute = routes.find((route) => route.id === selectedRouteId);
-
-    if (selectedRoute && selectedRoute.points.length > 0) {
-      const boundsPoints: [number, number][] = selectedRoute.points.map((point) => [
-        point.latitude,
-        point.longitude
-      ]);
-
-      if (position) {
-        boundsPoints.push([position.latitude, position.longitude]);
-      }
-      for (const poi of selectedRoutePois) {
-        boundsPoints.push([poi.latitude, poi.longitude]);
-      }
-
-      const bounds: LatLngBoundsExpression = boundsPoints;
-      map.flyToBounds(bounds, { padding: [30, 30], duration: 0.45 });
+    if (!selectedRouteId || selectedRoutePoints.length < 2) {
+      lastFocusedRouteIdRef.current = null;
       return;
     }
 
-    if (routes.length > 0) {
-      const boundsPoints: [number, number][] = routes.flatMap((route) =>
-        route.points.map((point) => [point.latitude, point.longitude] as [number, number])
-      );
-
-      if (position) {
-        boundsPoints.push([position.latitude, position.longitude]);
-      }
-
-      if (boundsPoints.length > 0) {
-        const bounds: LatLngBoundsExpression = boundsPoints;
-        map.fitBounds(bounds, { padding: [30, 30] });
-      }
-
+    if (lastFocusedRouteIdRef.current === selectedRouteId) {
       return;
     }
 
+    const routeBounds: LatLngBoundsExpression = selectedRoutePoints;
+    map.fitBounds(routeBounds, { padding: [35, 35], maxZoom: 16 });
+    lastFocusedRouteIdRef.current = selectedRouteId;
+  }, [map, selectedRouteId, selectedRoutePoints]);
+
+  useEffect(() => {
+    if (selectedRouteId && selectedRoutePoints.length > 1) {
+      return;
+    }
+
+    const boundsPoints: [number, number][] = [];
     if (position) {
-      map.setView([position.latitude, position.longitude], 14);
+      boundsPoints.push([position.latitude, position.longitude]);
     }
-  }, [map, position, routes, selectedRouteId, selectedRoutePois]);
+    // When no route is selected, include all routes in viewport
+    if (!selectedRouteId && routes.length > 0) {
+      for (const route of routes) {
+        for (const point of route.points) {
+          boundsPoints.push([point.latitude, point.longitude]);
+        }
+      }
+    }
+    for (const poi of visibleNearbyPois) {
+      boundsPoints.push([poi.latitude, poi.longitude]);
+    }
+    for (const poi of selectedRoutePois) {
+      boundsPoints.push([poi.latitude, poi.longitude]);
+    }
+    for (const point of selectedRoutePoints) {
+      boundsPoints.push(point);
+    }
+
+    if (boundsPoints.length > 1) {
+      const bounds: LatLngBoundsExpression = boundsPoints;
+      map.fitBounds(bounds, { padding: [35, 35] });
+      return;
+    }
+
+    if (boundsPoints.length === 1) {
+      map.setView(boundsPoints[0], 14);
+    }
+  }, [map, position, routes, selectedRouteId, selectedRoutePois, selectedRoutePoints, visibleNearbyPois]);
 
   return null;
 }
@@ -149,10 +357,11 @@ function MapViewportController({
 export default function MapView({
   position,
   routes,
+  nearbyPois,
   selectedRouteId,
   hoveredRouteId,
   onSelectRoute,
-  onHoverRoute
+  onHoverRoute,
 }: MapViewProps) {
   const [activeLayer, setActiveLayer] = useState<MapLayer>("topo");
   const [showPois, setShowPois] = useState<boolean>(true);
@@ -163,8 +372,94 @@ export default function MapView({
 
   const layer = MAP_LAYERS[activeLayer];
   const selectedRoute = routes.find((route) => route.id === selectedRouteId) ?? null;
+  const selectedRoutePolyline = useMemo<Array<[number, number]>>(
+    () =>
+      selectedRoute
+        ? selectedRoute.points.map((point) => [point.latitude, point.longitude] as [number, number])
+        : [],
+    [selectedRoute]
+  );
   const selectedRoutePois = selectedRoute?.pois ?? [];
-  const visiblePois = selectedRoutePois.filter((poi) => poiFilter === "all" || poi.category === poiFilter);
+  const mergedPoiEntries = useMemo<DisplayedPoi[]>(() => {
+    const merged = new Map<string, DisplayedPoi>();
+    for (const poi of nearbyPois) {
+      merged.set(poi.id, {
+        poi,
+        latitude: poi.latitude,
+        longitude: poi.longitude,
+        isOnSelectedRoute: false,
+      });
+    }
+    for (const poi of selectedRoutePois) {
+      merged.set(poi.id, {
+        poi,
+        latitude: poi.latitude,
+        longitude: poi.longitude,
+        isOnSelectedRoute: true,
+      });
+    }
+    return Array.from(merged.values());
+  }, [nearbyPois, selectedRoutePois]);
+  const poiCategoryCounts = useMemo<Record<PoiCategory, number>>(() => {
+    const counts: Record<PoiCategory, number> = {
+      viewpoint: 0,
+      water: 0,
+      summit: 0,
+      nature: 0,
+      heritage: 0,
+      facility: 0,
+      start_access: 0,
+    };
+    for (const entry of mergedPoiEntries) {
+      counts[entry.poi.category] += 1;
+    }
+    return counts;
+  }, [mergedPoiEntries]);
+  const filteredPoiEntries = useMemo(
+    () => mergedPoiEntries.filter((entry) => poiFilter === "all" || entry.poi.category === poiFilter),
+    [mergedPoiEntries, poiFilter]
+  );
+  const displayedPois = useMemo(
+    () => selectVisiblePois(filteredPoiEntries, poiFilter),
+    [filteredPoiEntries, poiFilter]
+  );
+  const visibleRoutePois = useMemo(
+    () => selectedRoutePois.filter((poi) => poiFilter === "all" || poi.category === poiFilter),
+    [selectedRoutePois, poiFilter]
+  );
+  const visibleNearbyPois = useMemo(
+    () => nearbyPois.filter((poi) => poiFilter === "all" || poi.category === poiFilter),
+    [nearbyPois, poiFilter]
+  );
+  const selectedRoutePoiIds = useMemo(
+    () => new Set(selectedRoutePois.map((poi) => poi.id)),
+    [selectedRoutePois]
+  );
+  const routesToRender = useMemo(
+    () => (selectedRouteId ? routes.filter((route) => route.id === selectedRouteId || route.id === hoveredRouteId) : routes),
+    [routes, selectedRouteId, hoveredRouteId]
+  );
+  const poiIcons = useMemo(() => {
+    const makeIcon = (icon: string, color: string, variant: "default" | "route") =>
+      L.divIcon({
+        className: "poi-marker-icon",
+        html: `<span class="poi-marker-chip ${variant === "route" ? "poi-marker-chip-route" : ""}" style="--poi-color:${color}">${icon}</span>`,
+        iconSize: variant === "route" ? [30, 30] : [28, 28],
+        iconAnchor: variant === "route" ? [15, 15] : [14, 14],
+        popupAnchor: [0, -14]
+      });
+    const categories: PoiCategory[] = ["viewpoint", "water", "summit", "nature", "heritage", "facility", "start_access"];
+    const regular = {} as Record<PoiCategory, L.DivIcon>;
+    const highlighted = {} as Record<PoiCategory, L.DivIcon>;
+    for (const category of categories) {
+      regular[category] = makeIcon(POI_CATEGORY_META[category].icon, POI_CATEGORY_META[category].color, "default");
+      highlighted[category] = makeIcon(POI_CATEGORY_META[category].icon, POI_CATEGORY_META[category].color, "route");
+    }
+    return {
+      regular,
+      highlighted,
+    };
+  }, []);
 
   return (
     <section className="card map-card">
@@ -202,9 +497,18 @@ export default function MapView({
               onClick={() => setPoiFilter(key)}
             >
               {POI_CATEGORY_META[key].label}
+              {" "}
+              (
+              {key === "all"
+                ? mergedPoiEntries.length
+                : poiCategoryCounts[key as PoiCategory]}
+              )
             </button>
           ))}
         </div>
+        <span className="map-poi-count">
+          Affichés : {displayedPois.length}
+        </span>
       </div>
 
       <div className="map-wrapper">
@@ -219,8 +523,10 @@ export default function MapView({
           <MapViewportController
             position={position}
             routes={routes}
+            visibleNearbyPois={showPois ? visibleNearbyPois : []}
+            selectedRoutePois={showPois ? visibleRoutePois : []}
+            selectedRoutePoints={selectedRoutePolyline}
             selectedRouteId={selectedRouteId}
-            selectedRoutePois={visiblePois}
           />
 
           {position && (
@@ -241,17 +547,15 @@ export default function MapView({
             </>
           )}
 
-          {routes.map((route, index) => {
+          {routesToRender.map((route, index) => {
             const color = routeColors[index % routeColors.length];
             const isSelected = selectedRouteId === route.id;
             const isHovered = hoveredRouteId === route.id;
             const hasSelection = selectedRouteId !== null;
-
             const polylinePositions: LatLngExpression[] = route.points.map((point) => [
               point.latitude,
-              point.longitude
+              point.longitude,
             ]);
-
             return (
               <Polyline
                 key={route.id}
@@ -259,12 +563,12 @@ export default function MapView({
                 pathOptions={{
                   color: hasSelection && !isSelected && !isHovered ? "#9ca3af" : color,
                   weight: isSelected ? 8 : isHovered ? 7 : 5,
-                  opacity: hasSelection && !isSelected && !isHovered ? 0.35 : isHovered ? 1 : 0.9
+                  opacity: hasSelection && !isSelected && !isHovered ? 0.35 : isHovered ? 1 : 0.9,
                 }}
                 eventHandlers={{
                   click: () => onSelectRoute(route.id),
                   mouseover: () => onHoverRoute(route.id),
-                  mouseout: () => onHoverRoute(null)
+                  mouseout: () => onHoverRoute(null),
                 }}
               >
                 <Popup>
@@ -282,52 +586,29 @@ export default function MapView({
             );
           })}
 
-          {showPois && selectedRouteId !== null && visiblePois.map((poi) => (
-            <CircleMarker
-              key={poi.id}
-              center={[poi.latitude, poi.longitude]}
-              radius={8}
-              pathOptions={{
-                color: "#ffffff",
-                weight: 2,
-                fillColor: POI_CATEGORY_META[poi.category].color,
-                fillOpacity: 0.95
-              }}
+          {showPois && displayedPois.map((entry) => (
+            <Marker
+              key={entry.poi.id}
+              position={[entry.latitude, entry.longitude]}
+              icon={entry.isOnSelectedRoute ? poiIcons.highlighted[entry.poi.category] : poiIcons.regular[entry.poi.category]}
+              zIndexOffset={entry.isOnSelectedRoute ? 1200 : 700}
             >
               <Popup>
-                <strong>{POI_CATEGORY_META[poi.category].icon} {poi.name}</strong>
+                <strong>{POI_CATEGORY_META[entry.poi.category].icon} {entry.poi.name}</strong>
                 <br />
-                Type : {POI_CATEGORY_META[poi.category].label}
+                Type : {POI_CATEGORY_META[entry.poi.category].label}
                 <br />
-                Distance au tracé : {Math.round(poi.distance_to_route_m)} m
+                {selectedRoutePoiIds.has(entry.poi.id)
+                  ? `Distance au tracé : ${Math.round(entry.poi.distance_to_route_m)} m`
+                  : `Distance à vous : ${Math.round(entry.poi.distance_to_route_m)} m`}
                 <br />
-                Score POI : {Math.round(poi.score * 100)}%
+                {selectedRoutePoiIds.has(entry.poi.id) ? "Sur le parcours sélectionné" : "POI proche (rayon 5 km)"}
+                <br />
+                Score POI : {Math.round(entry.poi.score * 100)}%
               </Popup>
-            </CircleMarker>
+            </Marker>
           ))}
         </MapContainer>
-      </div>
-
-      <div className="map-legend">
-        {routes.map((route, index) => {
-          const color = routeColors[index % routeColors.length];
-          const isSelected = selectedRouteId === route.id;
-          const isHovered = hoveredRouteId === route.id;
-
-          return (
-            <button
-              key={route.id}
-              type="button"
-              className={`legend-item-button ${isSelected ? "selected" : ""} ${isHovered ? "hovered" : ""}`}
-              onClick={() => onSelectRoute(route.id)}
-              onMouseEnter={() => onHoverRoute(route.id)}
-              onMouseLeave={() => onHoverRoute(null)}
-            >
-              <span className="legend-color" style={{ backgroundColor: color }} />
-              <span>{route.name}</span>
-            </button>
-          );
-        })}
       </div>
     </section>
   );

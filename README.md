@@ -211,6 +211,32 @@ Fonctionnalités avancées :
 
 Instructions d'installation en cours de rédaction.
 
+## Démarrage local (Windows)
+
+Backend :
+
+```powershell
+cd D:\Github\Randogen\backend
+$env:DEBUG = "false"
+$env:UV_CACHE_DIR = "D:\Github\Randogen\backend\.uv-cache"
+.\.venv\Scripts\python.exe -m uvicorn src.main.app:app --host 127.0.0.1 --port 8010
+```
+
+Frontend :
+
+```powershell
+cd D:\Github\Randogen\frontend
+$env:npm_config_cache = "D:\Github\Randogen\.npm-cache"
+npm run dev -- --host 127.0.0.1 --port 5173
+```
+
+## Dépannage Windows
+
+- Erreur `uv cache ... AppData\Local\uv\cache ... Access denied` :
+  utiliser `UV_CACHE_DIR` pointant vers le projet (commande ci-dessus).
+- Erreur `Error: spawn EPERM` avec Vite/esbuild :
+  utiliser Node LTS 22 (`.nvmrc` = `22.13.1`). Node 24 provoque ce blocage dans cet environnement.
+
 ## Contribution
 
 Les contributions sont les bienvenues.

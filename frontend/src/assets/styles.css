@@ -428,11 +428,22 @@ button:hover:not(:disabled) {
 }
 
 .sf-advanced-label {
+  display: flex;
+  align-items: center;
+  gap: 6px;
   font-size: 0.75rem;
   font-weight: 800;
   color: #4a5540;
   text-transform: uppercase;
   letter-spacing: 0.05em;
+}
+
+.sf-advanced-cap {
+  font-size: 0.7rem;
+  font-weight: 600;
+  color: #9aab90;
+  text-transform: none;
+  letter-spacing: 0;
 }
 
 .sf-toggle-row {
@@ -462,6 +473,11 @@ button:hover:not(:disabled) {
   border-color: #ef9a9a;
   background: #fff5f5;
   color: #b71c1c;
+}
+
+.sf-toggle-disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
 }
 
 /* Generate button */
@@ -1312,6 +1328,17 @@ button:hover:not(:disabled) {
   color: var(--accent-strong);
 }
 
+.map-poi-count {
+  margin-left: auto;
+  font-size: 0.76rem;
+  font-weight: 800;
+  color: #3f4f38;
+  background: #edf5e8;
+  border: 1px solid #c8d4be;
+  border-radius: 999px;
+  padding: 4px 10px;
+}
+
 .map-wrapper {
   width: 100%;
   height: 420px;
@@ -1353,6 +1380,55 @@ button:hover:not(:disabled) {
   width: 16px;
   height: 8px;
   border-radius: 999px;
+}
+
+.poi-marker-icon {
+  background: transparent;
+  border: 0;
+}
+
+.poi-marker-chip {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 28px;
+  height: 28px;
+  border-radius: 999px;
+  border: 2px solid #ffffff;
+  background: var(--poi-color, #0ea5e9);
+  color: #ffffff;
+  font-size: 15px;
+  font-weight: 800;
+  box-shadow: 0 4px 12px rgba(15, 23, 42, 0.35);
+  line-height: 1;
+}
+
+.poi-marker-chip-route {
+  border-color: #ffffff;
+  outline: 2px solid #1b5e20;
+  outline-offset: 1px;
+  box-shadow: 0 0 0 4px rgba(46, 125, 50, 0.22), 0 5px 14px rgba(15, 23, 42, 0.35);
+}
+
+.route-milestone-icon {
+  background: transparent;
+  border: 0;
+}
+
+.route-milestone-chip {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 20px;
+  height: 20px;
+  border-radius: 999px;
+  border: 2px solid #ffffff;
+  background: #ef4444;
+  color: #ffffff;
+  font-size: 11px;
+  font-weight: 800;
+  line-height: 1;
+  box-shadow: 0 2px 8px rgba(15, 23, 42, 0.3);
 }
 
 /* ─── Altitude profile ──────────────────────────────── */

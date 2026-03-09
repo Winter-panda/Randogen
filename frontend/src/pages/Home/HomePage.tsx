@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import MapView from "../../components/map/MapView";
 import RouteList from "../../components/route/RouteList";
 import SearchForm from "../../components/search/SearchForm";
@@ -9,6 +9,7 @@ import {
   buildShareUrl,
   downloadRouteGeoJson,
   downloadRouteGpx,
+  fetchNearbyPois,
   fetchWeather,
   generateRoutes,
   getOrCreateUserId,
@@ -30,6 +31,8 @@ import type {
   EffortFilter,
   FavoriteItem,
   HistoryItem,
+  PoiCategoryFilter,
+  PointOfInterest,
   PreferenceProfile,
   RouteCandidate,
   TerrainFilter,
@@ -148,8 +151,10 @@ export default function HomePage() {
   const [avoidTouristic, setAvoidTouristic] = useState<boolean>(false);
   const [adaptToWeather, setAdaptToWeather] = useState<boolean>(true);
   const [difficultyPref, setDifficultyPref] = useState<DifficultyPref | null>(null);
+  const [desiredPoiCategories, setDesiredPoiCategories] = useState<PoiCategoryFilter[]>([]);
   const [position, setPosition] = useState<UserPosition | null>(null);
   const [routes, setRoutes] = useState<RouteCandidate[]>([]);
+  const [nearbyPois, setNearbyPois] = useState<PointOfInterest[]>([]);
   const [selectedRouteId, setSelectedRouteId] = useState<string | null>(null);
   const [hoveredRouteId, setHoveredRouteId] = useState<string | null>(null);
   const [loading, setLoading] = useState<boolean>(false);
@@ -166,6 +171,15 @@ export default function HomePage() {
   const [secondaryTab, setSecondaryTab] = useState<"history" | "favorites">("history");
   const [preferenceProfile, setPreferenceProfile] = useState<PreferenceProfile | null>(null);
   const [weather, setWeather] = useState<WeatherData | null>(null);
+  const nearbyFetchRef = useRef<{ at: number; latKey: number; lonKey: number } | null>(null);
+  const positionLatKey = useMemo(
+    () => (position ? Number(position.latitude.toFixed(3)) : null),
+    [position]
+  );
+  const positionLonKey = useMemo(
+    () => (position ? Number(position.longitude.toFixed(3)) : null),
+    [position]
+  );
 
   const resolveUserId = (): string => {
     const resolved = (userId || getOrCreateUserId()).trim();
@@ -250,6 +264,53 @@ export default function HomePage() {
       .catch(() => undefined);
   }, [position]);
 
+  useEffect(() => {
+    if (loading) {
+      return;
+    }
+    if (positionLatKey === null || positionLonKey === null || !position) {
+      setNearbyPois([]);
+      return;
+    }
+    const previousFetch = nearbyFetchRef.current;
+    if (
+      previousFetch &&
+      previousFetch.latKey === positionLatKey &&
+      previousFetch.lonKey === positionLonKey &&
+      Date.now() - previousFetch.at < 45_000
+    ) {
+      return;
+    }
+
+    let active = true;
+    nearbyFetchRef.current = {
+      at: Date.now(),
+      latKey: positionLatKey,
+      lonKey: positionLonKey,
+    };
+    fetchNearbyPois(position.latitude, position.longitude, {
+      radiusKm: 5,
+      limit: 300,
+    })
+      .then((items) => {
+        if (!active) return;
+        setNearbyPois(items);
+        setWarnings((current) => current.filter((warning) => !warning.startsWith("POI:")));
+      })
+      .catch((err) => {
+        if (!active) return;
+        setNearbyPois([]);
+        const warningMessage = err instanceof Error
+          ? `POI: ${err.message}`
+          : "POI: service indisponible";
+        setWarnings((current) => (current.includes(warningMessage) ? current : [...current, warningMessage]));
+      });
+
+    return () => {
+      active = false;
+    };
+  }, [loading, positionLatKey, positionLonKey, position]);
+
   const handleLocate = async () => {
     setLoading(true);
     setError("");
@@ -277,6 +338,9 @@ export default function HomePage() {
     if (preferenceProfile.suggested_terrain) setTerrain(preferenceProfile.suggested_terrain);
     if (preferenceProfile.suggested_effort) setEffort(preferenceProfile.suggested_effort);
     if (preferenceProfile.suggested_biome) setBiomePreference(preferenceProfile.suggested_biome);
+    if (preferenceProfile.suggested_poi_categories && preferenceProfile.suggested_poi_categories.length > 0) {
+      setDesiredPoiCategories(preferenceProfile.suggested_poi_categories.slice(0, 3));
+    }
     if (preferenceProfile.average_distance_km) setDistanceKm(preferenceProfile.average_distance_km);
   };
 
@@ -312,6 +376,7 @@ export default function HomePage() {
         avoid_touristic: avoidTouristic,
         adapt_to_weather: adaptToWeather,
         difficulty_pref: difficultyPref,
+        desired_poi_categories: desiredPoiCategories,
       });
 
       setRoutes(response.routes);
@@ -431,6 +496,7 @@ export default function HomePage() {
   };
 
   function weatherIcon(code: number): string {
+    if (code == null) return "🌤";
     if (code === 0) return "☀️";
     if (code <= 2) return "🌤";
     if (code === 3) return "☁️";
@@ -443,9 +509,12 @@ export default function HomePage() {
   }
 
   function weatherLabel(w: WeatherData): string {
-    const parts: string[] = [`${w.temperature_c.toFixed(1)}°C`];
-    if (w.precipitation_mm >= 0.2) parts.push(`${w.precipitation_mm.toFixed(1)} mm`);
-    if (w.wind_kmh >= 20) parts.push(`${Math.round(w.wind_kmh)} km/h`);
+    const temp = w.temperature_c ?? 0;
+    const precip = w.precipitation_mm ?? 0;
+    const wind = w.wind_kmh ?? 0;
+    const parts: string[] = [`${temp.toFixed(1)}°C`];
+    if (precip >= 0.2) parts.push(`${precip.toFixed(1)} mm`);
+    if (wind >= 20) parts.push(`${Math.round(wind)} km/h`);
     return parts.join(" · ");
   }
 
@@ -524,6 +593,7 @@ export default function HomePage() {
             avoidTouristic={avoidTouristic}
             adaptToWeather={adaptToWeather}
             difficultyPref={difficultyPref}
+            desiredPoiCategories={desiredPoiCategories}
             loading={loading}
             hasPosition={position !== null}
             onDistanceChange={setDistanceKm}
@@ -533,6 +603,7 @@ export default function HomePage() {
             onEffortChange={setEffort}
             onBiomePreferenceChange={setBiomePreference}
             onDifficultyPrefChange={setDifficultyPref}
+            onDesiredPoiCategoriesChange={setDesiredPoiCategories}
             onPrioritizeNatureChange={setPrioritizeNature}
             onPrioritizeViewpointsChange={setPrioritizeViewpoints}
             onPrioritizeCalmChange={setPrioritizeCalm}
@@ -575,6 +646,7 @@ export default function HomePage() {
           <MapView
             position={position}
             routes={routes}
+            nearbyPois={nearbyPois}
             selectedRouteId={selectedRouteId}
             hoveredRouteId={hoveredRouteId}
             onSelectRoute={(routeId) => {
@@ -638,6 +710,9 @@ export default function HomePage() {
                     {item.query.ambiance ? `, ${item.query.ambiance}` : ""}
                     {item.query.terrain ? `, ${item.query.terrain}` : ""}
                     {item.query.biome_preference ? `, ${item.query.biome_preference}` : ""}
+                    {item.query.desired_poi_categories && item.query.desired_poi_categories.length > 0
+                      ? `, poi:${item.query.desired_poi_categories.slice(0, 2).join("/")}`
+                      : ""}
                   </div>
                 ))}
               </div>
@@ -698,6 +773,11 @@ export default function HomePage() {
             )}
             {preferenceProfile.suggested_biome && (
               <span className="profile-chip">Biome : <strong>{preferenceProfile.suggested_biome}</strong></span>
+            )}
+            {preferenceProfile.suggested_poi_categories && preferenceProfile.suggested_poi_categories.length > 0 && (
+              <span className="profile-chip">
+                POI : <strong>{preferenceProfile.suggested_poi_categories.slice(0, 3).join(", ")}</strong>
+              </span>
             )}
             {preferenceProfile.average_distance_km && (
               <span className="profile-chip">Distance moy. : <strong>{preferenceProfile.average_distance_km} km</strong></span>

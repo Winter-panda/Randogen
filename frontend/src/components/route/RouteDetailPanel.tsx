@@ -1,7 +1,8 @@
 import { useEffect, useMemo } from "react";
-import { CircleMarker, MapContainer, Polyline, Popup, TileLayer, useMap } from "react-leaflet";
+import { MapContainer, Marker, Polyline, Popup, TileLayer, useMap } from "react-leaflet";
 import type { LatLngBoundsExpression, LatLngExpression } from "leaflet";
-import type { RouteCandidate } from "../../types/route";
+import L from "leaflet";
+import type { RouteCandidate, RoutePoint } from "../../types/route";
 import { difficultyClass, formatDuration, formatRouteType, formatScore, tagClass } from "../../utils/labels";
 
 interface RouteDetailPanelProps {
@@ -31,6 +32,61 @@ function breakdownLabel(key: string): string {
   return labels[key] ?? key;
 }
 
+function haversineMeters(a: RoutePoint, b: RoutePoint): number {
+  const earthRadiusM = 6_371_000;
+  const dLat = ((b.latitude - a.latitude) * Math.PI) / 180;
+  const dLon = ((b.longitude - a.longitude) * Math.PI) / 180;
+  const lat1 = (a.latitude * Math.PI) / 180;
+  const lat2 = (b.latitude * Math.PI) / 180;
+  const x = Math.sin(dLat / 2) ** 2 + Math.cos(lat1) * Math.cos(lat2) * Math.sin(dLon / 2) ** 2;
+  return 2 * earthRadiusM * Math.asin(Math.sqrt(x));
+}
+
+interface RouteMilestone {
+  label: number;
+  latitude: number;
+  longitude: number;
+  distanceFromStartM: number;
+}
+
+function buildRouteMilestones(points: RoutePoint[]): RouteMilestone[] {
+  if (points.length < 4) {
+    return [];
+  }
+
+  const cumulative: number[] = [0];
+  for (let i = 1; i < points.length; i += 1) {
+    cumulative.push(cumulative[i - 1] + haversineMeters(points[i - 1], points[i]));
+  }
+
+  const totalDistanceM = cumulative[cumulative.length - 1];
+  if (!Number.isFinite(totalDistanceM) || totalDistanceM <= 400) {
+    return [];
+  }
+
+  const milestoneCount = Math.max(3, Math.min(10, Math.round(totalDistanceM / 900)));
+  const targetIndexes = new Set<number>();
+
+  for (let step = 1; step <= milestoneCount; step += 1) {
+    const targetDistance = (totalDistanceM * step) / (milestoneCount + 1);
+    let nearestIndex = 1;
+    while (nearestIndex < cumulative.length - 1 && cumulative[nearestIndex] < targetDistance) {
+      nearestIndex += 1;
+    }
+    if (nearestIndex > 0 && nearestIndex < points.length - 1) {
+      targetIndexes.add(nearestIndex);
+    }
+  }
+
+  const sortedIndexes = Array.from(targetIndexes).sort((a, b) => a - b);
+  return sortedIndexes.map((index, markerIndex) => ({
+    label: markerIndex + 1,
+    latitude: points[index].latitude,
+    longitude: points[index].longitude,
+    distanceFromStartM: cumulative[index],
+  }));
+}
+
 function DetailMiniMap({ route }: { route: RouteCandidate }) {
   const map = useMap();
 
@@ -46,6 +102,37 @@ function DetailMiniMap({ route }: { route: RouteCandidate }) {
   }, [map, route]);
 
   return null;
+}
+
+const POI_META = {
+  viewpoint: { icon: "👁️", color: "#7c3aed" },
+  water: { icon: "💧", color: "#0284c7" },
+  summit: { icon: "⛰️", color: "#334155" },
+  nature: { icon: "🌲", color: "#15803d" },
+  heritage: { icon: "🏛️", color: "#b45309" },
+  facility: { icon: "🧭", color: "#0f766e" },
+  start_access: { icon: "🅿️", color: "#1d4ed8" },
+} as const;
+
+function poiIcon(category: keyof typeof POI_META): L.DivIcon {
+  const meta = POI_META[category];
+  return L.divIcon({
+    className: "poi-marker-icon",
+    html: `<span class="poi-marker-chip" style="--poi-color:${meta.color}">${meta.icon}</span>`,
+    iconSize: [22, 22],
+    iconAnchor: [11, 11],
+    popupAnchor: [0, -11]
+  });
+}
+
+function milestoneIcon(label: number): L.DivIcon {
+  return L.divIcon({
+    className: "route-milestone-icon",
+    html: `<span class="route-milestone-chip">${label}</span>`,
+    iconSize: [20, 20],
+    iconAnchor: [10, 10],
+    popupAnchor: [0, -10]
+  });
 }
 
 export default function RouteDetailPanel({
@@ -64,6 +151,7 @@ export default function RouteDetailPanel({
     () => route.pois.filter((poi) => poi.distance_to_route_m > 80).sort((a, b) => (a.distance_from_start_m ?? 1e9) - (b.distance_from_start_m ?? 1e9)),
     [route.pois]
   );
+  const routeMilestones = useMemo(() => buildRouteMilestones(route.points), [route.points]);
 
   const center: LatLngExpression = route.points.length > 0
     ? [route.points[0].latitude, route.points[0].longitude]
@@ -135,23 +223,29 @@ export default function RouteDetailPanel({
           <TileLayer attribution="&copy; OpenStreetMap contributors" url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png" />
           <DetailMiniMap route={route} />
           <Polyline positions={route.points.map((p) => [p.latitude, p.longitude] as [number, number])} pathOptions={{ color: "#2563eb", weight: 6 }} />
+          {routeMilestones.map((milestone) => (
+            <Marker
+              key={`detail-step-${milestone.label}-${milestone.latitude.toFixed(6)}-${milestone.longitude.toFixed(6)}`}
+              position={[milestone.latitude, milestone.longitude]}
+              icon={milestoneIcon(milestone.label)}
+            >
+              <Popup>
+                <strong>Étape {milestone.label}</strong><br />
+                ≈ {(milestone.distanceFromStartM / 1000).toFixed(2)} km depuis le départ
+              </Popup>
+            </Marker>
+          ))}
           {route.pois.map((poi) => (
-            <CircleMarker
+            <Marker
               key={`detail-poi-${poi.id}`}
-              center={[poi.latitude, poi.longitude]}
-              radius={poi.distance_to_route_m <= 80 ? 7 : 5}
-              pathOptions={{
-                color: "#ffffff",
-                weight: 2,
-                fillColor: poi.distance_to_route_m <= 80 ? "#0ea5e9" : "#6366f1",
-                fillOpacity: 0.95
-              }}
+              position={[poi.latitude, poi.longitude]}
+              icon={poiIcon(poi.category)}
             >
               <Popup>
                 <strong>{poi.name}</strong><br />
                 Distance au tracé : {Math.round(poi.distance_to_route_m)} m
               </Popup>
-            </CircleMarker>
+            </Marker>
           ))}
         </MapContainer>
       </div>

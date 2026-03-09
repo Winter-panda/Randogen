@@ -38,6 +38,41 @@ class RouteController:
     def get_preference_profile(self, user_id: str) -> dict:
         return self._user_memory_service.get_preference_profile(user_id=user_id)
 
+    def get_last_poi_provider_error(self) -> str | None:
+        return self._route_generation_service.get_last_poi_provider_error()
+
+    def get_nearby_pois(
+        self,
+        *,
+        latitude: float,
+        longitude: float,
+        radius_km: float = 5.0,
+        categories: list[str] | None = None,
+        limit: int = 250,
+    ) -> list[PoiResponse]:
+        pois = self._route_generation_service.discover_nearby_pois(
+            latitude=latitude,
+            longitude=longitude,
+            radius_km=radius_km,
+            categories=categories or [],
+            limit=limit,
+        )
+        return [
+            PoiResponse(
+                id=poi.id,
+                name=poi.name,
+                category=poi.category,
+                sub_category=poi.sub_category,
+                latitude=poi.latitude,
+                longitude=poi.longitude,
+                distance_to_route_m=poi.distance_to_route_m,
+                distance_from_start_m=poi.distance_from_start_m,
+                score=poi.score,
+                tags=poi.tags,
+            )
+            for poi in pois
+        ]
+
     def list_history(self, user_id: str) -> list[dict]:
         return self._user_memory_service.list_history(user_id=user_id)
 

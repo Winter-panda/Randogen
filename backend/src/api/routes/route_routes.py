@@ -1,9 +1,17 @@
+import logging
+
 from fastapi import APIRouter, HTTPException, Query
 from fastapi.responses import JSONResponse, Response
 
+logger = logging.getLogger(__name__)
+
 from src.api.controllers.route_controller import RouteController
 from src.application.dto.generate_route_request import GenerateRouteRequest, RouteSummaryRequest
-from src.application.dto.generate_route_response import GenerateRouteResponse, RouteCandidateResponse
+from src.application.dto.generate_route_response import (
+    GenerateRouteResponse,
+    PoiResponse,
+    RouteCandidateResponse,
+)
 from src.infrastructure.weather.open_meteo_client import OpenMeteoClient
 
 router = APIRouter(prefix="/routes", tags=["routes"])
@@ -28,6 +36,42 @@ def get_weather(lat: float = Query(...), lon: float = Query(...)) -> JSONRespons
 @router.post("/generate", response_model=GenerateRouteResponse)
 def generate_routes(request: GenerateRouteRequest) -> GenerateRouteResponse:
     return controller.generate_routes(request)
+
+
+@router.get("/pois/nearby", response_model=list[PoiResponse])
+def get_nearby_pois(
+    lat: float = Query(..., ge=-90.0, le=90.0),
+    lon: float = Query(..., ge=-180.0, le=180.0),
+    radius_km: float = Query(default=5.0, ge=0.2, le=10.0),
+    categories: list[str] | None = Query(default=None),
+    limit: int = Query(default=250, ge=1, le=300),
+) -> list[PoiResponse]:
+    allowed_categories = {
+        "viewpoint",
+        "water",
+        "summit",
+        "nature",
+        "heritage",
+        "facility",
+        "start_access",
+    }
+    normalized_categories = [
+        value.strip().lower()
+        for value in (categories or [])
+        if isinstance(value, str) and value.strip().lower() in allowed_categories
+    ]
+    pois = controller.get_nearby_pois(
+        latitude=lat,
+        longitude=lon,
+        radius_km=radius_km,
+        categories=normalized_categories,
+        limit=limit,
+    )
+    if len(pois) == 0:
+        provider_error = controller.get_last_poi_provider_error()
+        if provider_error:
+            logger.info("Nearby POIs unavailable: %s", provider_error)
+    return pois
 
 
 @router.get("/users/{user_id}/preferences")

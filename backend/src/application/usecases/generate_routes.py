@@ -35,6 +35,13 @@ class GenerateRoutesUseCase:
             avoid_touristic=request.avoid_touristic,
             adapt_to_weather=request.adapt_to_weather,
             difficulty_pref=request.difficulty_pref,
+            desired_poi_categories=sorted(
+                {
+                    value.strip().lower()
+                    for value in request.desired_poi_categories
+                    if isinstance(value, str) and value.strip()
+                }
+            ),
         )
 
         candidates = self._route_generation_service.generate_routes(search)

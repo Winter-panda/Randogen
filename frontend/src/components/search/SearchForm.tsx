@@ -1,5 +1,12 @@
 import { useState } from "react";
-import type { AmbianceFilter, BiomePreference, DifficultyPref, EffortFilter, TerrainFilter } from "../../types/route";
+import type {
+  AmbianceFilter,
+  BiomePreference,
+  DifficultyPref,
+  EffortFilter,
+  PoiCategoryFilter,
+  TerrainFilter,
+} from "../../types/route";
 import { AMBIANCE_HINTS, BIOME_HINTS, EFFORT_HINTS, TERRAIN_HINTS } from "../../utils/labels";
 
 interface SearchFormProps {
@@ -10,6 +17,7 @@ interface SearchFormProps {
   effort: EffortFilter | null;
   biomePreference: BiomePreference | null;
   difficultyPref: DifficultyPref | null;
+  desiredPoiCategories: PoiCategoryFilter[];
   prioritizeNature: boolean;
   prioritizeViewpoints: boolean;
   prioritizeCalm: boolean;
@@ -27,6 +35,7 @@ interface SearchFormProps {
   onEffortChange: (value: EffortFilter | null) => void;
   onBiomePreferenceChange: (value: BiomePreference | null) => void;
   onDifficultyPrefChange: (value: DifficultyPref | null) => void;
+  onDesiredPoiCategoriesChange: (value: PoiCategoryFilter[]) => void;
   onPrioritizeNatureChange: (value: boolean) => void;
   onPrioritizeViewpointsChange: (value: boolean) => void;
   onPrioritizeCalmChange: (value: boolean) => void;
@@ -54,12 +63,12 @@ function activeHint(
 
 export default function SearchForm(props: SearchFormProps) {
   const {
-    distanceKm, routeCount, ambiance, terrain, effort, biomePreference, difficultyPref,
+    distanceKm, routeCount, ambiance, terrain, effort, biomePreference, difficultyPref, desiredPoiCategories,
     prioritizeNature, prioritizeViewpoints, prioritizeCalm,
     avoidUrban, avoidRoads, avoidSteep, avoidTouristic, adaptToWeather,
     loading, hasPosition,
     onDistanceChange, onRouteCountChange, onAmbianceChange, onTerrainChange,
-    onEffortChange, onBiomePreferenceChange, onDifficultyPrefChange,
+    onEffortChange, onBiomePreferenceChange, onDifficultyPrefChange, onDesiredPoiCategoriesChange,
     onPrioritizeNatureChange, onPrioritizeViewpointsChange, onPrioritizeCalmChange,
     onAvoidUrbanChange, onAvoidRoadsChange, onAvoidSteepChange, onAvoidTouristicChange,
     onAdaptToWeatherChange, onLocate, onGenerate,
@@ -92,7 +101,7 @@ export default function SearchForm(props: SearchFormProps) {
   const advancedCount = [
     prioritizeNature, prioritizeViewpoints, prioritizeCalm,
     avoidUrban, avoidRoads, avoidSteep, avoidTouristic,
-  ].filter(Boolean).length + (adaptToWeather ? 0 : 1);
+  ].filter(Boolean).length + (adaptToWeather ? 0 : 1) + desiredPoiCategories.length;
 
   const hint = activeHint(ambiance, terrain, effort, biomePreference);
 
@@ -100,6 +109,27 @@ export default function SearchForm(props: SearchFormProps) {
     facile: "Facile",
     moderee: "Modérée",
     difficile: "Difficile",
+  };
+
+  const poiOptions: Array<{ label: string; value: PoiCategoryFilter }> = [
+    { label: "🏔 Panorama", value: "viewpoint" },
+    { label: "💧 Eau", value: "water" },
+    { label: "⛰ Sommet", value: "summit" },
+    { label: "🌲 Nature", value: "nature" },
+    { label: "🏛 Patrimoine", value: "heritage" },
+    { label: "🍽 Restau / Services", value: "facility" },
+    { label: "🅿 Parkings", value: "start_access" },
+  ];
+
+  const MAX_POI_CATEGORIES = 3;
+
+  const togglePoiCategory = (category: PoiCategoryFilter) => {
+    if (desiredPoiCategories.includes(category)) {
+      onDesiredPoiCategoriesChange(desiredPoiCategories.filter((value) => value !== category));
+      return;
+    }
+    if (desiredPoiCategories.length >= MAX_POI_CATEGORIES) return;
+    onDesiredPoiCategoriesChange([...desiredPoiCategories, category]);
   };
 
   return (
@@ -270,6 +300,33 @@ export default function SearchForm(props: SearchFormProps) {
                   {label}
                 </button>
               ))}
+            </div>
+          </div>
+
+          <div className="sf-advanced-group">
+            <span className="sf-advanced-label">
+              Points d'interet recherches
+              <span className="sf-advanced-cap">
+                {desiredPoiCategories.length}/{MAX_POI_CATEGORIES}
+              </span>
+            </span>
+            <div className="sf-toggle-row">
+              {poiOptions.map((option) => {
+                const active = desiredPoiCategories.includes(option.value);
+                const disabled = !active && desiredPoiCategories.length >= MAX_POI_CATEGORIES;
+                return (
+                  <button
+                    key={option.value}
+                    type="button"
+                    className={`sf-toggle ${active ? "sf-toggle-on" : ""} ${disabled ? "sf-toggle-disabled" : ""}`}
+                    onClick={() => togglePoiCategory(option.value)}
+                    disabled={disabled}
+                    title={disabled ? `Maximum ${MAX_POI_CATEGORIES} catégories` : undefined}
+                  >
+                    {option.label}
+                  </button>
+                );
+              })}
             </div>
           </div>
 

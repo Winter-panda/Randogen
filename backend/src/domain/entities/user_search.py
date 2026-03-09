@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 
 
 @dataclass(frozen=True)
@@ -23,3 +23,4 @@ class UserSearch:
     avoid_touristic: bool = False
     adapt_to_weather: bool = True
     difficulty_pref: str | None = None
+    desired_poi_categories: list[str] = field(default_factory=list)

@@ -11,3 +11,11 @@ Thumbs.db
 .vscode/
 .idea/
 
+# Python bytecode
+__pycache__/
+*.pyc
+*.pyo
+
+# Runtime data files (not part of source)
+backend/data/user_memory.json
+

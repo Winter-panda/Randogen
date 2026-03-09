@@ -14,6 +14,7 @@ logger = logging.getLogger(__name__)
 from src.application.services.poi_enrichment_service import PoiEnrichmentService
 from src.application.services.contextual_scoring_service import ContextualScoringService
 from src.application.services.user_memory_service import UserMemoryService
+from src.domain.entities.point_of_interest import PointOfInterest
 from src.domain.entities.route_candidate import RouteCandidate
 from src.domain.entities.route_point import RoutePoint
 from src.domain.entities.user_search import UserSearch
@@ -125,21 +126,28 @@ class RouteGenerationService:
 
     @staticmethod
     def _make_cache_key(search: UserSearch) -> str:
+        desired_poi_key = ",".join(sorted({value.strip().lower() for value in search.desired_poi_categories if value}))
         return (
             f"{search.user_id}:"
             f"{search.latitude:.5f}:{search.longitude:.5f}"
             f":{search.target_distance_km}:{search.route_count}"
             f":{search.ambiance}:{search.terrain}:{search.effort}:{search.biome_preference}"
+            f":{desired_poi_key}"
             f":{int(search.prioritize_nature)}:{int(search.prioritize_viewpoints)}:{int(search.prioritize_calm)}"
             f":{int(search.avoid_urban)}:{int(search.avoid_roads)}:{int(search.avoid_steep)}:{int(search.avoid_touristic)}"
             f":{int(search.adapt_to_weather)}"
-            ":poi-v3"
+            ":poi-v5"
         )
 
     def _generate_real_round_trip_routes(self, search: UserSearch) -> list[RouteCandidate]:
         evaluations: list[CandidateEvaluation] = []
 
-        style = self._build_combined_style(search.ambiance, search.terrain, search.effort)
+        style = self._build_combined_style(
+            search.ambiance,
+            search.terrain,
+            search.effort,
+            search.biome_preference,
+        )
         attempts = min(max(search.route_count * 2, settings.route_candidate_search_count), 12)
         target_length_m = search.target_distance_km * 1000.0
 
@@ -253,7 +261,12 @@ class RouteGenerationService:
                 estimated_duration_min=duration_min,
                 estimated_elevation_gain_m=elevation_gain_m,
                 score=final_score,
-                route_type=self._build_route_type_label(search.ambiance, search.terrain, search.effort),
+                route_type=self._build_route_type_label(
+                    search.ambiance,
+                    search.terrain,
+                    search.effort,
+                    search.biome_preference,
+                ),
                 source=f"openrouteservice-roundtrip:{settings.ors_profile}",
                 trail_ratio=trail_ratio,
                 road_ratio=round(road_share, 2),
@@ -301,17 +314,34 @@ class RouteGenerationService:
         if len(evaluations) == 0:
             return []
 
-        evaluations.sort(
-            key=lambda item: (
-                -item.score_value,
-                -item.trail_preference_score,
-                item.road_share,
-                item.distance_error_ratio,
-                item.route.distance_km,
+        if search.biome_preference:
+            evaluations.sort(
+                key=lambda item: (
+                    -self._compute_biome_affinity(route=item.route, biome=search.biome_preference),
+                    -item.score_value,
+                    -item.trail_preference_score,
+                    item.road_share,
+                    item.distance_error_ratio,
+                    item.route.distance_km,
+                )
             )
-        )
+        else:
+            evaluations.sort(
+                key=lambda item: (
+                    -item.score_value,
+                    -item.trail_preference_score,
+                    item.road_share,
+                    item.distance_error_ratio,
+                    item.route.distance_km,
+                )
+            )
 
-        selected = self._select_routes(evaluations, search.route_count, style["max_road_share"])
+        selected = self._select_routes(
+            evaluations,
+            search.route_count,
+            style["max_road_share"],
+            search.biome_preference,
+        )
         return self._attach_pois_to_routes(selected, search)
 
     def _select_routes(
@@ -319,17 +349,31 @@ class RouteGenerationService:
         evaluations: list[CandidateEvaluation],
         count: int,
         max_road_share: float,
+        biome_preference: str | None = None,
     ) -> list[RouteCandidate]:
-        """Two-pass selection: prefer routes under max_road_share, fill remaining with best available.
+        """Multi-pass selection:
+        - pass 1: strict road-share + strict biome fit (if biome selected)
+        - pass 2: relaxed road-share + medium biome fit
+        - pass 3: best remaining candidates (guarantee route_count when possible)
         Routes too similar (Jaccard >= threshold) to an already-selected route are skipped."""
         selected: list[RouteCandidate] = []
         selected_grids: list[frozenset[str]] = []
         used_signatures: set[str] = set()
         threshold = settings.route_duplicate_similarity_threshold
+        strict_biome_min = self._biome_min_affinity(biome_preference, strict=True)
+        relaxed_biome_min = self._biome_min_affinity(biome_preference, strict=False)
 
-        def _try_add(evaluation: CandidateEvaluation, road_share_limit: float) -> bool:
+        def _try_add(
+            evaluation: CandidateEvaluation,
+            road_share_limit: float,
+            biome_min_affinity: float | None,
+        ) -> bool:
             if evaluation.road_share > road_share_limit:
                 return False
+            if biome_preference and biome_min_affinity is not None:
+                affinity = self._compute_biome_affinity(route=evaluation.route, biome=biome_preference)
+                if affinity < biome_min_affinity:
+                    return False
             signature = self._build_route_signature(evaluation.route)
             if signature in used_signatures:
                 return False
@@ -351,13 +395,26 @@ class RouteGenerationService:
         for evaluation in evaluations:
             if len(selected) >= count:
                 break
-            _try_add(evaluation, max_road_share)
+            _try_add(evaluation, max_road_share, strict_biome_min)
 
-        # Pass 2 - relaxed: fill missing slots with the best remaining candidates
+        # Pass 2 - relaxed road-share and biome match.
+        if len(selected) < count:
+            relaxed_road_share = min(1.0, max(max_road_share, 0.65))
+            logger.info(
+                "Only %d/%d routes passed strict filters, trying relaxed biome/road matching.",
+                len(selected),
+                count,
+            )
+            for evaluation in evaluations:
+                if len(selected) >= count:
+                    break
+                _try_add(evaluation, relaxed_road_share, relaxed_biome_min)
+
+        # Pass 3 - relaxed: fill missing slots with the best remaining candidates
         # (happens in dense urban areas where ideal trails are unavailable)
         if len(selected) < count:
             logger.info(
-                "Only %d/%d routes passed strict road-share filter (%.0f%%), relaxing for remaining slots.",
+                "Only %d/%d routes passed strict/relaxed filters (road %.0f%%), relaxing fully for remaining slots.",
                 len(selected),
                 count,
                 max_road_share * 100,
@@ -365,7 +422,7 @@ class RouteGenerationService:
             for evaluation in evaluations:
                 if len(selected) >= count:
                     break
-                _try_add(evaluation, 1.0)
+                _try_add(evaluation, 1.0, None)
 
         return selected
 
@@ -529,6 +586,73 @@ class RouteGenerationService:
                 "max_road_share": 0.80,
                 "max_elevation_gain_per_km": 25.0,
             },
+            "foret": {
+                "distance_weight": 0.20,
+                "trail_weight": 0.30,
+                "green_weight": 0.35,
+                "quiet_weight": 0.10,
+                "suitability_weight": 0.05,
+                "elevation_weight": 0.00,
+                "poi_weight": 0.08,
+                "max_distance_error_ratio": 0.65,
+                "max_road_share": 0.22,
+            },
+            "campagne": {
+                "distance_weight": 0.28,
+                "trail_weight": 0.20,
+                "green_weight": 0.24,
+                "quiet_weight": 0.17,
+                "suitability_weight": 0.06,
+                "elevation_weight": 0.05,
+                "poi_weight": 0.06,
+                "max_distance_error_ratio": 0.65,
+                "max_road_share": 0.35,
+            },
+            "cotier": {
+                "distance_weight": 0.26,
+                "trail_weight": 0.18,
+                "green_weight": 0.19,
+                "quiet_weight": 0.10,
+                "suitability_weight": 0.05,
+                "elevation_weight": 0.07,
+                "poi_weight": 0.15,
+                "max_distance_error_ratio": 0.70,
+                "max_road_share": 0.45,
+            },
+            "montagne": {
+                "distance_weight": 0.20,
+                "trail_weight": 0.20,
+                "green_weight": 0.15,
+                "quiet_weight": 0.05,
+                "suitability_weight": 0.10,
+                "elevation_weight": 0.30,
+                "poi_weight": 0.10,
+                "elevation_target": "hilly",
+                "max_distance_error_ratio": 0.70,
+                "max_road_share": 0.45,
+            },
+            "bord_eau": {
+                "distance_weight": 0.24,
+                "trail_weight": 0.18,
+                "green_weight": 0.20,
+                "quiet_weight": 0.10,
+                "suitability_weight": 0.05,
+                "elevation_weight": 0.08,
+                "poi_weight": 0.15,
+                "max_distance_error_ratio": 0.70,
+                "max_road_share": 0.45,
+            },
+            "patrimoine": {
+                "distance_weight": 0.30,
+                "trail_weight": 0.14,
+                "green_weight": 0.10,
+                "quiet_weight": 0.15,
+                "suitability_weight": 0.06,
+                "elevation_weight": 0.05,
+                "poi_weight": 0.20,
+                "max_distance_error_ratio": 0.70,
+                "max_road_share": 0.60,
+            },
         }
 
         return configs.get(normalized, configs["equilibree"])
@@ -538,8 +662,13 @@ class RouteGenerationService:
         ambiance: str | None,
         terrain: str | None,
         effort: str | None,
+        biome_preference: str | None = None,
     ) -> dict[str, Any]:
-        active = [self._get_style_config(k) for k in [ambiance, terrain, effort] if k is not None]
+        active = [
+            self._get_style_config(k)
+            for k in [ambiance, terrain, effort, biome_preference]
+            if k is not None
+        ]
         if not active:
             return self._get_style_config("equilibree")
 
@@ -581,8 +710,9 @@ class RouteGenerationService:
         ambiance: str | None,
         terrain: str | None,
         effort: str | None,
+        biome_preference: str | None = None,
     ) -> str:
-        parts = [p for p in [ambiance, terrain, effort] if p is not None]
+        parts = [p for p in [ambiance, terrain, effort, biome_preference] if p is not None]
         return " + ".join(parts) if parts else "libre"
 
     def _compute_candidate_length_m(self, target_length_m: float, index: int, rng: random.Random) -> float:
@@ -779,7 +909,12 @@ class RouteGenerationService:
                 estimated_duration_min=self._estimate_duration_min(mock_distance_km, mock_elevation_m, 0.25),
                 estimated_elevation_gain_m=mock_elevation_m,
                 score=round(0.72 + (index * 0.08), 2),
-                route_type=self._build_route_type_label(search.ambiance, search.terrain, search.effort),
+                route_type=self._build_route_type_label(
+                    search.ambiance,
+                    search.terrain,
+                    search.effort,
+                    search.biome_preference,
+                ),
                 source="mock-generator",
                 trail_ratio=0.25,
                 road_ratio=0.75,
@@ -805,10 +940,26 @@ class RouteGenerationService:
         return self._attach_pois_to_routes(routes, search)
 
     def _attach_pois_to_routes(self, routes: list[RouteCandidate], search: UserSearch) -> list[RouteCandidate]:
+        shared_candidates = self._poi_enrichment_service.prefetch_candidates_for_routes(routes)
+        if len(shared_candidates) > 0:
+            logger.info(
+                "poi: shared candidate pool %d for %d routes",
+                len(shared_candidates),
+                len(routes),
+            )
         for route in routes:
             try:
-                self._poi_enrichment_service.enrich_route(route, search)
-                style = self._style_from_route_type(route.route_type)
+                self._poi_enrichment_service.enrich_route(
+                    route,
+                    search,
+                    candidates=shared_candidates if len(shared_candidates) > 0 else None,
+                )
+                style = self._build_combined_style(
+                    search.ambiance,
+                    search.terrain,
+                    search.effort,
+                    search.biome_preference,
+                )
                 poi_weight = float(style.get("poi_weight", 0.05))
                 pre_preference_score = route.score
                 route.score = self._apply_user_preference_adjustments(
@@ -830,6 +981,17 @@ class RouteGenerationService:
                         biome_tag = biome_label_map.get(search.biome_preference)
                         if biome_tag and biome_tag not in route.tags:
                             route.tags.append(biome_tag)
+                if search.desired_poi_categories:
+                    poi_match = self._compute_poi_category_match(
+                        route=route,
+                        desired_categories=search.desired_poi_categories,
+                    )
+                    if poi_match >= 1.0:
+                        if "POI demandes couverts" not in route.tags:
+                            route.tags.append("POI demandes couverts")
+                    elif poi_match >= 0.5:
+                        if "POI demandes partiellement couverts" not in route.tags:
+                            route.tags.append("POI demandes partiellement couverts")
                 if settings.enable_weather_context and search.adapt_to_weather:
                     context_adjustment = self._contextual_scoring_service.adjust_route(
                         route=route,
@@ -956,6 +1118,47 @@ class RouteGenerationService:
                 status = "low_data"
             warnings.append("Zone pauvre en POI: resultats limites mais exploitables.")
 
+        poi_provider_error = self.get_last_poi_provider_error()
+        if poi_provider_error:
+            technical_issue = True
+            if status == "ok":
+                status = "partial"
+            warnings.append(
+                "Service POI indisponible temporairement (Overpass/API externe). "
+                f"Detail: {poi_provider_error}"
+            )
+
+        if search.biome_preference and generated_count > 0:
+            affinities = [
+                self._compute_biome_affinity(route=route, biome=search.biome_preference)
+                for route in routes
+            ]
+            best_affinity = max(affinities)
+            expected_affinity = self._biome_min_affinity(search.biome_preference, strict=True) or 0.55
+            if best_affinity < expected_affinity:
+                warnings.append(
+                    f"Biome '{self._biome_display_label(search.biome_preference)}' peu present autour de vous; "
+                    "resultats affiches sur les options les plus proches."
+                )
+
+        desired_poi_categories = [
+            value.strip().lower()
+            for value in search.desired_poi_categories
+            if isinstance(value, str) and value.strip()
+        ]
+        if desired_poi_categories and generated_count > 0:
+            available_categories: set[str] = set()
+            for route in routes:
+                available_categories.update({poi.category for poi in route.pois})
+            missing = [value for value in desired_poi_categories if value not in available_categories]
+            if missing:
+                missing_labels = [self._poi_category_label(value) for value in missing]
+                warnings.append(
+                    "POI demandes peu disponibles autour de vous: "
+                    + ", ".join(sorted(missing_labels))
+                    + "."
+                )
+
         if not used_mock_fallback:
             rate_limit_errors = int(self._last_real_generation_stats.get("rate_limit_errors", 0))
             other_errors = int(self._last_real_generation_stats.get("other_errors", 0))
@@ -1009,6 +1212,28 @@ class RouteGenerationService:
             _shared_route_cache.pop(stable_route_id, None)
             return None
         return copy.deepcopy(route)
+
+    def get_last_poi_provider_error(self) -> str | None:
+        return self._poi_enrichment_service.get_last_provider_error()
+
+    def discover_nearby_pois(
+        self,
+        *,
+        latitude: float,
+        longitude: float,
+        radius_km: float = 5.0,
+        categories: list[str] | None = None,
+        limit: int = 250,
+    ) -> list[PointOfInterest]:
+        bounded_radius_km = max(0.5, min(10.0, float(radius_km)))
+        radius_m = int(round(bounded_radius_km * 1000.0))
+        return self._poi_enrichment_service.discover_nearby_pois(
+            latitude=latitude,
+            longitude=longitude,
+            radius_m=radius_m,
+            categories=categories or [],
+            limit=limit,
+        )
 
     def export_route_gpx(self, stable_route_id: str) -> str | None:
         route = self.get_shared_route(stable_route_id)
@@ -1154,11 +1379,101 @@ class RouteGenerationService:
             )
             score -= min(0.08, touristic_count * 0.015)
         if search.biome_preference:
-            # Keep biome influence as a secondary tie-breaker.
-            score += (biome_affinity - 0.5) * 0.10
+            # Biome preference is a primary ranking signal when explicitly chosen.
+            if biome_affinity >= 0.75:
+                score += 0.12
+            elif biome_affinity >= 0.62:
+                score += 0.07
+            elif biome_affinity >= 0.50:
+                score += 0.02
+            elif biome_affinity >= 0.38:
+                score -= 0.08
+            else:
+                score -= 0.16
+        desired_poi_categories = {
+            value.strip().lower()
+            for value in search.desired_poi_categories
+            if isinstance(value, str) and value.strip()
+        }
+        if desired_poi_categories:
+            matched = len(desired_poi_categories & categories)
+            coverage = matched / len(desired_poi_categories)
+            if coverage >= 1.0:
+                score += 0.14
+            elif coverage >= 0.66:
+                score += 0.09
+            elif coverage >= 0.34:
+                score += 0.03
+            else:
+                score -= 0.18
 
         # Guardrails: keep feasibility-first ranking while still differentiating profiles.
         return round(max(0.1, min(1.0, score)), 2)
+
+    def _biome_min_affinity(self, biome: str | None, *, strict: bool) -> float | None:
+        normalized = (biome or "").strip().lower()
+        if not normalized:
+            return None
+
+        strict_thresholds = {
+            "foret": 0.60,
+            "campagne": 0.55,
+            "cotier": 0.52,
+            "montagne": 0.58,
+            "bord_eau": 0.54,
+            "patrimoine": 0.50,
+        }
+        relaxed_thresholds = {
+            "foret": 0.48,
+            "campagne": 0.44,
+            "cotier": 0.40,
+            "montagne": 0.46,
+            "bord_eau": 0.42,
+            "patrimoine": 0.38,
+        }
+        table = strict_thresholds if strict else relaxed_thresholds
+        return table.get(normalized, 0.50 if strict else 0.40)
+
+    def _biome_display_label(self, biome: str | None) -> str:
+        normalized = (biome or "").strip().lower()
+        labels = {
+            "foret": "forêt",
+            "campagne": "campagne",
+            "cotier": "côtier",
+            "montagne": "montagne",
+            "bord_eau": "bord d'eau",
+            "patrimoine": "patrimoine",
+        }
+        return labels.get(normalized, normalized or "biome")
+
+    def _poi_category_label(self, category: str) -> str:
+        labels = {
+            "viewpoint": "panorama",
+            "water": "eau",
+            "summit": "sommet",
+            "nature": "nature",
+            "heritage": "patrimoine",
+            "facility": "services",
+            "start_access": "acces",
+        }
+        return labels.get(category, category)
+
+    def _compute_poi_category_match(
+        self,
+        *,
+        route: RouteCandidate,
+        desired_categories: list[str],
+    ) -> float:
+        desired = {
+            value.strip().lower()
+            for value in desired_categories
+            if isinstance(value, str) and value.strip()
+        }
+        if not desired:
+            return 0.0
+        available = {poi.category for poi in route.pois}
+        matched = len(desired & available)
+        return matched / max(1, len(desired))
 
     def _compute_biome_affinity(self, *, route: RouteCandidate, biome: str | None) -> float:
         normalized = (biome or "").strip().lower()
@@ -1186,36 +1501,46 @@ class RouteGenerationService:
         flat_signal = 1.0 - hilly_signal
         urban_index = (route.road_ratio * 0.65) + ((1.0 - route.quiet_score) * 0.35)
         rural_signal = max(0.0, min(1.0, 1.0 - urban_index))
+        road_penalty = max(0.0, route.road_ratio - 0.25)
+        urban_penalty = max(0.0, urban_index - 0.55)
+
+        def _clamp(value: float) -> float:
+            return max(0.0, min(1.0, value))
 
         affinities: dict[str, float] = {
-            "foret": (
-                route.nature_score * 0.55
-                + nature_poi_signal * 0.25
-                + route.trail_ratio * 0.20
+            "foret": _clamp(
+                route.nature_score * 0.50
+                + route.trail_ratio * 0.22
+                + route.quiet_score * 0.10
+                + nature_poi_signal * 0.18
+                - road_penalty * 0.90
+                - urban_penalty * 0.75
             ),
-            "campagne": (
+            "campagne": _clamp(
                 rural_signal * 0.35
-                + route.quiet_score * 0.25
+                + route.quiet_score * 0.20
                 + flat_signal * 0.20
                 + route.nature_score * 0.20
+                + route.trail_ratio * 0.10
+                - max(0.0, route.road_ratio - 0.40) * 0.30
             ),
-            "cotier": (
+            "cotier": _clamp(
                 water_signal * 0.70
                 + viewpoint_signal * 0.20
                 + rural_signal * 0.10
             ),
-            "montagne": (
+            "montagne": _clamp(
                 hilly_signal * 0.45
                 + viewpoint_signal * 0.30
                 + route.trail_ratio * 0.15
                 + route.nature_score * 0.10
             ),
-            "bord_eau": (
+            "bord_eau": _clamp(
                 water_signal * 0.80
                 + route.nature_score * 0.10
                 + route.quiet_score * 0.10
             ),
-            "patrimoine": (
+            "patrimoine": _clamp(
                 heritage_signal * 0.70
                 + rural_signal * 0.15
                 + route.quiet_score * 0.15
@@ -1244,6 +1569,10 @@ class RouteGenerationService:
         )
         biome_affinity = self._compute_biome_affinity(route=route, biome=search.biome_preference)
         biome_breakdown_value = biome_affinity if search.biome_preference else 0.0
+        poi_match = self._compute_poi_category_match(
+            route=route,
+            desired_categories=search.desired_poi_categories,
+        )
         return {
             "distance": round(distance_score, 3),
             "sentiers": round(route.trail_ratio, 3),
@@ -1252,6 +1581,7 @@ class RouteGenerationService:
             "suitability": round(route.hiking_suitability_score, 3),
             "denivele": round(elevation_score, 3),
             "poi": round(route.poi_score, 3),
+            "poi_match": round(poi_match, 3),
             "biome": round(biome_breakdown_value, 3),
             "poi_weight": round(poi_weight, 3),
             "context": round(route.context_score_delta, 3),
@@ -1276,6 +1606,8 @@ class RouteGenerationService:
             reasons.append(("Parcours plutot calme", route.quiet_score))
         if route.poi_score >= 0.55 and len(route.highlighted_poi_labels) > 0:
             reasons.append((f"Presence de POI: {', '.join(route.highlighted_poi_labels[:2])}", route.poi_score))
+        if breakdown.get("poi_match", 0.0) >= 0.66:
+            reasons.append(("Correspond aux POI recherches", breakdown["poi_match"]))
         if breakdown.get("biome", 0.0) >= 0.65:
             reasons.append(("Correspond bien au biome souhaite", breakdown["biome"]))
         if route.difficulty == "facile":
@@ -1336,7 +1668,13 @@ class RouteGenerationService:
         ambiance = parts[0] if len(parts) > 0 else None
         terrain = parts[1] if len(parts) > 1 else None
         effort = parts[2] if len(parts) > 2 else None
-        return self._build_combined_style(ambiance=ambiance, terrain=terrain, effort=effort)
+        biome_preference = parts[3] if len(parts) > 3 else None
+        return self._build_combined_style(
+            ambiance=ambiance,
+            terrain=terrain,
+            effort=effort,
+            biome_preference=biome_preference,
+        )
 
     def _estimate_duration_min(
         self,
