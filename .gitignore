@@ -1,21 +1,11 @@
-
 node_modules/
+.npm-cache/
 dist/
 build/
-.env
-.env.local
+.turbo/
+.vite/
+coverage/
 *.log
-*.tmp
+.env.local
 .DS_Store
 Thumbs.db
-.vscode/
-.idea/
-
-# Python bytecode
-__pycache__/
-*.pyc
-*.pyo
-
-# Runtime data files (not part of source)
-backend/data/user_memory.json
-

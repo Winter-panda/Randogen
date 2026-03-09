@@ -32,5 +32,5 @@
 
 ## Stabilite
 - [ ] Pas d'erreur console bloquante sur parcours nominal.
-- [ ] Build frontend OK (`npx tsc -b`).
+- [ ] Build frontend OK (`npm run typecheck:web`).
 - [ ] Health backend OK (`GET /health`).

@@ -1,0 +1,25 @@
+{
+  "name": "randogen-portable",
+  "private": true,
+  "version": "0.1.0-portable",
+  "engines": {
+    "node": ">=20 <24"
+  },
+  "workspaces": [
+    "apps/*",
+    "packages/*"
+  ],
+  "scripts": {
+    "dev:web": "npm run dev --workspace apps/web -- --host 127.0.0.1 --port 5173",
+    "typecheck:web": "npm run typecheck --workspace apps/web",
+    "build:web": "npm run build --workspace apps/web",
+    "preview:web": "npm run preview --workspace apps/web",
+    "mobile:sync": "npm run build:web && npm run sync --workspace apps/mobile",
+    "mobile:android": "npm run open:android --workspace apps/mobile",
+    "mobile:ios": "npm run open:ios --workspace apps/mobile",
+    "desktop:info": "npm run info --workspace apps/desktop",
+    "desktop:dev": "npm run dev --workspace apps/desktop",
+    "desktop:build": "npm run build --workspace apps/desktop",
+    "check": "npm run typecheck:web && npm run build:web"
+  }
+}

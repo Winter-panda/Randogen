@@ -78,15 +78,17 @@ Le projet est organisé en plusieurs modules.
 
     Randogen
     │
-    ├── frontend
+    ├── apps/web
+    ├── apps/mobile
+    ├── apps/desktop
     ├── backend
-    ├── routing-engine
-    ├── data
+    ├── packages/shared-types
+    ├── packages/shared-ui
+    ├── packages/engine-sdk
     ├── docs
-    ├── scripts
-    └── infra
+    └── scripts
 
-### Frontend
+### Frontend (apps/web)
 
 Application utilisateur.
 
@@ -109,16 +111,15 @@ Responsabilités :
 -   appliquer les règles métier
 -   retourner les parcours générés
 
-### Routing Engine
+### Engine SDK (packages/engine-sdk)
 
-Cœur algorithmique du projet.
+Contrat unique `RouteEngine` pour mutualiser l'accès moteur entre web/mobile/desktop.
 
 Responsabilités :
 
--   génération des parcours
--   calcul des boucles
--   scoring des itinéraires
--   filtrage des parcours incohérents
+-   interface unifiée (`generateRoutes`, `fetchNearbyPois`, `getWeather`, `exportGpx`)
+-   implémentation `RemoteEngine` (API FastAPI)
+-   implémentation `LocalEngine` (fallback/cache progressif)
 
 ### Data
 
@@ -196,12 +197,16 @@ Fonctionnalités avancées :
     │   ├── roadmap.md
     │   ├── architecture.md
     │
-    ├── frontend
+    ├── apps
+    │   ├── web
+    │   ├── mobile
+    │   └── desktop
     ├── backend
-    ├── routing-engine
-    ├── data
+    ├── packages
+    │   ├── shared-types
+    │   ├── shared-ui
+    │   └── engine-sdk
     ├── scripts
-    ├── infra
     │
     ├── README.md
     ├── LICENSE
@@ -211,23 +216,46 @@ Fonctionnalités avancées :
 
 Instructions d'installation en cours de rédaction.
 
+## Portable App (branche `portable-app`)
+
+- Plan 30 jours: `docs/portable-app/roadmap-30j.md`
+- Bootstrap technique: `docs/portable-app/bootstrap.md`
+
 ## Démarrage local (Windows)
 
 Backend :
 
 ```powershell
-cd D:\Github\Randogen\backend
+cd D:\Github\Randogen-portable\backend
 $env:DEBUG = "false"
-$env:UV_CACHE_DIR = "D:\Github\Randogen\backend\.uv-cache"
+$env:UV_CACHE_DIR = "D:\Github\Randogen-portable\backend\.uv-cache"
 .\.venv\Scripts\python.exe -m uvicorn src.main.app:app --host 127.0.0.1 --port 8010
 ```
 
-Frontend :
+Frontend web :
 
 ```powershell
-cd D:\Github\Randogen\frontend
-$env:npm_config_cache = "D:\Github\Randogen\.npm-cache"
-npm run dev -- --host 127.0.0.1 --port 5173
+cd D:\Github\Randogen-portable
+$env:npm_config_cache = "D:\Github\Randogen-portable\.npm-cache"
+# optionnel si backend sur un autre port
+# $env:VITE_API_URL = "http://127.0.0.1:8010/api"
+npm install
+npm run dev:web
+```
+
+Mobile (Capacitor) :
+
+```powershell
+cd D:\Github\Randogen-portable
+npm run mobile:sync
+npm run mobile:android
+```
+
+Desktop (Tauri) :
+
+```powershell
+cd D:\Github\Randogen-portable
+npm run desktop:dev
 ```
 
 ## Dépannage Windows

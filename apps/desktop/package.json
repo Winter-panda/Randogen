@@ -1,0 +1,14 @@
+{
+  "name": "@randogen/desktop",
+  "private": true,
+  "version": "0.1.0",
+  "type": "module",
+  "scripts": {
+    "dev": "npx tauri dev --config src-tauri/tauri.conf.json",
+    "build": "npx tauri build --config src-tauri/tauri.conf.json",
+    "info": "npx tauri info"
+  },
+  "devDependencies": {
+    "@tauri-apps/cli": "^2.0.0"
+  }
+}

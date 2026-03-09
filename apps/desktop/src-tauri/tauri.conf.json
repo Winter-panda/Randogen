@@ -1,0 +1,36 @@
+{
+  "$schema": "https://schema.tauri.app/config/2",
+  "productName": "Randogen",
+  "version": "0.1.0",
+  "identifier": "com.randogen.app",
+  "build": {
+    "beforeDevCommand": "npm run dev -w @randogen/web -- --host 127.0.0.1 --port 5173",
+    "beforeBuildCommand": "npm run build -w @randogen/web",
+    "devUrl": "http://127.0.0.1:5173",
+    "frontendDist": "../../web/dist"
+  },
+  "app": {
+    "windows": [
+      {
+        "title": "Randogen",
+        "width": 1280,
+        "height": 820
+      }
+    ],
+    "security": {
+      "csp": null
+    }
+  },
+  "bundle": {
+    "active": true,
+    "targets": [
+      "nsis",
+      "dmg",
+      "appimage"
+    ],
+    "icon": [
+      "../../web/public/icon-192.png",
+      "../../web/public/icon-512.png"
+    ]
+  }
+}

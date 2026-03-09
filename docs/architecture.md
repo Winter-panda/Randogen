@@ -1,6 +1,6 @@
 # Architecture (MVP v1)
 
-## Frontend (`frontend/`)
+## Frontend (`apps/web/`)
 - React + TypeScript + Leaflet.
 - Responsabilites:
   - collecte des preferences utilisateur,

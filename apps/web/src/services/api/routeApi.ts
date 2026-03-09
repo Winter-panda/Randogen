@@ -10,7 +10,7 @@ import type {
   WeatherData
 } from "../../types/route";
 
-const API_BASE_URL = import.meta.env.VITE_API_URL ?? "http://127.0.0.1:8000/api";
+const API_BASE_URL = import.meta.env.VITE_API_URL ?? "http://127.0.0.1:8010/api";
 const USER_ID_STORAGE_KEY = "randogen_user_id_v1";
 const ALLOWED_POI_CATEGORIES: ReadonlyArray<PointOfInterest["category"]> = [
   "viewpoint",
