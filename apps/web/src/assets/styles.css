@@ -1626,3 +1626,19 @@ button:hover:not(:disabled) {
     min-width: 0;
   }
 }
+
+@media (pointer: coarse) {
+  button {
+    transition: none;
+  }
+
+  .route-item-animated {
+    opacity: 1;
+    transform: none;
+    animation: none;
+  }
+
+  .sf-advanced-panel {
+    animation: none;
+  }
+}

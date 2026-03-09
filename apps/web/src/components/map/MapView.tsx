@@ -98,6 +98,14 @@ const POI_MAX_VISIBLE_BY_CATEGORY: Record<PoiCategory, number> = {
 };
 
 const POI_MAX_VISIBLE_TOTAL = 220;
+const POI_MAX_VISIBLE_TOTAL_MOBILE = 90;
+
+function isMobileRuntime(): boolean {
+  if (typeof navigator === "undefined") {
+    return false;
+  }
+  return /Android|iPhone|iPad|iPod|Mobile/i.test(navigator.userAgent);
+}
 
 function sortPoiEntries(entries: DisplayedPoi[]): DisplayedPoi[] {
   return [...entries].sort((a, b) => {
@@ -157,12 +165,14 @@ function spreadOverlappingPois(entries: DisplayedPoi[]): DisplayedPoi[] {
   return spread;
 }
 
-function selectVisiblePois(entries: DisplayedPoi[], poiFilter: PoiFilter): DisplayedPoi[] {
+function selectVisiblePois(
+  entries: DisplayedPoi[],
+  poiFilter: PoiFilter,
+  maxTotal: number
+): DisplayedPoi[] {
   if (entries.length <= 1) {
     return entries;
   }
-
-  const maxTotal = POI_MAX_VISIBLE_TOTAL;
 
   if (poiFilter !== "all") {
     const sorted = sortPoiEntries(entries);
@@ -297,6 +307,7 @@ function MapViewportController({
 }) {
   const map = useMap();
   const lastFocusedRouteIdRef = useRef<string | null>(null);
+  const lastGlobalViewportKeyRef = useRef<string>("");
 
   useEffect(() => {
     if (!selectedRouteId || selectedRoutePoints.length < 2) {
@@ -341,6 +352,22 @@ function MapViewportController({
     }
 
     if (boundsPoints.length > 1) {
+      let minLat = Number.POSITIVE_INFINITY;
+      let maxLat = Number.NEGATIVE_INFINITY;
+      let minLon = Number.POSITIVE_INFINITY;
+      let maxLon = Number.NEGATIVE_INFINITY;
+      for (const [lat, lon] of boundsPoints) {
+        if (lat < minLat) minLat = lat;
+        if (lat > maxLat) maxLat = lat;
+        if (lon < minLon) minLon = lon;
+        if (lon > maxLon) maxLon = lon;
+      }
+      const viewportKey = `${boundsPoints.length}:${minLat.toFixed(4)}:${maxLat.toFixed(4)}:${minLon.toFixed(4)}:${maxLon.toFixed(4)}:${selectedRouteId ?? "none"}`;
+      if (lastGlobalViewportKeyRef.current === viewportKey) {
+        return;
+      }
+      lastGlobalViewportKeyRef.current = viewportKey;
+
       const bounds: LatLngBoundsExpression = boundsPoints;
       map.fitBounds(bounds, { padding: [35, 35] });
       return;
@@ -363,9 +390,11 @@ export default function MapView({
   onSelectRoute,
   onHoverRoute,
 }: MapViewProps) {
-  const [activeLayer, setActiveLayer] = useState<MapLayer>("topo");
+  const [activeLayer, setActiveLayer] = useState<MapLayer>(() => (isMobileRuntime() ? "standard" : "topo"));
   const [showPois, setShowPois] = useState<boolean>(true);
   const [poiFilter, setPoiFilter] = useState<PoiFilter>("all");
+  const mobileMode = isMobileRuntime();
+  const maxVisiblePoiTotal = mobileMode ? POI_MAX_VISIBLE_TOTAL_MOBILE : POI_MAX_VISIBLE_TOTAL;
   const center: LatLngExpression = position
     ? [position.latitude, position.longitude]
     : defaultCenter;
@@ -420,8 +449,8 @@ export default function MapView({
     [mergedPoiEntries, poiFilter]
   );
   const displayedPois = useMemo(
-    () => selectVisiblePois(filteredPoiEntries, poiFilter),
-    [filteredPoiEntries, poiFilter]
+    () => selectVisiblePois(filteredPoiEntries, poiFilter, maxVisiblePoiTotal),
+    [filteredPoiEntries, poiFilter, maxVisiblePoiTotal]
   );
   const visibleRoutePois = useMemo(
     () => selectedRoutePois.filter((poi) => poiFilter === "all" || poi.category === poiFilter),
@@ -512,7 +541,16 @@ export default function MapView({
       </div>
 
       <div className="map-wrapper">
-        <MapContainer center={center} zoom={13} scrollWheelZoom={true} className="map-container">
+        <MapContainer
+          center={center}
+          zoom={13}
+          scrollWheelZoom={true}
+          className="map-container"
+          preferCanvas={mobileMode}
+          zoomAnimation={!mobileMode}
+          fadeAnimation={!mobileMode}
+          markerZoomAnimation={!mobileMode}
+        >
           <TileLayer
             key={activeLayer}
             attribution={layer.attribution}

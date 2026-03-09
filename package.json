@@ -10,6 +10,7 @@
     "packages/*"
   ],
   "scripts": {
+    "backend:dev": "powershell -ExecutionPolicy Bypass -File .\\scripts\\dev\\start-backend.ps1",
     "dev:web": "npm run dev --workspace apps/web -- --host 127.0.0.1 --port 5173",
     "typecheck:web": "npm run typecheck --workspace apps/web",
     "build:web": "npm run build --workspace apps/web",
@@ -17,6 +18,8 @@
     "mobile:sync": "npm run build:web && npm run sync --workspace apps/mobile",
     "mobile:android": "npm run open:android --workspace apps/mobile",
     "mobile:ios": "npm run open:ios --workspace apps/mobile",
+    "mobile:run-android": "powershell -ExecutionPolicy Bypass -File .\\scripts\\dev\\run-android.ps1",
+    "mobile:run-ios": "npm run run:ios --workspace apps/mobile",
     "desktop:info": "npm run info --workspace apps/desktop",
     "desktop:dev": "npm run dev --workspace apps/desktop",
     "desktop:build": "npm run build --workspace apps/desktop",

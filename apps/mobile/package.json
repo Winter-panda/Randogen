@@ -12,7 +12,8 @@
     "run:ios": "npx cap run ios"
   },
   "dependencies": {
-    "@capacitor/core": "^7.0.0"
+    "@capacitor/core": "^7.0.0",
+    "@capacitor/geolocation": "^7.1.2"
   },
   "devDependencies": {
     "@capacitor/android": "^7.0.0",

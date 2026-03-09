@@ -226,10 +226,8 @@ Instructions d'installation en cours de rédaction.
 Backend :
 
 ```powershell
-cd D:\Github\Randogen-portable\backend
-$env:DEBUG = "false"
-$env:UV_CACHE_DIR = "D:\Github\Randogen-portable\backend\.uv-cache"
-.\.venv\Scripts\python.exe -m uvicorn src.main.app:app --host 127.0.0.1 --port 8010
+cd D:\Github\Randogen-portable
+npm run backend:dev
 ```
 
 Frontend web :
