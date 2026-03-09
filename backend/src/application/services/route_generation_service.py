@@ -1101,6 +1101,8 @@ class RouteGenerationService:
             status = "fallback"
             technical_issue = True
             warnings.append("Service de routage externe indisponible: fallback local utilise.")
+            if settings.enable_real_routing and not self._ors_client.is_configured():
+                warnings.append("ORS_API_KEY manquante: configure backend/.env pour retrouver de vrais parcours.")
 
         if generated_count == 0:
             status = "error"

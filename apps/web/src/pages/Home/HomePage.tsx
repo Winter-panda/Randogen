@@ -135,6 +135,13 @@ function buildExactRouteGeoJsonUrl(route: RouteCandidate): string {
   return `https://geojson.io/#data=data:application/json,${encodeURIComponent(JSON.stringify(geoJson))}`;
 }
 
+function isMobileRuntime(): boolean {
+  if (typeof navigator === "undefined") {
+    return false;
+  }
+  return /Android|iPhone|iPad|iPod|Mobile/i.test(navigator.userAgent);
+}
+
 export default function HomePage() {
   const [distanceKm, setDistanceKm] = useState<number>(5);
   const [routeCount, setRouteCount] = useState<number>(3);
@@ -171,13 +178,26 @@ export default function HomePage() {
   const [secondaryTab, setSecondaryTab] = useState<"history" | "favorites">("history");
   const [preferenceProfile, setPreferenceProfile] = useState<PreferenceProfile | null>(null);
   const [weather, setWeather] = useState<WeatherData | null>(null);
+  const mobileRuntime = useMemo(() => isMobileRuntime(), []);
+  const positionRoundingPrecision = mobileRuntime ? 2 : 3;
+  const nearbyRefreshIntervalMs = mobileRuntime ? 75_000 : 45_000;
+  const weatherRefreshIntervalMs = mobileRuntime ? 120_000 : 90_000;
   const nearbyFetchRef = useRef<{ at: number; latKey: number; lonKey: number } | null>(null);
+  const weatherFetchRef = useRef<{ at: number; latKey: number; lonKey: number } | null>(null);
   const positionLatKey = useMemo(
-    () => (position ? Number(position.latitude.toFixed(3)) : null),
-    [position]
+    () => (position ? Number(position.latitude.toFixed(positionRoundingPrecision)) : null),
+    [position, positionRoundingPrecision]
   );
   const positionLonKey = useMemo(
-    () => (position ? Number(position.longitude.toFixed(3)) : null),
+    () => (position ? Number(position.longitude.toFixed(positionRoundingPrecision)) : null),
+    [position, positionRoundingPrecision]
+  );
+  const weatherLatKey = useMemo(
+    () => (position ? Number(position.latitude.toFixed(2)) : null),
+    [position]
+  );
+  const weatherLonKey = useMemo(
+    () => (position ? Number(position.longitude.toFixed(2)) : null),
     [position]
   );
 
@@ -258,11 +278,26 @@ export default function HomePage() {
   }, [selectedRouteId, trackingEnabled]);
 
   useEffect(() => {
-    if (!position) return;
+    if (!position || weatherLatKey === null || weatherLonKey === null) return;
+    const previousFetch = weatherFetchRef.current;
+    if (
+      previousFetch &&
+      previousFetch.latKey === weatherLatKey &&
+      previousFetch.lonKey === weatherLonKey &&
+      Date.now() - previousFetch.at < weatherRefreshIntervalMs
+    ) {
+      return;
+    }
+
+    weatherFetchRef.current = {
+      at: Date.now(),
+      latKey: weatherLatKey,
+      lonKey: weatherLonKey,
+    };
     fetchWeather(position.latitude, position.longitude)
       .then(setWeather)
       .catch(() => undefined);
-  }, [position]);
+  }, [position, weatherLatKey, weatherLonKey, weatherRefreshIntervalMs]);
 
   useEffect(() => {
     if (loading) {
@@ -277,7 +312,7 @@ export default function HomePage() {
       previousFetch &&
       previousFetch.latKey === positionLatKey &&
       previousFetch.lonKey === positionLonKey &&
-      Date.now() - previousFetch.at < 45_000
+      Date.now() - previousFetch.at < nearbyRefreshIntervalMs
     ) {
       return;
     }
@@ -289,8 +324,8 @@ export default function HomePage() {
       lonKey: positionLonKey,
     };
     fetchNearbyPois(position.latitude, position.longitude, {
-      radiusKm: 5,
-      limit: 300,
+      radiusKm: mobileRuntime ? 3 : 5,
+      limit: mobileRuntime ? 120 : 220,
     })
       .then((items) => {
         if (!active) return;
@@ -309,7 +344,7 @@ export default function HomePage() {
     return () => {
       active = false;
     };
-  }, [loading, positionLatKey, positionLonKey, position]);
+  }, [loading, positionLatKey, positionLonKey, position, nearbyRefreshIntervalMs, mobileRuntime]);
 
   const handleLocate = async () => {
     setLoading(true);

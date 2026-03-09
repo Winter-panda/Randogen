@@ -10,7 +10,30 @@ import type {
   WeatherData
 } from "../../types/route";
 
-const API_BASE_URL = import.meta.env.VITE_API_URL ?? "http://127.0.0.1:8010/api";
+function isNativeAndroidRuntime(): boolean {
+  const maybeCapacitor = (globalThis as { Capacitor?: { isNativePlatform?: () => boolean } }).Capacitor;
+  if (!maybeCapacitor?.isNativePlatform?.()) {
+    return false;
+  }
+  if (typeof navigator === "undefined") {
+    return false;
+  }
+  return /Android/i.test(navigator.userAgent);
+}
+
+function resolveApiBaseUrl(): string {
+  const fromEnv = import.meta.env.VITE_API_URL;
+  if (fromEnv && fromEnv.trim().length > 0) {
+    return fromEnv;
+  }
+  // Android emulator maps host loopback to 10.0.2.2, not 127.0.0.1.
+  if (isNativeAndroidRuntime()) {
+    return "http://10.0.2.2:8010/api";
+  }
+  return "http://127.0.0.1:8010/api";
+}
+
+const API_BASE_URL = resolveApiBaseUrl();
 const USER_ID_STORAGE_KEY = "randogen_user_id_v1";
 const ALLOWED_POI_CATEGORIES: ReadonlyArray<PointOfInterest["category"]> = [
   "viewpoint",

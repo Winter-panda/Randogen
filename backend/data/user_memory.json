@@ -3525,6 +3525,394 @@
           "last_event": "generated"
         }
       ]
+    },
+    "u-mmjft0h1-yj64ko": {
+      "history": [
+        {
+          "timestamp": "2026-03-09T18:16:42.860309+00:00",
+          "query": {
+            "latitude": 48.3654395,
+            "longitude": -1.1829605,
+            "target_distance_km": 5.0,
+            "route_count": 3,
+            "ambiance": null,
+            "terrain": null,
+            "effort": null,
+            "biome_preference": null,
+            "desired_poi_categories": []
+          },
+          "result_route_ids": [
+            "rte-ff0f807a63f6",
+            "rte-3ae14f8ce059",
+            "rte-f46f7e3cc540"
+          ]
+        },
+        {
+          "timestamp": "2026-03-09T18:06:14.631225+00:00",
+          "query": {
+            "latitude": 48.365151,
+            "longitude": -1.1829285,
+            "target_distance_km": 5.0,
+            "route_count": 3,
+            "ambiance": null,
+            "terrain": null,
+            "effort": null,
+            "biome_preference": null,
+            "desired_poi_categories": []
+          },
+          "result_route_ids": [
+            "rte-2ee815197aae",
+            "rte-56ee4db06e97",
+            "rte-670be83bbb08"
+          ]
+        },
+        {
+          "timestamp": "2026-03-09T18:02:03.464190+00:00",
+          "query": {
+            "latitude": 48.3648625,
+            "longitude": -1.1828965,
+            "target_distance_km": 5.0,
+            "route_count": 3,
+            "ambiance": null,
+            "terrain": null,
+            "effort": null,
+            "biome_preference": null,
+            "desired_poi_categories": []
+          },
+          "result_route_ids": [
+            "rte-0ab674b91aeb",
+            "rte-63efe6306598",
+            "rte-01f7bbaafe06"
+          ]
+        }
+      ],
+      "favorites": {},
+      "seen_routes": [
+        {
+          "stable_route_id": "rte-f46f7e3cc540",
+          "name": "Parcours 3",
+          "distance_km": 3.69,
+          "estimated_duration_min": 60,
+          "estimated_elevation_gain_m": 58,
+          "difficulty": "facile",
+          "score": 0.59,
+          "tags": [
+            "Sentiers dominants",
+            "Tres nature",
+            "Ideal randonnee",
+            "Terrain plat",
+            "Ideal : nature",
+            "Passage en bord d'eau"
+          ],
+          "highlighted_poi_labels": [
+            "Lac / riviere",
+            "\u00c9tang des Cotter\u00eats",
+            "Etang"
+          ],
+          "centroid_lat": 48.368021,
+          "centroid_lon": -1.179725,
+          "last_seen_at": "2026-03-09T18:16:42.860406+00:00",
+          "last_event": "generated"
+        },
+        {
+          "stable_route_id": "rte-3ae14f8ce059",
+          "name": "Parcours 2",
+          "distance_km": 6.59,
+          "estimated_duration_min": 113,
+          "estimated_elevation_gain_m": 143,
+          "difficulty": "moderee",
+          "score": 0.61,
+          "tags": [
+            "Sentiers dominants",
+            "Tres peu de routes",
+            "Tres nature",
+            "Ideal randonnee",
+            "Terrain plat",
+            "Ideal : sentiers"
+          ],
+          "highlighted_poi_labels": [
+            "\u00c9tang des Cotter\u00eats",
+            "Lac / riviere",
+            "Etang"
+          ],
+          "centroid_lat": 48.364166,
+          "centroid_lon": -1.176072,
+          "last_seen_at": "2026-03-09T18:16:42.860376+00:00",
+          "last_event": "generated"
+        },
+        {
+          "stable_route_id": "rte-ff0f807a63f6",
+          "name": "Parcours 1",
+          "distance_km": 5.8,
+          "estimated_duration_min": 101,
+          "estimated_elevation_gain_m": 139,
+          "difficulty": "moderee",
+          "score": 0.69,
+          "tags": [
+            "Sentiers dominants",
+            "Tres peu de routes",
+            "Tres nature",
+            "Ideal randonnee",
+            "Terrain plat",
+            "Ideal : sentiers"
+          ],
+          "highlighted_poi_labels": [
+            "Lac / riviere",
+            "\u00c9tang des Cotter\u00eats",
+            "Etang"
+          ],
+          "centroid_lat": 48.366073,
+          "centroid_lon": -1.177637,
+          "last_seen_at": "2026-03-09T18:16:42.873478+00:00",
+          "last_event": "viewed"
+        },
+        {
+          "stable_route_id": "rte-670be83bbb08",
+          "name": "Parcours 1",
+          "distance_km": 4.75,
+          "estimated_duration_min": 69,
+          "estimated_elevation_gain_m": 30,
+          "difficulty": "facile",
+          "score": 0.57,
+          "tags": [
+            "Passage routier",
+            "Tres proche",
+            "Terrain plat",
+            "Ideal : promenade",
+            "Passage en bord d'eau",
+            "Depart pratique"
+          ],
+          "highlighted_poi_labels": [
+            "Lac / riviere",
+            "\u00c9tang des Cotter\u00eats",
+            "Etang"
+          ],
+          "centroid_lat": 48.367151,
+          "centroid_lon": -1.180929,
+          "last_seen_at": "2026-03-09T18:06:14.631267+00:00",
+          "last_event": "generated"
+        },
+        {
+          "stable_route_id": "rte-56ee4db06e97",
+          "name": "Parcours 2",
+          "distance_km": 4.9,
+          "estimated_duration_min": 73,
+          "estimated_elevation_gain_m": 55,
+          "difficulty": "facile",
+          "score": 0.64,
+          "tags": [
+            "Passage routier",
+            "Tres proche",
+            "Terrain plat",
+            "Ideal : promenade",
+            "Passage en bord d'eau",
+            "Depart pratique"
+          ],
+          "highlighted_poi_labels": [
+            "Lac / riviere",
+            "\u00c9tang des Cotter\u00eats",
+            "Etang"
+          ],
+          "centroid_lat": 48.369151,
+          "centroid_lon": -1.178929,
+          "last_seen_at": "2026-03-09T18:06:14.631257+00:00",
+          "last_event": "generated"
+        },
+        {
+          "stable_route_id": "rte-2ee815197aae",
+          "name": "Parcours 3",
+          "distance_km": 5.05,
+          "estimated_duration_min": 78,
+          "estimated_elevation_gain_m": 80,
+          "difficulty": "facile",
+          "score": 0.72,
+          "tags": [
+            "Passage routier",
+            "Tres proche",
+            "Terrain plat",
+            "Ideal : promenade",
+            "Passage en bord d'eau",
+            "Depart pratique"
+          ],
+          "highlighted_poi_labels": [
+            "Lac / riviere",
+            "\u00c9tang des Cotter\u00eats",
+            "Etang"
+          ],
+          "centroid_lat": 48.371151,
+          "centroid_lon": -1.176929,
+          "last_seen_at": "2026-03-09T18:06:14.644166+00:00",
+          "last_event": "viewed"
+        },
+        {
+          "stable_route_id": "rte-01f7bbaafe06",
+          "name": "Parcours 1",
+          "distance_km": 4.75,
+          "estimated_duration_min": 69,
+          "estimated_elevation_gain_m": 30,
+          "difficulty": "facile",
+          "score": 0.63,
+          "tags": [
+            "Passage routier",
+            "Tres proche",
+            "Terrain plat",
+            "Ideal : promenade",
+            "Passage en bord d'eau",
+            "Depart pratique"
+          ],
+          "highlighted_poi_labels": [
+            "\u00c9tang des Cotter\u00eats",
+            "Lac / riviere",
+            "Etang"
+          ],
+          "centroid_lat": 48.366863,
+          "centroid_lon": -1.180897,
+          "last_seen_at": "2026-03-09T18:05:08.485893+00:00",
+          "last_event": "viewed"
+        },
+        {
+          "stable_route_id": "rte-63efe6306598",
+          "name": "Parcours 2",
+          "distance_km": 4.9,
+          "estimated_duration_min": 73,
+          "estimated_elevation_gain_m": 55,
+          "difficulty": "facile",
+          "score": 0.7,
+          "tags": [
+            "Passage routier",
+            "Tres proche",
+            "Terrain plat",
+            "Ideal : promenade",
+            "Passage en bord d'eau",
+            "Depart pratique"
+          ],
+          "highlighted_poi_labels": [
+            "Lac / riviere",
+            "\u00c9tang des Cotter\u00eats",
+            "Etang"
+          ],
+          "centroid_lat": 48.368862,
+          "centroid_lon": -1.178897,
+          "last_seen_at": "2026-03-09T18:02:11.650378+00:00",
+          "last_event": "viewed"
+        },
+        {
+          "stable_route_id": "rte-0ab674b91aeb",
+          "name": "Parcours 3",
+          "distance_km": 5.05,
+          "estimated_duration_min": 78,
+          "estimated_elevation_gain_m": 80,
+          "difficulty": "facile",
+          "score": 0.78,
+          "tags": [
+            "Passage routier",
+            "Tres proche",
+            "Terrain plat",
+            "Ideal : promenade",
+            "Passage en bord d'eau",
+            "Depart pratique"
+          ],
+          "highlighted_poi_labels": [
+            "Lac / riviere",
+            "\u00c9tang des Cotter\u00eats",
+            "Etang"
+          ],
+          "centroid_lat": 48.370863,
+          "centroid_lon": -1.176897,
+          "last_seen_at": "2026-03-09T18:02:03.473009+00:00",
+          "last_event": "viewed"
+        }
+      ]
+    },
+    "debug": {
+      "history": [
+        {
+          "timestamp": "2026-03-09T18:08:59.637832+00:00",
+          "query": {
+            "latitude": 48.8566,
+            "longitude": 2.3522,
+            "target_distance_km": 5.0,
+            "route_count": 1,
+            "ambiance": null,
+            "terrain": null,
+            "effort": null,
+            "biome_preference": null,
+            "desired_poi_categories": []
+          },
+          "result_route_ids": [
+            "rte-9b621be47978"
+          ]
+        }
+      ],
+      "favorites": {},
+      "seen_routes": [
+        {
+          "stable_route_id": "rte-9b621be47978",
+          "name": "Parcours 1",
+          "distance_km": 4.75,
+          "estimated_duration_min": 69,
+          "estimated_elevation_gain_m": 30,
+          "difficulty": "facile",
+          "score": 0.58,
+          "tags": [
+            "Passage routier",
+            "Tres proche",
+            "Terrain plat",
+            "Ideal : promenade"
+          ],
+          "highlighted_poi_labels": [],
+          "centroid_lat": 48.8586,
+          "centroid_lon": 2.3542,
+          "last_seen_at": "2026-03-09T18:08:59.637842+00:00",
+          "last_event": "generated"
+        }
+      ]
+    },
+    "u-next": {
+      "history": [
+        {
+          "timestamp": "2026-03-09T18:16:53.343444+00:00",
+          "query": {
+            "latitude": 48.8566,
+            "longitude": 2.3522,
+            "target_distance_km": 5.0,
+            "route_count": 1,
+            "ambiance": null,
+            "terrain": null,
+            "effort": null,
+            "biome_preference": null,
+            "desired_poi_categories": []
+          },
+          "result_route_ids": [
+            "rte-c4d354fc8f6a"
+          ]
+        }
+      ],
+      "favorites": {},
+      "seen_routes": [
+        {
+          "stable_route_id": "rte-c4d354fc8f6a",
+          "name": "Parcours 1",
+          "distance_km": 3.67,
+          "estimated_duration_min": 61,
+          "estimated_elevation_gain_m": 58,
+          "difficulty": "facile",
+          "score": 0.66,
+          "tags": [
+            "Sentiers dominants",
+            "Tres peu de routes",
+            "Tres nature",
+            "Ideal randonnee",
+            "Terrain plat",
+            "Ideal : sentiers"
+          ],
+          "highlighted_poi_labels": [],
+          "centroid_lat": 48.861416,
+          "centroid_lon": 2.360164,
+          "last_seen_at": "2026-03-09T18:16:53.343458+00:00",
+          "last_event": "generated"
+        }
+      ]
     }
   }
 }
