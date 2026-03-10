@@ -4,12 +4,23 @@ dist/
 build/
 .env
 .env.local
+.npm-cache/
+.uv-cache/
 *.log
 *.tmp
 .DS_Store
 Thumbs.db
 .vscode/
 .idea/
+*.tsbuildinfo
+
+# Project local env/runtime
+backend/.env
+backend/.venv/
+backend/.uv-cache/
+frontend/.env.local
+backend/*.log
+frontend/*.log
 
 # Python bytecode
 __pycache__/
@@ -18,4 +29,3 @@ __pycache__/
 
 # Runtime data files (not part of source)
 backend/data/user_memory.json
-
